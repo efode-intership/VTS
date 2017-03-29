@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th3 28, 2017 lúc 06:04 CH
+-- Thời gian đã tạo: Th3 29, 2017 lúc 06:18 SA
 -- Phiên bản máy phục vụ: 10.1.21-MariaDB
 -- Phiên bản PHP: 7.1.1
 
@@ -44,10 +44,10 @@ CREATE TABLE `drivers` (
 --
 
 INSERT INTO `drivers` (`driver_id`, `user_name`, `password`, `email`, `full_name`, `phone`, `birthday`, `sex`, `address`, `driver_status_type_id`) VALUES
-(1, 'demo1', '123456', 'demo1@gmail.com', 'demo1', '0123456789', '2017-03-15', 'male', 'Lâm ??ng', 2),
+(1, 'demo1', '123456', 'demo1@gmail.com', 'demo1', '0123456789', '2017-03-15', 'male', 'LAM DONG', 2),
 (2, 'demo2', '0142538', 'demo2@gmail.com', 'demo2', '0969696969', '1995-11-20', 'fema', 'BINH THUAN', 2),
 (3, 'demo3', '0146734', 'demo3@gmail.com', 'demo3', '0121212121', '1990-10-20', 'male', 'GIA LAI', 2),
-(4, 'demo4', '003847', 'demo4@gmail.com', 'demo4', '0969634465', '1993-01-22', 'male', 'HCM', 2),
+(4, 'demo4', '003847', 'demo4@gmail.com', 'demo4', '0969634465', '1993-01-22', 'male', 'TPHCM', 2),
 (5, 'demo5', '0009876', 'demo5@gmail.com', 'demo5', '01345674334', '1991-05-10', 'male', 'HA NOI', 1);
 
 -- --------------------------------------------------------
@@ -255,20 +255,21 @@ CREATE TABLE `warning` (
   `driver_id` int(11) DEFAULT NULL,
   `location_lat` double DEFAULT NULL,
   `location_long` double DEFAULT NULL,
-  `type` varchar(255) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `warning_type_id` int(11) DEFAULT NULL
+  `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `warning_type_id` int(11) DEFAULT NULL,
+  `start_time` datetime DEFAULT NULL,
+  `end_time` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Đang đổ dữ liệu cho bảng `warning`
 --
 
-INSERT INTO `warning` (`warning_id`, `driver_id`, `location_lat`, `location_long`, `type`, `description`, `warning_type_id`) VALUES
-(1, 1, 13.123456, 108.245666, 'HONG DUONG', 'DUONG DANG THI CONG', NULL),
-(2, 3, 17.094653, 104.346578, 'HONG XE', 'NO BANH XE', NULL),
-(3, 2, 19.093451, 104.346578, 'KET XE', NULL, NULL),
-(4, 5, 11.542356, 106.335563, 'CSGT', 'CSGT, HA TOC DO', NULL);
+INSERT INTO `warning` (`warning_id`, `driver_id`, `location_lat`, `location_long`, `description`, `warning_type_id`, `start_time`, `end_time`) VALUES
+(1, 1, 13.123456, 108.245666, 'DUONG DANG THI CONG', NULL, '2017-03-19 11:22:16', '2017-03-19 11:30:20'),
+(2, 3, 17.094653, 104.346578, 'NO BANH XE', NULL, '2017-03-19 14:30:00', '2017-03-19 14:43:34'),
+(3, 2, 19.093451, 104.346578, NULL, NULL, '2017-03-20 09:20:33', '2017-03-20 10:00:00'),
+(4, 5, 11.542356, 106.335563, 'CSGT, HA TOC DO', NULL, '2017-03-21 07:34:27', '2017-03-21 08:00:00');
 
 -- --------------------------------------------------------
 
@@ -282,6 +283,16 @@ CREATE TABLE `warning_type` (
   `description` varchar(255) COLLATE utf8mb4_vietnamese_ci DEFAULT NULL,
   `defaut_time` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_vietnamese_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `warning_type`
+--
+
+INSERT INTO `warning_type` (`warning_type_id`, `type`, `description`, `defaut_time`) VALUES
+(1, 'KET XE', NULL, 1800),
+(2, 'HONG DUONG', 'CONG TRUONG DANG THI CONG', 2000),
+(3, 'CSGT', 'BAN TOC DO, CHAY CHAM LAI', 2000),
+(4, 'HONG XE', 'XE HONG, NHO GIUP DO', 2000);
 
 --
 -- Chỉ mục cho các bảng đã đổ
