@@ -21,3 +21,12 @@ Route::get('/home', 'HomeController@index')->middleware('cors');
 
 
 // Route::get('/home' , 'ApiController@index');
+
+// APIs version 1.0
+Route::get('/api/v1/hello/{name?}', function($name = null) {
+  return Response::json(array(
+            'error' => false,
+            'name' => $name == null ? "" : $name,
+            'status_code' => 200
+        ));
+});
