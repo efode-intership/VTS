@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="vn.efode.vts.ProfileActivity">
+
+
+    <ImageView
+        android:id="@+id/imageview_profile_avatar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="40dp"
+        app:srcCompat="@drawable/avatar"
+        android:background="@drawable/border"/>
+
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TableRow android:background="@drawable/border">
+
+            <TextView
+                android:id="@+id/textview_profile_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:text="Họ tên:"
+                android:textSize="18dp" />
+
+            <EditText
+                android:id="@+id/edittext_profile_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:ems="10"
+                android:focusable="false"
+                android:inputType="textPersonName"
+
+                android:padding="10dp"
+                android:text="Nguyễn Văn Tèo" />
+        </TableRow>
+
+        <TableRow
+            android:layout_margin="-1px"
+            android:background="@drawable/border">
+
+            <TextView
+                android:id="@+id/textview_profile_sex"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:text="Giới tính:"
+                android:textSize="18dp" />
+
+            <EditText
+                android:id="@+id/edittext_profile_sex"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:ems="10"
+                android:focusable="false"
+                android:inputType="textPersonName"
+                android:padding="10dp"
+                android:text="Nam" />
+        </TableRow>
+
+        <TableRow android:background="@drawable/border">
+
+            <TextView
+                android:id="@+id/textview_profile_phonenumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:text="Số điện thoại:"
+                android:textSize="18dp" />
+
+            <EditText
+                android:id="@+id/edittext_profile_phonenumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:ems="10"
+                android:focusable="false"
+                android:inputType="textPersonName"
+                android:padding="10dp"
+                android:text="0969169269" />
+        </TableRow>
+
+        <TableRow android:background="@drawable/border">
+
+            <TextView
+                android:id="@+id/textview_profile_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:text="Mật khẩu:"
+                android:textSize="18dp" />
+
+            <EditText
+                android:id="@+id/edittext_profile_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:ems="10"
+                android:focusable="false"
+                android:inputType="textPassword"
+                android:padding="10dp"
+                android:text="123456" />
+
+            <ImageButton
+                android:id="@+id/button_profile_changepass"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="-10dp"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/ic_menu_manage" />
+
+
+        </TableRow>
+
+        <TableRow android:background="@drawable/border">
+
+            <TextView
+                android:id="@+id/textview_profile_birth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:text="Ngày sinh:"
+                android:textSize="18dp" />
+
+            <EditText
+                android:id="@+id/edittext_profile_birth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:ems="10"
+                android:focusable="false"
+                android:inputType="textPersonName"
+                android:padding="10dp"
+                android:text="06/09/1969" />
+
+        </TableRow>
+
+        <TableRow android:background="@drawable/border">
+
+            <TextView
+                android:id="@+id/textview_profile_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:text="Địa chỉ:"
+                android:textSize="18dp" />
+
+            <EditText
+                android:id="@+id/edittext_profile_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:ems="10"
+                android:focusable="false"
+                android:inputType="textPersonName"
+                android:padding="10dp"
+                android:text="Linh Trung - Thủ Đức" />
+
+        </TableRow>
+
+    </TableLayout>
+</LinearLayout>
