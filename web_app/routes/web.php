@@ -1,5 +1,8 @@
-<?php
 
+<?php
+header('Access-Control-Allow-Origin:  *');
+header('Access-Control-Allow-Methods:  POST, GET, OPTIONS, PUT, DELETE');
+header('Access-Control-Allow-Headers:  Content-Type, X-Auth-Token, Origin, Authorization');
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,4 +16,12 @@
 
 Route::get('/', function () {
     return view('welcome');
+})->middleware('auth.basic');
+
+Route::get('hello', function () {
+    return "hihi";
 });
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->middleware('cors');
