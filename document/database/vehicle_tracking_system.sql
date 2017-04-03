@@ -36,12 +36,6 @@ CREATE TABLE `image_journey` (
 -- Đang đổ dữ liệu cho bảng `image_journey`
 --
 
-INSERT INTO `image_journey` (`schedule_id`, `link_image`, `time`) VALUES
-(1, 'http://shopanninh.com/uploads/tin-tuc/2016_03/hinh-anh-quay-tu-camera-giam-sat-hanh-trinh.jpg', '2017-03-19 09:34:00'),
-(1, 'https://sc02.alicdn.com/kf/HTB1jMtQFVXXXXXTXVXXq6xXFXXXu/200665441/HTB1jMtQFVXXXXXTXVXXq6xXFXXXu.jpg', '2017-03-19 14:34:56'),
-(2, 'http://i.dailymail.co.uk/i/pix/2015/01/10/248DCC1300000578-0-image-a-18_1420869445762.jpg', '2017-03-19 17:22:06'),
-(2, 'https://i.ytimg.com/vi/Tqa_i2uWa-k/maxresdefault.jpg', '2017-03-19 18:54:06'),
-(3, 'http://i.dailymail.co.uk/i/pix/2015/01/10/248DCC1300000578-0-image-a-18_1420869445762.jpg', '2017-03-20 14:22:06');
 
 -- --------------------------------------------------------
 
@@ -59,9 +53,6 @@ CREATE TABLE `roles` (
 -- Đang đổ dữ liệu cho bảng `roles`
 --
 
-INSERT INTO `roles` (`role_id`, `name`, `description`) VALUES
-(1, 'TAI XE', 'Tai xe lai xe'),
-(2, 'TRUONG PHONG', '');
 
 -- --------------------------------------------------------
 
@@ -79,8 +70,6 @@ CREATE TABLE `role_user` (
 -- Đang đổ dữ liệu cho bảng `role_user`
 --
 
-INSERT INTO `role_user` (`user_id`, `role_id`, `time`) VALUES
-(1, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -108,13 +97,6 @@ CREATE TABLE `schedule` (
 -- Đang đổ dữ liệu cho bảng `schedule`
 --
 
-INSERT INTO `schedule` (`schedule_id`, `driver_id`, `vehicle_id`, `intend_start_time`, `intend_end_time`, `location_lat_start`, `location_long_start`, `location_lat_end`, `location_long_end`, `real_start_time`, `real_end_time`, `schedule_status_type_id`, `device_id`) VALUES
-(1, 1, 3, '2017-03-19 08:00:00', '2017-03-19 22:00:00', 9.234667, 102.466743, 12.244567, 108.355529, NULL, NULL, 1, '1234'),
-(2, 2, 2, '2017-03-19 13:00:00', '2017-03-20 09:00:00', 10.234668, 101.466745, 14.244357, 107.456532, NULL, NULL, 1, '5678'),
-(3, 3, 1, '2017-03-20 08:00:00', '2017-03-21 06:00:00', 15.663214, 101.345231, 20.325752, 105.681227, NULL, NULL, 2, '4321'),
-(4, 4, 5, '2017-03-22 17:00:00', '2017-03-23 16:00:00', 15.663214, 101.345231, 19.325756, 104.681678, NULL, NULL, 1, '8765'),
-(5, 5, 4, '2017-03-22 10:00:00', '2017-03-23 11:00:00', 19.646843, 106.345577, 22.3267622, 109.689927, NULL, NULL, 3, 'abcd');
-
 -- --------------------------------------------------------
 
 --
@@ -135,12 +117,6 @@ CREATE TABLE `schedule_active` (
 -- Đang đổ dữ liệu cho bảng `schedule_active`
 --
 
-INSERT INTO `schedule_active` (`schedule_id`, `location_lat`, `location_long`, `fuel`, `speed`, `update_time`, `device_id`) VALUES
-(1, 12.454356, 107.983723, 120343, 80, '2017-03-19 09:32:54', '1234'),
-(2, 15.674321, 101.665478, 200343, 82, '2017-03-20 14:02:25', '5678'),
-(3, 17.674321, 102.544212, 245221, 66, '2017-03-20 22:45:23', '4321'),
-(4, 15.674321, 101.665478, 450353, 71, '2017-03-12 19:20:43', '8765'),
-(5, 15.454356, 107.983723, 653421, 81, '2017-03-22 08:12:23', 'abcd');
 
 -- --------------------------------------------------------
 
@@ -157,10 +133,6 @@ CREATE TABLE `schedule_status` (
 -- Đang đổ dữ liệu cho bảng `schedule_status`
 --
 
-INSERT INTO `schedule_status` (`schedule_status_type_id`, `description`) VALUES
-(1, 'DANG CHAY'),
-(2, 'DA HOAN THANH'),
-(3, 'DA HUY');
 
 -- --------------------------------------------------------
 
@@ -178,42 +150,30 @@ CREATE TABLE `token` (
 -- Đang đổ dữ liệu cho bảng `token`
 --
 
-INSERT INTO `token` (`device_id`, `time`, `status`) VALUES
-('1234', '2017-03-26 08:00:00', NULL),
-('4321', '2017-03-26 14:45:10', NULL),
-('5678', '2017-03-26 09:05:23', NULL),
-('8765', '2017-03-27 10:04:03', NULL),
-('abcd', '2017-03-28 15:00:00', NULL);
-
 -- --------------------------------------------------------
 
 --
 -- Cấu trúc bảng cho bảng `user`
 --
 
-CREATE TABLE `user` (
-  `user_id` int(11) NOT NULL,
-  `user_name` varchar(255) NOT NULL,
-  `password` varchar(20) NOT NULL,
-  `email` varchar(25) DEFAULT NULL,
-  `full_name` varchar(25) DEFAULT NULL,
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
   `phone` varchar(11) DEFAULT NULL,
   `birthday` date DEFAULT NULL,
-  `sex` varchar(4) DEFAULT NULL,
+  `sex` varchar(6) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
-  `user_status_type_id` int(11) DEFAULT NULL
+  `user_status_type_id` int(11) DEFAULT NULL,
+  `remember_token` varchar(100) DEFAULT NULL,
+  `created_time` timestamp NULL,
+  `updated_time` timestamp NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Đang đổ dữ liệu cho bảng `user`
 --
-
-INSERT INTO `user` (`user_id`, `user_name`, `password`, `email`, `full_name`, `phone`, `birthday`, `sex`, `address`, `user_status_type_id`) VALUES
-(1, 'demo1', '123456', 'demo1@gmail.com', 'demo1', '0123456789', '2017-03-15', 'male', 'LAM DONG', 2),
-(2, 'demo2', '0142538', 'demo2@gmail.com', 'demo2', '0969696969', '1995-11-20', 'fema', 'BINH THUAN', 2),
-(3, 'demo3', '0146734', 'demo3@gmail.com', 'demo3', '0121212121', '1990-10-20', 'male', 'GIA LAI', 2),
-(4, 'demo4', '003847', 'demo4@gmail.com', 'demo4', '0969634465', '1993-01-22', 'male', 'TPHCM', 2),
-(5, 'demo5', '0009876', 'demo5@gmail.com', 'demo5', '01345674334', '1991-05-10', 'male', 'HA NOI', 1);
 
 -- --------------------------------------------------------
 
@@ -230,9 +190,6 @@ CREATE TABLE `user_status` (
 -- Đang đổ dữ liệu cho bảng `user_status`
 --
 
-INSERT INTO `user_status` (`user_status_type_id`, `description`) VALUES
-(1, 'DA NGHI VIEC'),
-(2, 'DANG LAM VIEC');
 
 -- --------------------------------------------------------
 
@@ -256,12 +213,6 @@ CREATE TABLE `vehicles` (
 -- Đang đổ dữ liệu cho bảng `vehicles`
 --
 
-INSERT INTO `vehicles` (`vehicle_id`, `number_plate`, `vehicle_name`, `type`, `vehicle_status_type_id`, `frame_number`, `gross_ton`, `accreditation_date_start`, `accreditation_date_end`) VALUES
-(1, '51F 1245', 'Huyndai-91', 'Huyndai', 1, NULL, NULL, NULL, NULL),
-(2, '86B2-0987', 'Huyndai-86', 'Huyndai', 2, NULL, NULL, NULL, NULL),
-(3, '37F1-1234', 'Huyndai-02', 'Huyndai', 1, NULL, NULL, NULL, NULL),
-(4, '49G3-6785', 'Huyndai-49', 'Huyndai', 2, NULL, NULL, NULL, NULL),
-(5, '12B2-3454', 'Huyndai-12', 'Huyndai', 3, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -278,10 +229,6 @@ CREATE TABLE `vehicle_status` (
 -- Đang đổ dữ liệu cho bảng `vehicle_status`
 --
 
-INSERT INTO `vehicle_status` (`vehicle_status_type_id`, `description`) VALUES
-(1, 'DANG HOAT DONG'),
-(2, 'DANG RANH'),
-(3, 'HONG XE');
 
 -- --------------------------------------------------------
 
@@ -304,12 +251,6 @@ CREATE TABLE `warning` (
 -- Đang đổ dữ liệu cho bảng `warning`
 --
 
-INSERT INTO `warning` (`warning_id`, `driver_id`, `location_lat`, `location_long`, `description`, `warning_type_id`, `start_time`, `end_time`) VALUES
-(1, 1, 13.123456, 108.245666, 'DUONG DANG THI CONG', NULL, '2017-03-19 11:22:16', '2017-03-19 11:30:20'),
-(2, 3, 17.094653, 104.346578, 'NO BANH XE', NULL, '2017-03-19 14:30:00', '2017-03-19 14:43:34'),
-(3, 2, 19.093451, 104.346578, NULL, NULL, '2017-03-20 09:20:33', '2017-03-20 10:00:00'),
-(4, 5, 11.542356, 106.335563, 'CSGT, HA TOC DO', NULL, '2017-03-21 07:34:27', '2017-03-21 08:00:00');
-
 -- --------------------------------------------------------
 
 --
@@ -327,11 +268,6 @@ CREATE TABLE `warning_type` (
 -- Đang đổ dữ liệu cho bảng `warning_type`
 --
 
-INSERT INTO `warning_type` (`warning_type_id`, `type`, `description`, `defaut_time`) VALUES
-(1, 'KET XE', NULL, 1800),
-(2, 'HONG DUONG', 'CONG TRUONG DANG THI CONG', 2000),
-(3, 'CSGT', 'BAN TOC DO, CHAY CHAM LAI', 2000),
-(4, 'HONG XE', 'XE HONG, NHO GIUP DO', 2000);
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -388,8 +324,8 @@ ALTER TABLE `token`
 --
 -- Chỉ mục cho bảng `user`
 --
-ALTER TABLE `user`
-  ADD PRIMARY KEY (`user_id`),
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
   ADD KEY `driver_status_type_id` (`user_status_type_id`);
 
 --
@@ -432,8 +368,8 @@ ALTER TABLE `warning_type`
 --
 -- AUTO_INCREMENT cho bảng `user`
 --
-ALTER TABLE `user`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT cho bảng `vehicles`
 --
@@ -458,14 +394,14 @@ ALTER TABLE `image_journey`
 -- Các ràng buộc cho bảng `role_user`
 --
 ALTER TABLE `role_user`
-  ADD CONSTRAINT `role_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
+  ADD CONSTRAINT `role_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `role_user_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`);
 
 --
 -- Các ràng buộc cho bảng `schedule`
 --
 ALTER TABLE `schedule`
-  ADD CONSTRAINT `schedule_ibfk_1` FOREIGN KEY (`driver_id`) REFERENCES `user` (`user_id`),
+  ADD CONSTRAINT `schedule_ibfk_1` FOREIGN KEY (`driver_id`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `schedule_ibfk_2` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`vehicle_id`),
   ADD CONSTRAINT `schedule_ibfk_3` FOREIGN KEY (`schedule_status_type_id`) REFERENCES `schedule_status` (`schedule_status_type_id`),
   ADD CONSTRAINT `schedule_ibfk_4` FOREIGN KEY (`device_id`) REFERENCES `token` (`device_id`);
@@ -480,7 +416,7 @@ ALTER TABLE `schedule_active`
 --
 -- Các ràng buộc cho bảng `user`
 --
-ALTER TABLE `user`
+ALTER TABLE `users`
   ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`user_status_type_id`) REFERENCES `user_status` (`user_status_type_id`);
 
 --
@@ -493,7 +429,7 @@ ALTER TABLE `vehicles`
 -- Các ràng buộc cho bảng `warning`
 --
 ALTER TABLE `warning`
-  ADD CONSTRAINT `warning_ibfk_1` FOREIGN KEY (`driver_id`) REFERENCES `user` (`user_id`),
+  ADD CONSTRAINT `warning_ibfk_1` FOREIGN KEY (`driver_id`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `warning_ibfk_2` FOREIGN KEY (`warning_type_id`) REFERENCES `warning_type` (`warning_type_id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
