@@ -10,9 +10,12 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 public class ProfileActivity extends AppCompatActivity {
-    Button btnback;
-    ImageButton btnchangepassword;
-    EditText edtpassword, edtnewpass,edtconfirm;
+    private Button btnCancel;
+    private Button btnOk;
+    private ImageButton btnChangePassword;
+    private EditText edtPassword;
+    private EditText edtNewPass;
+    private EditText edtConfirm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,8 +23,8 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        btnchangepassword = (ImageButton)findViewById(R.id.btnchangepass);
-        btnchangepassword.setOnClickListener(new View.OnClickListener() {
+        btnChangePassword = (ImageButton)findViewById(R.id.button_profile_changepass);
+        btnChangePassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 changePassword();
@@ -49,15 +52,16 @@ public class ProfileActivity extends AppCompatActivity {
         // set the custom dialog components - text, image and button
 
 
-        Button dialogButton = (Button) dialog.findViewById(R.id.dialogbtnok);
-        dialogButton.setOnClickListener(new View.OnClickListener() {
+        btnOk = (Button) dialog.findViewById(R.id.button_dialog_ok);
+        btnCancel = (Button) dialog.findViewById(R.id.button_dialog_cancel);
+
+        btnOk.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 dialog.dismiss();
             }
         });
 
-        Button dialogButtoncancel = (Button) dialog.findViewById(R.id.dialogbtncancel);
-        dialogButtoncancel.setOnClickListener(new View.OnClickListener() {
+        btnCancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 dialog.dismiss();
             }

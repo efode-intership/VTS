@@ -9,7 +9,7 @@
 
 
     <ImageView
-        android:id="@+id/imgAvatar"
+        android:id="@+id/imageview_profile_avatar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -25,7 +25,7 @@
         <TableRow android:background="@drawable/border">
 
             <TextView
-                android:id="@+id/txthoten"
+                android:id="@+id/textview_profile_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="15dp"
@@ -33,7 +33,7 @@
                 android:textSize="18dp" />
 
             <EditText
-                android:id="@+id/edthoten"
+                android:id="@+id/edittext_profile_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -50,7 +50,7 @@
             android:background="@drawable/border">
 
             <TextView
-                android:id="@+id/txtsex"
+                android:id="@+id/textview_profile_sex"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="15dp"
@@ -58,7 +58,7 @@
                 android:textSize="18dp" />
 
             <EditText
-                android:id="@+id/edtsex"
+                android:id="@+id/edittext_profile_sex"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -72,7 +72,7 @@
         <TableRow android:background="@drawable/border">
 
             <TextView
-                android:id="@+id/txtSodienthoai"
+                android:id="@+id/textview_profile_phonenumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="15dp"
@@ -80,7 +80,7 @@
                 android:textSize="18dp" />
 
             <EditText
-                android:id="@+id/edtSodienthoai"
+                android:id="@+id/edittext_profile_phonenumber"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -94,7 +94,7 @@
         <TableRow android:background="@drawable/border">
 
             <TextView
-                android:id="@+id/txtpassword"
+                android:id="@+id/textview_profile_password"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="15dp"
@@ -102,7 +102,7 @@
                 android:textSize="18dp" />
 
             <EditText
-                android:id="@+id/edtpassword"
+                android:id="@+id/edittext_profile_password"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -113,7 +113,7 @@
                 android:text="123456" />
 
             <ImageButton
-                android:id="@+id/btnchangepass"
+                android:id="@+id/button_profile_changepass"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="-10dp"
@@ -126,15 +126,15 @@
         <TableRow android:background="@drawable/border">
 
             <TextView
-                android:id="@+id/txtBirth"
+                android:id="@+id/textview_profile_birth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="15dp"
-                android:text="Ngày sính:"
+                android:text="Ngày sinh:"
                 android:textSize="18dp" />
 
             <EditText
-                android:id="@+id/edtBirth"
+                android:id="@+id/edittext_profile_birth"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -149,7 +149,7 @@
         <TableRow android:background="@drawable/border">
 
             <TextView
-                android:id="@+id/txtaddress"
+                android:id="@+id/textview_profile_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="15dp"
@@ -157,7 +157,7 @@
                 android:textSize="18dp" />
 
             <EditText
-                android:id="@+id/edtAddress"
+                android:id="@+id/edittext_profile_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
