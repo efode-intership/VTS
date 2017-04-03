@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th3 29, 2017 lúc 06:18 SA
+-- Thời gian đã tạo: Th4 03, 2017 lúc 09:41 SA
 -- Phiên bản máy phục vụ: 10.1.21-MariaDB
 -- Phiên bản PHP: 7.1.1
 
@@ -19,55 +19,6 @@ SET time_zone = "+00:00";
 --
 -- Cơ sở dữ liệu: `vehicle_tracking_system`
 --
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `drivers`
---
-
-CREATE TABLE `drivers` (
-  `driver_id` int(11) NOT NULL,
-  `user_name` varchar(255) NOT NULL,
-  `password` varchar(20) NOT NULL,
-  `email` varchar(25) DEFAULT NULL,
-  `full_name` varchar(25) DEFAULT NULL,
-  `phone` varchar(11) DEFAULT NULL,
-  `birthday` date DEFAULT NULL,
-  `sex` varchar(4) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
-  `driver_status_type_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Đang đổ dữ liệu cho bảng `drivers`
---
-
-INSERT INTO `drivers` (`driver_id`, `user_name`, `password`, `email`, `full_name`, `phone`, `birthday`, `sex`, `address`, `driver_status_type_id`) VALUES
-(1, 'demo1', '123456', 'demo1@gmail.com', 'demo1', '0123456789', '2017-03-15', 'male', 'LAM DONG', 2),
-(2, 'demo2', '0142538', 'demo2@gmail.com', 'demo2', '0969696969', '1995-11-20', 'fema', 'BINH THUAN', 2),
-(3, 'demo3', '0146734', 'demo3@gmail.com', 'demo3', '0121212121', '1990-10-20', 'male', 'GIA LAI', 2),
-(4, 'demo4', '003847', 'demo4@gmail.com', 'demo4', '0969634465', '1993-01-22', 'male', 'TPHCM', 2),
-(5, 'demo5', '0009876', 'demo5@gmail.com', 'demo5', '01345674334', '1991-05-10', 'male', 'HA NOI', 1);
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `driver_status`
---
-
-CREATE TABLE `driver_status` (
-  `driver_status_type_id` int(11) NOT NULL,
-  `description` varchar(50) COLLATE utf8mb4_vietnamese_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_vietnamese_ci;
-
---
--- Đang đổ dữ liệu cho bảng `driver_status`
---
-
-INSERT INTO `driver_status` (`driver_status_type_id`, `description`) VALUES
-(1, 'DA NGHI VIEC'),
-(2, 'DANG LAM VIEC');
 
 -- --------------------------------------------------------
 
@@ -91,6 +42,45 @@ INSERT INTO `image_journey` (`schedule_id`, `link_image`, `time`) VALUES
 (2, 'http://i.dailymail.co.uk/i/pix/2015/01/10/248DCC1300000578-0-image-a-18_1420869445762.jpg', '2017-03-19 17:22:06'),
 (2, 'https://i.ytimg.com/vi/Tqa_i2uWa-k/maxresdefault.jpg', '2017-03-19 18:54:06'),
 (3, 'http://i.dailymail.co.uk/i/pix/2015/01/10/248DCC1300000578-0-image-a-18_1420869445762.jpg', '2017-03-20 14:22:06');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `roles`
+--
+
+CREATE TABLE `roles` (
+  `role_id` int(11) NOT NULL,
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `roles`
+--
+
+INSERT INTO `roles` (`role_id`, `name`, `description`) VALUES
+(1, 'TAI XE', 'Tai xe lai xe'),
+(2, 'TRUONG PHONG', '');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `role_user`
+--
+
+CREATE TABLE `role_user` (
+  `user_id` int(11) DEFAULT NULL,
+  `role_id` int(11) DEFAULT NULL,
+  `time` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `role_user`
+--
+
+INSERT INTO `role_user` (`user_id`, `role_id`, `time`) VALUES
+(1, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -198,6 +188,55 @@ INSERT INTO `token` (`device_id`, `time`, `status`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Cấu trúc bảng cho bảng `user`
+--
+
+CREATE TABLE `user` (
+  `user_id` int(11) NOT NULL,
+  `user_name` varchar(255) NOT NULL,
+  `password` varchar(20) NOT NULL,
+  `email` varchar(25) DEFAULT NULL,
+  `full_name` varchar(25) DEFAULT NULL,
+  `phone` varchar(11) DEFAULT NULL,
+  `birthday` date DEFAULT NULL,
+  `sex` varchar(4) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `user_status_type_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Đang đổ dữ liệu cho bảng `user`
+--
+
+INSERT INTO `user` (`user_id`, `user_name`, `password`, `email`, `full_name`, `phone`, `birthday`, `sex`, `address`, `user_status_type_id`) VALUES
+(1, 'demo1', '123456', 'demo1@gmail.com', 'demo1', '0123456789', '2017-03-15', 'male', 'LAM DONG', 2),
+(2, 'demo2', '0142538', 'demo2@gmail.com', 'demo2', '0969696969', '1995-11-20', 'fema', 'BINH THUAN', 2),
+(3, 'demo3', '0146734', 'demo3@gmail.com', 'demo3', '0121212121', '1990-10-20', 'male', 'GIA LAI', 2),
+(4, 'demo4', '003847', 'demo4@gmail.com', 'demo4', '0969634465', '1993-01-22', 'male', 'TPHCM', 2),
+(5, 'demo5', '0009876', 'demo5@gmail.com', 'demo5', '01345674334', '1991-05-10', 'male', 'HA NOI', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `user_status`
+--
+
+CREATE TABLE `user_status` (
+  `user_status_type_id` int(11) NOT NULL,
+  `description` varchar(50) COLLATE utf8mb4_vietnamese_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_vietnamese_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `user_status`
+--
+
+INSERT INTO `user_status` (`user_status_type_id`, `description`) VALUES
+(1, 'DA NGHI VIEC'),
+(2, 'DANG LAM VIEC');
+
+-- --------------------------------------------------------
+
+--
 -- Cấu trúc bảng cho bảng `vehicles`
 --
 
@@ -299,23 +338,23 @@ INSERT INTO `warning_type` (`warning_type_id`, `type`, `description`, `defaut_ti
 --
 
 --
--- Chỉ mục cho bảng `drivers`
---
-ALTER TABLE `drivers`
-  ADD PRIMARY KEY (`driver_id`),
-  ADD KEY `driver_status_type_id` (`driver_status_type_id`);
-
---
--- Chỉ mục cho bảng `driver_status`
---
-ALTER TABLE `driver_status`
-  ADD PRIMARY KEY (`driver_status_type_id`);
-
---
 -- Chỉ mục cho bảng `image_journey`
 --
 ALTER TABLE `image_journey`
   ADD KEY `schedule_id` (`schedule_id`);
+
+--
+-- Chỉ mục cho bảng `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`role_id`);
+
+--
+-- Chỉ mục cho bảng `role_user`
+--
+ALTER TABLE `role_user`
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `role_id` (`role_id`);
 
 --
 -- Chỉ mục cho bảng `schedule`
@@ -345,6 +384,19 @@ ALTER TABLE `schedule_status`
 --
 ALTER TABLE `token`
   ADD PRIMARY KEY (`device_id`);
+
+--
+-- Chỉ mục cho bảng `user`
+--
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`user_id`),
+  ADD KEY `driver_status_type_id` (`user_status_type_id`);
+
+--
+-- Chỉ mục cho bảng `user_status`
+--
+ALTER TABLE `user_status`
+  ADD PRIMARY KEY (`user_status_type_id`);
 
 --
 -- Chỉ mục cho bảng `vehicles`
@@ -378,10 +430,10 @@ ALTER TABLE `warning_type`
 --
 
 --
--- AUTO_INCREMENT cho bảng `drivers`
+-- AUTO_INCREMENT cho bảng `user`
 --
-ALTER TABLE `drivers`
-  MODIFY `driver_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+ALTER TABLE `user`
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT cho bảng `vehicles`
 --
@@ -397,22 +449,23 @@ ALTER TABLE `warning`
 --
 
 --
--- Các ràng buộc cho bảng `drivers`
---
-ALTER TABLE `drivers`
-  ADD CONSTRAINT `drivers_ibfk_1` FOREIGN KEY (`driver_status_type_id`) REFERENCES `driver_status` (`driver_status_type_id`);
-
---
 -- Các ràng buộc cho bảng `image_journey`
 --
 ALTER TABLE `image_journey`
   ADD CONSTRAINT `image_journey_ibfk_1` FOREIGN KEY (`schedule_id`) REFERENCES `schedule` (`schedule_id`);
 
 --
+-- Các ràng buộc cho bảng `role_user`
+--
+ALTER TABLE `role_user`
+  ADD CONSTRAINT `role_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
+  ADD CONSTRAINT `role_user_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`);
+
+--
 -- Các ràng buộc cho bảng `schedule`
 --
 ALTER TABLE `schedule`
-  ADD CONSTRAINT `schedule_ibfk_1` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`driver_id`),
+  ADD CONSTRAINT `schedule_ibfk_1` FOREIGN KEY (`driver_id`) REFERENCES `user` (`user_id`),
   ADD CONSTRAINT `schedule_ibfk_2` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`vehicle_id`),
   ADD CONSTRAINT `schedule_ibfk_3` FOREIGN KEY (`schedule_status_type_id`) REFERENCES `schedule_status` (`schedule_status_type_id`),
   ADD CONSTRAINT `schedule_ibfk_4` FOREIGN KEY (`device_id`) REFERENCES `token` (`device_id`);
@@ -425,6 +478,12 @@ ALTER TABLE `schedule_active`
   ADD CONSTRAINT `schedule_active_ibfk_2` FOREIGN KEY (`device_id`) REFERENCES `token` (`device_id`);
 
 --
+-- Các ràng buộc cho bảng `user`
+--
+ALTER TABLE `user`
+  ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`user_status_type_id`) REFERENCES `user_status` (`user_status_type_id`);
+
+--
 -- Các ràng buộc cho bảng `vehicles`
 --
 ALTER TABLE `vehicles`
@@ -434,7 +493,7 @@ ALTER TABLE `vehicles`
 -- Các ràng buộc cho bảng `warning`
 --
 ALTER TABLE `warning`
-  ADD CONSTRAINT `warning_ibfk_1` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`driver_id`),
+  ADD CONSTRAINT `warning_ibfk_1` FOREIGN KEY (`driver_id`) REFERENCES `user` (`user_id`),
   ADD CONSTRAINT `warning_ibfk_2` FOREIGN KEY (`warning_type_id`) REFERENCES `warning_type` (`warning_type_id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
