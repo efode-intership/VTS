@@ -1,17 +1,16 @@
-package vn.efode.vts.Home;
+package vn.efode.vts;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TabHost;
 
-import vn.efode.vts.R;
-
-public class Schedule_History extends AppCompatActivity {
+public class ScheduleHistoryActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule_history);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         addControls();
     }

@@ -25,6 +25,13 @@
         <activity android:name=".ProfileActivity"
             android:label="Thông tin cá nhân"></activity>
 
+        <activity android:name=".ScheduleHistoryActivity"
+            android:parentActivityName=".MainActivity"></activity>
+        <activity android:name=".SignIn.ForgotPassword.ChangePasswordActivity"></activity>
+        <activity android:name=".SignIn.SignInActivity"></activity>
+        <activity android:name=".SignIn.ForgotPassword.EnterPasswordActivity"></activity>
+        <activity android:name=".SignIn.ForgotPassword.VerificationActivity"></activity>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDze9kSo8mkWjwZMACOO3j_q5gSig3HDR8"/>
