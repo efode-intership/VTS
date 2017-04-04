@@ -10,24 +10,33 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.android.volley.VolleyError;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONObject;
+
+import java.util.HashMap;
+
+import vn.efode.vts.service.ServiceHandler;
+import vn.efode.vts.utils.ServerCallback;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback {
 
+
+
     private GoogleMap map = null;
-    MapView mapView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +75,37 @@ public class MainActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
+        HashMap<String,String> params = new HashMap<String,String>();
+        params.put("email","tuan@gmail.com");
+        params.put("password","123123");
+
+        ServiceHandler serviceHandler = new ServiceHandler();
+        serviceHandler.makeServiceCall("http://192.168.1.16/web_app/public/api/v1/user/validate", 2,
+                params, new ServerCallback() {
+            @Override
+            public void onSuccess(JSONObject result) {
+                Log.d("Result",result.toString());
+            }
+
+            @Override
+            public void onError(VolleyError error){
+                Log.d("Result",error.getMessage());
+            }
+
+        });
+
+        serviceHandler.makeServiceCall("http://192.168.1.16/web_app/public/api/v1/user/6", 1, null, new ServerCallback() {
+            @Override
+            public void onSuccess(JSONObject result) {
+                Log.d("Result", result.toString());
+            }
+            @Override
+            public void onError(VolleyError error){
+                Log.d("Result",error.getMessage());
+            }
+        });
 
     }
 
