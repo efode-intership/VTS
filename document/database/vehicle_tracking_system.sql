@@ -167,8 +167,8 @@ CREATE TABLE `users` (
   `address` varchar(255) DEFAULT NULL,
   `user_status_type_id` int(11) DEFAULT NULL,
   `remember_token` varchar(100) DEFAULT NULL,
-  `created_time` timestamp NULL,
-  `updated_time` timestamp NULL
+  `created_at` timestamp NULL,
+  `updated_at` timestamp NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
