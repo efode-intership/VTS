@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity
         params.put("password","123123");
 
         ServiceHandler serviceHandler = new ServiceHandler();
-        serviceHandler.makeServiceCall("http://192.168.1.16/web_app/public/api/v1/user/validate", 2,
+        serviceHandler.makeServiceCall("http://192.168.1.16/web_app/public/api/v1/user/validate", Request.Method.POST,
                 params, new ServerCallback() {
             @Override
             public void onSuccess(JSONObject result) {
@@ -96,7 +97,11 @@ public class MainActivity extends AppCompatActivity
 
         });
 
-        serviceHandler.makeServiceCall("http://192.168.1.16/web_app/public/api/v1/user/6", 1, null, new ServerCallback() {
+        HashMap<String,String> params2 = new HashMap<String,String>();
+        params2.put("userId", "6");
+        String url = "http://192.168.1.16/web_app/public/api/v1/user/{userId}";
+
+        serviceHandler.makeServiceCall(url, Request.Method.GET, params2, new ServerCallback() {
             @Override
             public void onSuccess(JSONObject result) {
                 Log.d("Result", result.toString());
@@ -106,7 +111,6 @@ public class MainActivity extends AppCompatActivity
                 Log.d("Result",error.getMessage());
             }
         });
-
     }
 
     @Override
