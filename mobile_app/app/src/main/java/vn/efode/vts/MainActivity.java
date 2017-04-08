@@ -1,10 +1,19 @@
 package vn.efode.vts;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,9 +23,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
@@ -24,20 +32,16 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.json.JSONObject;
-
-import java.util.HashMap;
-
-import vn.efode.vts.service.ServiceHandler;
-import vn.efode.vts.utils.ServerCallback;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback {
-
-
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     private GoogleMap map = null;
+    LocationManager locationManager; // Instance locationmanager
+    public Criteria criteria;
+    public String bestProvider;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +71,7 @@ public class MainActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -76,42 +80,71 @@ public class MainActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        Log.d("MAPPPP","onCreate");
 
 
-        HashMap<String,String> params = new HashMap<String,String>();
-        params.put("email","tuan@gmail.com");
-        params.put("password","123123");
+//        HashMap<String,String> params = new HashMap<String,String>();
+//        params.put("email","tuan@gmail.com");
+//        params.put("password","123123");
+//
+//        ServiceHandler serviceHandler = new ServiceHandler();
+//        serviceHandler.makeServiceCall("http://192.168.1.16/web_app/public/api/v1/user/validate", Request.Method.POST,
+//                params, new ServerCallback() {
+//            @Override
+//            public void onSuccess(JSONObject result) {
+//                Log.d("Result",result.toString());
+//            }
+//
+//            @Override
+//            public void onError(VolleyError error){
+//                Log.d("Result",error.getMessage());
+//            }
+//
+//        });
+//
+//        HashMap<String,String> params2 = new HashMap<String,String>();
+//        params2.put("userId", "6");
+//        String url = "http://192.168.1.16/web_app/public/api/v1/user/{userId}";
+//
+//        serviceHandler.makeServiceCall(url, Request.Method.GET, params2, new ServerCallback() {
+//            @Override
+//            public void onSuccess(JSONObject result) {
+//                Log.d("Result", result.toString());
+//            }
+//            @Override
+//            public void onError(VolleyError error){
+//                Log.d("Result",error.getMessage());
+//            }
+//        });
 
-        ServiceHandler serviceHandler = new ServiceHandler();
-        serviceHandler.makeServiceCall("http://192.168.1.16/web_app/public/api/v1/user/validate", Request.Method.POST,
-                params, new ServerCallback() {
-            @Override
-            public void onSuccess(JSONObject result) {
-                Log.d("Result",result.toString());
-            }
-
-            @Override
-            public void onError(VolleyError error){
-                Log.d("Result",error.getMessage());
-            }
-
-        });
-
-        HashMap<String,String> params2 = new HashMap<String,String>();
-        params2.put("userId", "6");
-        String url = "http://192.168.1.16/web_app/public/api/v1/user/{userId}";
-
-        serviceHandler.makeServiceCall(url, Request.Method.GET, params2, new ServerCallback() {
-            @Override
-            public void onSuccess(JSONObject result) {
-                Log.d("Result", result.toString());
-            }
-            @Override
-            public void onError(VolleyError error){
-                Log.d("Result",error.getMessage());
-            }
-        });
+        addControls();
+        addEvents();
     }
+
+    private void addEvents() {
+
+    }
+
+
+    private void addControls() {
+        Log.d("MAPPPP","addControls1");
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        criteria = new Criteria();
+        bestProvider = String.valueOf(locationManager.getBestProvider(criteria, true)).toString();
+
+        Log.d("bestProvider",bestProvider);
+
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
+        }else{
+            Intent callGPSSettingIntent = new Intent(
+                    android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(callGPSSettingIntent);
+        }
+        Log.d("MAPPPP","addControls2");
+        //You can still do this if you like, you might get lucky:
+
+        }
 
     @Override
     public void onBackPressed() {
@@ -170,12 +203,54 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        LatLng marker = new LatLng(10.8819912,106.780436);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(marker,15));
 
-        map.addMarker(new MarkerOptions().title("KTX khu B").position(marker));
+        Location location = getCurrentLocation();
+        LatLng currentMaker = new LatLng(location.getLatitude(), location.getLongitude());
+
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentMaker, 15));
+
+        map.addMarker(new MarkerOptions().title("Current Location").position(currentMaker));
+
+        map.addPolyline(new PolylineOptions()
+                .add( currentMaker, new LatLng(10.882323, 106.782625))
+                .width(5)
+                .color(Color.RED));
     }
+
+    private Location getCurrentLocation() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                requestPermissions(new String[]{
+                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        android.Manifest.permission.INTERNET
+                }, 10);
+            }
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                        android.Manifest.permission.INTERNET
+                }, 10);
+            }
+        }
+        Location location = locationManager.getLastKnownLocation(bestProvider);
+
+        if (location != null) {
+            Log.e("TAG", "GPS is on");
+            Log.d("LOCATION",location.getLatitude() + " | " + location.getLongitude());
+
+        } else {
+            //This is what you need:
+            Toast.makeText(MainActivity.this, "Location null!", Toast.LENGTH_SHORT).show();
+            locationManager.requestLocationUpdates(bestProvider, 1000, 0, (LocationListener) this);
+        }
+        return location;
+    }
+
 }
