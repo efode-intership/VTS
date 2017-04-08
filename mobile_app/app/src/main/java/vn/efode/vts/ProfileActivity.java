@@ -24,7 +24,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
-import vn.efode.vts.Model.User;
+import vn.efode.vts.model.User;
 import vn.efode.vts.service.ServiceHandler;
 import vn.efode.vts.utils.ServerCallback;
 
@@ -76,7 +76,6 @@ public class ProfileActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(JSONObject result) {
                         Log.d("Result",result.toString());
-                        User user = new User();
                         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
                         try {
                             Boolean error = gson.fromJson(result.getString("error"), Boolean.class);

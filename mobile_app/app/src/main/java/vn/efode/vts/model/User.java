@@ -12,11 +12,12 @@ public class User {
     private String password;
     private String email;
     private String phone;
-    private Date birthday;
+    private String birthday;
     private String sex;
     private String address;
     private String userStatusTypeId;
     private String rememberToken;
+    private String image;
 
     public int getId() {
         return id;
@@ -58,11 +59,11 @@ public class User {
         this.phone = phone;
     }
 
-    public Date getBirthday() {
+    public String getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(String birthday) {
         this.birthday = birthday;
     }
 
@@ -96,5 +97,13 @@ public class User {
 
     public void setRememberToken(String rememberToken) {
         this.rememberToken = rememberToken;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }
