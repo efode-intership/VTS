@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
@@ -71,7 +72,7 @@ public class ProfileActivity extends AppCompatActivity {
         params.put("password","123123");
 
         ServiceHandler serviceHandler = new ServiceHandler();
-        serviceHandler.makeServiceCall("http://192.168.1.16/web_app/public/api/v1/user/validate", Request.Method.POST,
+        serviceHandler.makeServiceCall("http://192.168.0.102/web_app/public/api/v1/user/validate", Request.Method.POST,
                 params, new ServerCallback() {
                     @Override
                     public void onSuccess(JSONObject result) {
@@ -82,12 +83,17 @@ public class ProfileActivity extends AppCompatActivity {
                             if (!error) {
                                 user = gson.fromJson(result.getString("content"), User.class);
 
+                                if(user.getName()!= null)
                                 edtName.setText(user.getName());
+                                if(user.getSex()!= null)
                                 edtSex.setText(user.getSex());
+                                if(user.getPhone()!= null)
                                 edtPhone.setText(user.getPhone());
+                                if(user.getBirthday()!= null)
                                 edtBirth.setText(user.getBirthday());
+                                if(user.getAddress()!= null)
                                 edtAddress.setText(user.getAddress());
-                                if(user.getImage() != null){
+                                if(user.getImage()!= null){
                                     Log.d("sads",user.getImage());
                                     String urlImage = user.getImage();
                                     Picasso.with(ProfileActivity.this).load(urlImage).resize(400,400).into(imgProfile);
@@ -128,16 +134,71 @@ public class ProfileActivity extends AppCompatActivity {
 
         btnOk = (Button) dialog.findViewById(R.id.button_dialog_ok);
         btnCancel = (Button) dialog.findViewById(R.id.button_dialog_cancel);
+        edtPassword = (EditText) dialog.findViewById(R.id.edittext_dialog_password);
+        edtNewPass = (EditText) dialog.findViewById(R.id.edittext_dialog_newpass);
+        edtConfirm = (EditText) dialog.findViewById(R.id.edittext_dialog_confirm);
 
         btnOk.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                dialog.dismiss();
+                if(edtNewPass.getText().toString().equals(edtConfirm.getText().toString()) && !edtNewPass.getText().toString().equals("")){
+                    HashMap<String,String> params = new HashMap<String,String>();
+                    params.put("email","tuan@gmail.com");
+                    params.put("currentPassword",edtPassword.getText().toString());
+                    params.put("newPassword",edtNewPass.getText().toString());
+
+                    ServiceHandler serviceHandler = new ServiceHandler();
+                    serviceHandler.makeServiceCall("http://192.168.0.102/web_app/public/api/v1/user/changePassword", Request.Method.POST,
+                            params, new ServerCallback() {
+                                @Override
+                                public void onSuccess(JSONObject result) {
+                                    Log.d("Result",result.toString());
+                                    Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+                                    try {
+                                        Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                                        if (!error) {
+                                            Toast.makeText(ProfileActivity.this, "Đổi thành công", Toast.LENGTH_SHORT).show();
+                                            dialog.dismiss();
+
+                                        }
+                                        else {
+                                            Toast.makeText(ProfileActivity.this, "Mật khẩu không chính xác", Toast.LENGTH_SHORT).show();
+                                            dialog.setTitle("Mật khẩu không chính xác");
+                                            edtPassword.setText("");
+                                            edtNewPass.setText("");
+                                            edtConfirm.setText("");
+                                        }
+
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                @Override
+                                public void onError(VolleyError error){
+                                    Log.d("Loiii",error.getMessage());
+                                    Toast.makeText(ProfileActivity.this, "Không thành công", Toast.LENGTH_SHORT).show();
+                                    dialog.setTitle("Đổi không thành công");
+                                }
+
+                            });
+
+                }else {
+                    //Toast.makeText(ProfileActivity.this, "Không hợp lệ, vui lòng nhập lại", Toast.LENGTH_SHORT).show();
+                    dialog.setTitle("Không hợp lệ, vui lòng nhập lại");
+                    edtPassword.setText("");
+                    edtNewPass.setText("");
+                    edtConfirm.setText("");
+                    Log.d("sadsa","sadsa");
+                }
+
             }
         });
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 dialog.dismiss();
+
             }
         });
 
