@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="vn.efode.vts.SignIn.ForgotPassword.VerificationActivity">
+    tools:context="vn.efode.vts.sign_in.forgot_password.VerificationActivity">
 
     <LinearLayout
         android:layout_width="368dp"
