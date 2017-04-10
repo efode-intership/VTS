@@ -2,13 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="vn.efode.vts">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:name="vn.efode.vts.application.ApplicationController"
+        android:name=".application.ApplicationController"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -25,22 +25,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ProfileActivity"
-            android:label="Thông tin cá nhân"></activity>
-
-        <activity android:name=".ScheduleHistoryActivity"
-            android:parentActivityName=".MainActivity"></activity>
-        <activity android:name=".SignIn.ForgotPassword.ChangePasswordActivity"></activity>
-        <activity android:name=".SignIn.SignInActivity"></activity>
-        <activity android:name=".SignIn.ForgotPassword.EnterPasswordActivity"></activity>
-        <activity android:name=".SignIn.ForgotPassword.VerificationActivity"></activity>
+        <activity
+            android:name=".ProfileActivity"
+            android:label="Thông tin cá nhân" />
+        <activity
+            android:name=".ScheduleHistoryActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity android:name=".SignIn.ForgotPassword.ChangePasswordActivity" />
+        <activity android:name=".SignIn.SignInActivity" />
+        <activity android:name=".SignIn.ForgotPassword.EnterPasswordActivity" />
+        <activity android:name=".SignIn.ForgotPassword.VerificationActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyATLZ_980z3pmptUTrQTrFK4xFVyNLk9U8"/>
+            android:value="AIzaSyATLZ_980z3pmptUTrQTrFK4xFVyNLk9U8" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
     </application>
 
 
