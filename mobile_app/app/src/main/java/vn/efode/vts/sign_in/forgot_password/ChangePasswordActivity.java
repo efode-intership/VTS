@@ -1,4 +1,4 @@
-package vn.efode.vts.signin.forgotpassword;
+package vn.efode.vts.sign_in.forgot_password;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

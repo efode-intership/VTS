@@ -1,4 +1,4 @@
-package vn.efode.vts.signin;
+package vn.efode.vts.sign_in;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

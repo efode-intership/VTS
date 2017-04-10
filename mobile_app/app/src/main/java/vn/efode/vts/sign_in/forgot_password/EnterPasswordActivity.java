@@ -1,15 +1,15 @@
-package vn.efode.vts.signin.forgotpassword;
+package vn.efode.vts.sign_in.forgot_password;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import vn.efode.vts.R;
 
-public class VerificationActivity extends AppCompatActivity {
+public class EnterPasswordActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_verification);
+        setContentView(R.layout.activity_enter_password);
     }
 }

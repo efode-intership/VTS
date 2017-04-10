@@ -31,10 +31,10 @@
         <activity
             android:name=".ScheduleHistoryActivity"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".SignIn.ForgotPassword.ChangePasswordActivity" />
-        <activity android:name=".SignIn.SignInActivity" />
-        <activity android:name=".SignIn.ForgotPassword.EnterPasswordActivity" />
-        <activity android:name=".SignIn.ForgotPassword.VerificationActivity" />
+        <activity android:name=".sign_in.forgot_password.ChangePasswordActivity" />
+        <activity android:name=".sign_in.SignInActivity" />
+        <activity android:name=".sign_in.forgot_password.EnterPasswordActivity" />
+        <activity android:name=".sign_in.forgot_password.VerificationActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
