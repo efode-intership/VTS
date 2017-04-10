@@ -1,11 +1,10 @@
 package vn.efode.vts;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -29,18 +28,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import vn.efode.vts.service.ReadTask;
 import vn.efode.vts.service.TrackGPS;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
-    private GoogleMap map = null;
-    LocationManager locationManager; // Instance locationmanager
-    public Criteria criteria;
-    public String bestProvider;
-    private Location location;
+    public static GoogleMap map = null;
 
     private TrackGPS gps;
+    private static int REQUEST_LOCATION = 10;
+    private static String API_KEY_DIRECTION = "AIzaSyAJCQ6Wf-aQbUbF5wLRMs4XtgCS-vph6IE";
+    private static String API_KEY_MATRIX =  "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
 
     double longitude;
     double latitude;
@@ -130,90 +129,6 @@ public class MainActivity extends AppCompatActivity
 
 
     private void addControls() {
-//        Log.d("MAPPPP","addControls1");
-//        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-//        criteria = new Criteria();
-//        bestProvider = String.valueOf(locationManager.getBestProvider(criteria, true)).toString();
-//
-//        Log.d("bestProvider",bestProvider);
-//
-//        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-//            Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
-//        }else{
-//            Intent callGPSSettingIntent = new Intent(
-//                    android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-//            startActivity(callGPSSettingIntent);
-//        }
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-//                    != PackageManager.PERMISSION_GRANTED) {
-//
-//                requestPermissions(new String[]{
-//                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-//                        android.Manifest.permission.INTERNET
-//                }, 10);
-//            }
-//            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-//                    != PackageManager.PERMISSION_GRANTED) {
-//                requestPermissions(new String[]{
-//                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
-//                        android.Manifest.permission.INTERNET
-//                }, 10);
-//            }
-//        }
-//        location = locationManager.getLastKnownLocation(bestProvider);
-//
-//        if (location != null) {
-//            Log.e("TAG", "GPS is on");
-//            Log.d("LOCATION",location.getLatitude() + " | " + location.getLongitude());
-//
-//        } else {
-//            Log.d("LOCATION","null");
-//            //This is what you need:
-//            Toast.makeText(MainActivity.this, "Location null!", Toast.LENGTH_SHORT).show();
-//        }
-//        locationManager.requestLocationUpdates(bestProvider, 1000, 0, this);
-//        Log.d("MAPPPP","addControls2");
-//        //You can still do this if you like, you might get lucky:
-//
-//        // Get LocationManager object
-//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//
-//        // Create a criteria object to retrieve provider
-//        Criteria criteria = new Criteria();
-//
-//        // Get the name of the best provider
-//        String provider = locationManager.getBestProvider(criteria, true);
-//
-//        // Get Current Location
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-//                    != PackageManager.PERMISSION_GRANTED) {
-//
-//                requestPermissions(new String[]{
-//                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-//                        android.Manifest.permission.INTERNET
-//                }, 10);
-//            }
-//            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-//                    != PackageManager.PERMISSION_GRANTED) {
-//                requestPermissions(new String[]{
-//                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
-//                        android.Manifest.permission.INTERNET
-//                }, 10);
-//            }
-//        }
-//        Location myLocation = locationManager.getLastKnownLocation(provider);
-//        Log.d("LOCATIONNOW",provider);
-//
-//        //latitude of location
-//        double myLatitude = myLocation.getLatitude();
-//
-//        //longitude og location
-//        double myLongitude = myLocation.getLongitude();
-//
-//        Log.d("LOCATIONNOW",myLatitude + " | " + myLongitude);
-
 
 
     }
@@ -279,7 +194,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-
         gps = new TrackGPS(MainActivity.this);
 
         if(!gps.canGetLocation()) {
@@ -290,23 +204,109 @@ public class MainActivity extends AppCompatActivity
         longitude = gps.getLongitude();
         latitude = gps .getLatitude();
 
+        try {
+            LatLng currentMaker = new LatLng(latitude,longitude);
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentMaker, 15));
+
+            map.addMarker(new MarkerOptions().title("Current Location").position(currentMaker));
+
+            map.addPolyline(new PolylineOptions()
+                    .add( currentMaker, new LatLng(10.882323, 106.782625))
+                    .width(5)
+                    .color(Color.RED));
+        } catch (Exception e){
+            Log.d("MAPEXCEPTION", e.getMessage());
+        }
         Toast.makeText(getApplicationContext(),"Longitude:"+Double.toString(longitude)+"\nLatitude:"+Double.toString(latitude),Toast.LENGTH_SHORT).show();
 
-        LatLng currentMaker = new LatLng(latitude,longitude);
 
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentMaker, 15));
+        //path of two point
+        String url = getMapsApiDirectionsUrl(new LatLng(latitude,longitude),  new LatLng(10.882323, 106.782625));
 
-        map.addMarker(new MarkerOptions().title("Current Location").position(currentMaker));
+        Log.d("onMapClick", url.toString());
+        ReadTask downloadTask = new ReadTask();
+        // Start downloading json data from Google Directions API
+        downloadTask.execute(url);
 
-        map.addPolyline(new PolylineOptions()
-                .add( currentMaker, new LatLng(10.882323, 106.782625))
-                .width(5)
-                .color(Color.RED));
+        //To calculate distance between points
+//        float[] results = new float[1];
+//        Location.distanceBetween(latitude, longitude,
+//                10.882323, 106.782625,
+//                results);
+//        Log.d("onMapClick",String.valueOf(results));
+
     }
+
+    /**
+     * get Url to request the Google Directions API
+     * @param origin start point location
+     * @param dest destination point location
+     * @return
+     */
+    private String getMapsApiDirectionsUrl(LatLng origin, LatLng dest) {
+        // Origin of route
+        String str_origin = "origin="+origin.latitude+","+origin.longitude;
+
+        // Destination of route
+        String str_dest = "destination="+dest.latitude+","+dest.longitude;
+
+
+        // Sensor enabled
+        String sensor = "sensor=false";
+
+        //key
+        String keyDirection = "key="+API_KEY_DIRECTION;
+
+        // Building the parameters to the web service
+//        String parameters = str_origin+"&"+str_dest+"&"+sensor;
+        String parameters = str_origin+"&"+str_dest+"&"+keyDirection;
+
+        // Output format
+        String output = "json";
+
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+
+        return url;
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_LOCATION) {
+            if(grantResults.length == 1
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // We can now safely use the API we requested access to
+                Log.d("LOCATIONNETWORK","result");
+
+            } else {
+                // Permission was denied or request was cancelled
+            }
+        }
+    }
+
+
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         gps.stopUsingGPS();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 1) {
+            switch (requestCode) {
+                case 1:
+
+            }
+        }
     }
 }

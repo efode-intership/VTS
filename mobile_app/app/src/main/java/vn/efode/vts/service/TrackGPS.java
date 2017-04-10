@@ -5,14 +5,20 @@ import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
+
+import vn.efode.vts.MainActivity;
 
 /**
  * Created by Tuan on 10/04/2017.
@@ -64,52 +70,77 @@ public class TrackGPS extends Service implements LocationListener {
                 Toast.makeText(mContext, "No Service Provider Available", Toast.LENGTH_SHORT).show();
             } else {
                 this.canGetLocation = true;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                                    != PackageManager.PERMISSION_GRANTED) {
+
+                                ActivityCompat.requestPermissions((MainActivity) mContext,new String[]{
+                                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+                                        android.Manifest.permission.INTERNET
+                                }, 10);
+                            }
+                            if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                                    != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions((MainActivity) mContext, new String[]{
+                                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                                        android.Manifest.permission.INTERNET
+                                }, 10);
+                            }
+                        }
                 // First get location from Network Provider
                 if (checkNetwork) {
                     Toast.makeText(mContext, "Network", Toast.LENGTH_SHORT).show();
 
                     try {
+                        Log.d("LOCATIONNETWORK", "Network1");
                         locationManager.requestLocationUpdates(
                                 LocationManager.NETWORK_PROVIDER,
                                 MIN_TIME_BW_UPDATES,
                                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                        Log.d("Network", "Network");
+                        Log.d("LOCATIONNETWORK", "Network2");
                         if (locationManager != null) {
+                            Log.d("LOCATIONNETWORK", "Network3");
                             loc = locationManager
                                     .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                            Log.d("LOCATIONNETWORK", "Network4");
 
                         }
 
                         if (loc != null) {
                             latitude = loc.getLatitude();
                             longitude = loc.getLongitude();
+
+                            Log.d("LOCATIONNETWORK",latitude + " | " + longitude);
+
                         }
                     }
                     catch(SecurityException e){
-
+                        Log.d("LOCATIONNETWORK", e.getMessage());
                     }
                 }
-            }
-            // if GPS Enabled get lat/long using GPS Services
-            if (checkGPS) {
-                Toast.makeText(mContext,"GPS",Toast.LENGTH_SHORT).show();
-                if (loc == null) {
-                    try {
-                        locationManager.requestLocationUpdates(
-                                LocationManager.GPS_PROVIDER,
-                                MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                        Log.d("GPS Enabled", "GPS Enabled");
-                        if (locationManager != null) {
-                            loc = locationManager
-                                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                            if (loc != null) {
-                                latitude = loc.getLatitude();
-                                longitude = loc.getLongitude();
+                else {
+                    // if GPS Enabled get lat/long using GPS Services
+                    if (checkGPS) {
+                        Toast.makeText(mContext,"GPS",Toast.LENGTH_SHORT).show();
+                        if (loc == null) {
+                            try {
+                                locationManager.requestLocationUpdates(
+                                        LocationManager.GPS_PROVIDER,
+                                        MIN_TIME_BW_UPDATES,
+                                        MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                                Log.d("GPS Enabled", "GPS Enabled");
+                                if (locationManager != null) {
+                                    loc = locationManager
+                                            .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                                    if (loc != null) {
+                                        latitude = loc.getLatitude();
+                                        longitude = loc.getLongitude();
+                                    }
+                                }
+                            } catch (SecurityException e) {
+
                             }
                         }
-                    } catch (SecurityException e) {
-
                     }
                 }
             }
@@ -151,7 +182,7 @@ public class TrackGPS extends Service implements LocationListener {
         alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                mContext.startActivity(intent);
+                ((AppCompatActivity)mContext).startActivityForResult(intent,1);
             }
         });
 
@@ -173,6 +204,7 @@ public class TrackGPS extends Service implements LocationListener {
             locationManager.removeUpdates(TrackGPS.this);
         }
     }
+
 
     @Override
     public IBinder onBind(Intent intent) {
