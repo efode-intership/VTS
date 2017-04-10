@@ -1,19 +1,14 @@
 package vn.efode.vts;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -34,6 +29,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import vn.efode.vts.service.TrackGPS;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
@@ -41,6 +38,12 @@ public class MainActivity extends AppCompatActivity
     LocationManager locationManager; // Instance locationmanager
     public Criteria criteria;
     public String bestProvider;
+    private Location location;
+
+    private TrackGPS gps;
+
+    double longitude;
+    double latitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +83,7 @@ public class MainActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        Log.d("MAPPPP","onCreate");
+        Log.d("MAPPPP", "onCreate");
 
 
 //        HashMap<String,String> params = new HashMap<String,String>();
@@ -127,24 +130,93 @@ public class MainActivity extends AppCompatActivity
 
 
     private void addControls() {
-        Log.d("MAPPPP","addControls1");
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        criteria = new Criteria();
-        bestProvider = String.valueOf(locationManager.getBestProvider(criteria, true)).toString();
+//        Log.d("MAPPPP","addControls1");
+//        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+//        criteria = new Criteria();
+//        bestProvider = String.valueOf(locationManager.getBestProvider(criteria, true)).toString();
+//
+//        Log.d("bestProvider",bestProvider);
+//
+//        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+//            Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
+//        }else{
+//            Intent callGPSSettingIntent = new Intent(
+//                    android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//            startActivity(callGPSSettingIntent);
+//        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//
+//                requestPermissions(new String[]{
+//                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+//                        android.Manifest.permission.INTERNET
+//                }, 10);
+//            }
+//            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//                requestPermissions(new String[]{
+//                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+//                        android.Manifest.permission.INTERNET
+//                }, 10);
+//            }
+//        }
+//        location = locationManager.getLastKnownLocation(bestProvider);
+//
+//        if (location != null) {
+//            Log.e("TAG", "GPS is on");
+//            Log.d("LOCATION",location.getLatitude() + " | " + location.getLongitude());
+//
+//        } else {
+//            Log.d("LOCATION","null");
+//            //This is what you need:
+//            Toast.makeText(MainActivity.this, "Location null!", Toast.LENGTH_SHORT).show();
+//        }
+//        locationManager.requestLocationUpdates(bestProvider, 1000, 0, this);
+//        Log.d("MAPPPP","addControls2");
+//        //You can still do this if you like, you might get lucky:
+//
+//        // Get LocationManager object
+//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//
+//        // Create a criteria object to retrieve provider
+//        Criteria criteria = new Criteria();
+//
+//        // Get the name of the best provider
+//        String provider = locationManager.getBestProvider(criteria, true);
+//
+//        // Get Current Location
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//
+//                requestPermissions(new String[]{
+//                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+//                        android.Manifest.permission.INTERNET
+//                }, 10);
+//            }
+//            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//                requestPermissions(new String[]{
+//                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+//                        android.Manifest.permission.INTERNET
+//                }, 10);
+//            }
+//        }
+//        Location myLocation = locationManager.getLastKnownLocation(provider);
+//        Log.d("LOCATIONNOW",provider);
+//
+//        //latitude of location
+//        double myLatitude = myLocation.getLatitude();
+//
+//        //longitude og location
+//        double myLongitude = myLocation.getLongitude();
+//
+//        Log.d("LOCATIONNOW",myLatitude + " | " + myLongitude);
 
-        Log.d("bestProvider",bestProvider);
 
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-            Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
-        }else{
-            Intent callGPSSettingIntent = new Intent(
-                    android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(callGPSSettingIntent);
-        }
-        Log.d("MAPPPP","addControls2");
-        //You can still do this if you like, you might get lucky:
 
-        }
+    }
 
     @Override
     public void onBackPressed() {
@@ -208,8 +280,19 @@ public class MainActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
 
-        Location location = getCurrentLocation();
-        LatLng currentMaker = new LatLng(location.getLatitude(), location.getLongitude());
+        gps = new TrackGPS(MainActivity.this);
+
+        if(!gps.canGetLocation()) {
+
+            gps.showSettingsAlert();
+
+        }
+        longitude = gps.getLongitude();
+        latitude = gps .getLatitude();
+
+        Toast.makeText(getApplicationContext(),"Longitude:"+Double.toString(longitude)+"\nLatitude:"+Double.toString(latitude),Toast.LENGTH_SHORT).show();
+
+        LatLng currentMaker = new LatLng(latitude,longitude);
 
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentMaker, 15));
 
@@ -221,36 +304,9 @@ public class MainActivity extends AppCompatActivity
                 .color(Color.RED));
     }
 
-    private Location getCurrentLocation() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                requestPermissions(new String[]{
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.INTERNET
-                }, 10);
-            }
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                        android.Manifest.permission.INTERNET
-                }, 10);
-            }
-        }
-        Location location = locationManager.getLastKnownLocation(bestProvider);
-
-        if (location != null) {
-            Log.e("TAG", "GPS is on");
-            Log.d("LOCATION",location.getLatitude() + " | " + location.getLongitude());
-
-        } else {
-            //This is what you need:
-            Toast.makeText(MainActivity.this, "Location null!", Toast.LENGTH_SHORT).show();
-            locationManager.requestLocationUpdates(bestProvider, 1000, 0, (LocationListener) this);
-        }
-        return location;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        gps.stopUsingGPS();
     }
-
 }
