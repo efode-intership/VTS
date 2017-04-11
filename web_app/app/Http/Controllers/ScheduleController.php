@@ -20,7 +20,7 @@ class ScheduleController extends Controller
     }
 
     /**
-     * API: Get schedule list by User id
+     * Get schedule list by User id
      * @var userId user's id
      * @return \Illuminate\Http\Response
      */
@@ -34,7 +34,7 @@ class ScheduleController extends Controller
     }
 
     /**
-     * API: Get schedule list by Schedule id
+     * Get schedule list by Schedule id
      * @var id schedule's id
      * @return \Illuminate\Http\Response
      */

@@ -15,6 +15,10 @@ Route::get('/', function () {
     return view('welcome');
 })->middleware('auth.basic');
 
+Route::get('/map', function () {
+    return view('map');
+});
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->middleware('cors');
@@ -32,6 +36,7 @@ Route::get('/api/v1/hello/{name?}', function($name = null) {
 
 // APIs version 1.0
 
+
 // User group
 /**
  * Check authentication API.
@@ -48,17 +53,52 @@ Route::post('/api/v1/user/validate', ['as' => 'validateUser', 'uses' => 'UserCon
  * @var userId
  * @return json data
  */
- Route::get('api/v1/user/{id}', 'UserController@getUserById');
+ Route::get('api/v1/user/view/{id}', 'UserController@getUserById');
 
  /**
   * Change user password
-  * url: ../api/v1/user
+  * url: ../api/v1/user/changePassword
   * @var email
   * @var currentPassword
   * @var newPassword
   * @return json data
   */
   Route::post('api/v1/user/changePassword', 'UserController@changePassword');
+
+  /**
+   * Forgot password
+   * url: ../api/v1/user/forgotPassword
+   * @var email
+   * @return json data
+   */
+   Route::post('api/v1/user/forgotPassword', 'UserController@forgotPassword');
+
+   /**
+    * Confirm forgot password code.
+    * url: ../api/v1/user/checkResetCode
+    * @var email
+    * @var confirmCode
+    * @return json data
+    */
+    Route::post('api/v1/user/checkResetCode', 'UserController@checkResetCode');
+
+    /**
+     * Set new password for user.
+     * url: ../api/v1/user/newPassword
+     * @var email
+     * @var newPassword
+     * @var resetPasswordToken
+     * @return json data
+     */
+     Route::post('api/v1/user/newPassword', 'UserController@setNewPassword');
+
+
+
+
+
+
+
+
 
 
 // Schedule group
