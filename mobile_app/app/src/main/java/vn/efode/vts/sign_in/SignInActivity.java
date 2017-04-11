@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import vn.efode.vts.MainActivity;
 import vn.efode.vts.R;
 import vn.efode.vts.service.ServiceHandler;
+import vn.efode.vts.sign_in.forgot_password.EnterPhoneActivity;
 import vn.efode.vts.utils.ServerCallback;
 
 public class SignInActivity extends AppCompatActivity {
@@ -30,6 +32,7 @@ public class SignInActivity extends AppCompatActivity {
     Button btnLogin;
     EditText txtUserName;
     EditText txtPassWord;
+    private TextView txtForgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,8 @@ public class SignInActivity extends AppCompatActivity {
         btnLogin = (Button) findViewById(R.id.btnLogin);
         txtUserName = (EditText) findViewById(R.id.txtUserName);
         txtPassWord = (EditText) findViewById(R.id.txtPassWord);
+        txtForgotPassword = (TextView)findViewById(R.id.textview_signin_forgotpassword);
+
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,7 +60,7 @@ public class SignInActivity extends AppCompatActivity {
                     params.put("password", txtPassWord.getText().toString());
 
                     ServiceHandler serviceHandler = new ServiceHandler();
-                    serviceHandler.makeServiceCall("http://192.168.0.102/web_app/public/api/v1/user/validate", Request.Method.POST, params, new ServerCallback() {
+                    serviceHandler.makeServiceCall("http://192.168.0.130/web_app/public/api/v1/user/validate", Request.Method.POST, params, new ServerCallback() {
                         @Override
                         public void onSuccess(JSONObject result) {
                             Log.d("Result", result.toString());
@@ -89,6 +94,13 @@ public class SignInActivity extends AppCompatActivity {
 
             }
         });
+        txtForgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SignInActivity.this, EnterPhoneActivity.class);
+                startActivity(intent);
 
+            }
+        });
     }
 }

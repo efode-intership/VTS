@@ -14,7 +14,7 @@
         tools:layout_editor_absoluteX="8dp">
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/textview_verifi_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
@@ -25,7 +25,7 @@
             android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/txtnhapmaxacminh"
+            android:id="@+id/edittext_verifi_number"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -35,7 +35,7 @@
             android:inputType="textPersonName" />
 
         <Button
-            android:id="@+id/btnnext2"
+            android:id="@+id/button_verifi_done"
             android:layout_width="130dp"
             android:layout_height="wrap_content"
             android:layout_gravity="right"

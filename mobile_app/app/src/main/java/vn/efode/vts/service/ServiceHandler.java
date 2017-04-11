@@ -5,7 +5,6 @@ import android.util.Log;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 
@@ -13,7 +12,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.utils.ServerCallback;
@@ -30,7 +28,7 @@ public class ServiceHandler {
     private String result = null;
     private String VOLLEY_TAG = "VOLLEY";
 
-    private final static String DOMAIN = "http://192.168.1.16/web_app/public";
+    public final static String DOMAIN = "http://192.168.0.130/web_app/public";
 
     public ServiceHandler() {
     }

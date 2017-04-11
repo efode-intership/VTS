@@ -14,28 +14,28 @@
         tools:layout_editor_absoluteY="8dp">
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/textview_entermail_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="Vui lòng nhập số điện thoại đã đăng ký để xác nhận tài khoản"
+            android:text="Vui lòng nhập email đã đăng ký để xác nhận tài khoản"
             android:textAlignment="center"
             android:textColor="@android:color/holo_blue_bright"
             android:textSize="26sp"
             android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/txtnhapsdt"
+            android:id="@+id/edittext_entermail_email"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_margin="10dp"
             android:ems="10"
-            android:hint="Nhập số điện thoại"
+            android:hint="Nhập email"
             android:inputType="textPersonName" />
 
         <Button
-            android:id="@+id/btnnext1"
+            android:id="@+id/button_entermail_done"
             android:layout_width="130dp"
             android:layout_height="wrap_content"
             android:layout_gravity="right"

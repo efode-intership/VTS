@@ -1,5 +1,6 @@
 package vn.efode.vts;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -17,6 +18,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,12 +39,14 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     public static GoogleMap map = null;
-
     private TrackGPS gps;
     private static int REQUEST_LOCATION = 10;
     private static String API_KEY_DIRECTION = "AIzaSyAJCQ6Wf-aQbUbF5wLRMs4XtgCS-vph6IE";
     private static String API_KEY_MATRIX =  "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
-
+    private ListView listView;
+    private EditText edtDescription;
+    private Button btnOk;
+    private Button btnCancel;
     double longitude;
     double latitude;
 
@@ -66,8 +72,7 @@ public class MainActivity extends AppCompatActivity
         fab_warning.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Warning", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                showWarning();
             }
         });
 
@@ -308,5 +313,38 @@ public class MainActivity extends AppCompatActivity
 
             }
         }
+    }
+
+    public void showWarning(){
+        // custom dialog
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_add_warning);
+        dialog.setTitle("Thêm cảnh báo");
+
+        // set the custom dialog components - text, image and button
+
+        listView = (ListView) dialog.findViewById(R.id.listview_dialog_warning);
+
+        edtDescription = (EditText) dialog.findViewById(R.id.edittext_dialog_description);
+        //edtDescription.setLayoutParams(new LinearLayout.LayoutParams(200,50));
+        btnOk = (Button) dialog.findViewById(R.id.button_dialog_ok);
+        btnCancel = (Button) dialog.findViewById(R.id.button_dialog_cancel);
+
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                dialog.dismiss();
+
+            }
+        });
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                dialog.dismiss();
+
+            }
+        });
+
+
+        dialog.show();
     }
 }

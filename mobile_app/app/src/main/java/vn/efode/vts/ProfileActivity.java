@@ -42,6 +42,8 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText edtPassword;
     private EditText edtNewPass;
     private EditText edtConfirm;
+    private String validateUrl = ServiceHandler.DOMAIN + "/api/v1/user/validate";
+    private String changPasswordUrl = ServiceHandler.DOMAIN + "/api/v1/user/changePassword";
     User user;
 
     @Override
@@ -72,7 +74,7 @@ public class ProfileActivity extends AppCompatActivity {
         params.put("password","123123");
 
         ServiceHandler serviceHandler = new ServiceHandler();
-        serviceHandler.makeServiceCall("http://192.168.0.102/web_app/public/api/v1/user/validate", Request.Method.POST,
+        serviceHandler.makeServiceCall(validateUrl, Request.Method.POST,
                 params, new ServerCallback() {
                     @Override
                     public void onSuccess(JSONObject result) {
@@ -147,7 +149,7 @@ public class ProfileActivity extends AppCompatActivity {
                     params.put("newPassword",edtNewPass.getText().toString());
 
                     ServiceHandler serviceHandler = new ServiceHandler();
-                    serviceHandler.makeServiceCall("http://192.168.0.102/web_app/public/api/v1/user/changePassword", Request.Method.POST,
+                    serviceHandler.makeServiceCall(changPasswordUrl, Request.Method.POST,
                             params, new ServerCallback() {
                                 @Override
                                 public void onSuccess(JSONObject result) {
