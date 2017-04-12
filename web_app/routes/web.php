@@ -93,6 +93,31 @@ Route::post('/api/v1/user/validate', ['as' => 'validateUser', 'uses' => 'UserCon
      Route::post('api/v1/user/newPassword', 'UserController@setNewPassword');
 
 
+// Warning group
+/**
+ * Create warning.
+ * url: ../api/v1/warning/create
+ * @var userId
+ * @var warningTypeId
+ * @var locationLat
+ * @var locationLong
+ * @var description
+ * @var startTime
+ * @var endTime
+ * @return json data
+ */
+ Route::post('api/v1/warning/create', 'WarningController@createWarning');
+
+ /**
+  * Get warning type list.
+  * url: ../api/v1/warningTypes
+  * @return json data
+  */
+  Route::get('api/v1/warningTypes', 'WarningTypeController@getWarningTypeList');
+
+
+
+
 
 
 
