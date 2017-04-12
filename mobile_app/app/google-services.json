@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "413805294060",
+    "firebase_url": "https://vts-efode-1491288472931.firebaseio.com",
+    "project_id": "vts-efode-1491288472931",
+    "storage_bucket": "vts-efode-1491288472931.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:413805294060:android:867059c7eca204ab",
+        "android_client_info": {
+          "package_name": "vn.efode.vts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "413805294060-ok81lrsnogltgu7ep6uptpicca3bn37b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJYfWu1CEVx-TMymb71xezY1aN35IBdXo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
