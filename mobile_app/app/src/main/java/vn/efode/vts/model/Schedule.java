@@ -1,19 +1,22 @@
 package vn.efode.vts.model;
 
+import java.io.Serializable;
+
 /**
  * Created by CongVu on 4/4/2017.
  */
 
-public class Schedule {
+public class Schedule implements Serializable{
     private int scheduleId;
     private int driverId;
     private int vehicleId;
-    private String addressStart;
-    private String addressEnd;
+    private String startPointAddress;
+    private String endPointAddress;
     private String intendStartTime;
     private String intendEndTime;
     private int scheduleStatusTypeId;
     private String locationLatStart;
+    private String locationLongStart;
     private String locationLatEnd;
     private String locationLongEnd;
     private String realStartTime;
@@ -23,22 +26,28 @@ public class Schedule {
     public Schedule() {
     }
 
-    public Schedule(int scheduleId, int driverId, int vehicleId, String addressStart, String addressEnd, String intendStartTime, String intendEndTime, int scheduleStatusTypeId, String locationLatStart, String locationLatEnd, String locationLongEnd, String realStartTime, String realEndTime, String deviceId) {
+
+    public Schedule(int scheduleId, int driverId, int vehicleId, String startPointAddress, String endPointAddress, String intendStartTime, String intendEndTime, int scheduleStatusTypeId, String locationLatStart, String locationLongStart, String locationLatEnd, String locationLongEnd, String realStartTime, String realEndTime, String deviceId) {
         this.scheduleId = scheduleId;
         this.driverId = driverId;
         this.vehicleId = vehicleId;
-        this.addressStart = addressStart;
-        this.addressEnd = addressEnd;
+        this.startPointAddress = startPointAddress;
+        this.endPointAddress = endPointAddress;
         this.intendStartTime = intendStartTime;
         this.intendEndTime = intendEndTime;
         this.scheduleStatusTypeId = scheduleStatusTypeId;
         this.locationLatStart = locationLatStart;
+        this.locationLongStart = locationLongStart;
         this.locationLatEnd = locationLatEnd;
         this.locationLongEnd = locationLongEnd;
         this.realStartTime = realStartTime;
         this.realEndTime = realEndTime;
         this.deviceId = deviceId;
     }
+
+//    public Schedule(String locationLatStart) {
+//
+//    }
 
     public int getScheduleId() {
         return scheduleId;
@@ -64,20 +73,20 @@ public class Schedule {
         this.vehicleId = vehicleId;
     }
 
-    public String getAddressStart() {
-        return addressStart;
+    public String getStartPointAddress() {
+        return startPointAddress;
     }
 
-    public void setAddressStart(String addressStart) {
-        this.addressStart = addressStart;
+    public void setStartPointAddress(String startPointAddress) {
+        this.startPointAddress = startPointAddress;
     }
 
-    public String getAddressEnd() {
-        return addressEnd;
+    public String getEndPointAddress() {
+        return endPointAddress;
     }
 
-    public void setAddressEnd(String addressEnd) {
-        this.addressEnd = addressEnd;
+    public void setEndPointAddress(String endPointAddress) {
+        this.endPointAddress = endPointAddress;
     }
 
     public String getIntendStartTime() {
@@ -110,6 +119,14 @@ public class Schedule {
 
     public void setLocationLatStart(String locationLatStart) {
         this.locationLatStart = locationLatStart;
+    }
+
+    public String getLocationLongStart() {
+        return locationLongStart;
+    }
+
+    public void setLocationLongStart(String locationLongStart) {
+        this.locationLongStart = locationLongStart;
     }
 
     public String getLocationLatEnd() {

@@ -3,7 +3,6 @@ package vn.efode.vts;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TabHost;
 
@@ -22,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import vn.efode.vts.adapter.ScheduleAdapter;
 import vn.efode.vts.model.Schedule;
 import vn.efode.vts.service.ServiceHandler;
 import vn.efode.vts.utils.ServerCallback;
@@ -32,7 +32,7 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
     ListView lvSchedule;
     ArrayList<Schedule> listSchedule;
     HashMap<String,String> schedulelist = new HashMap<String, String>();
-    ArrayAdapter<Schedule> adapterSchedule;
+    ScheduleAdapter scheduleAdapter;
 
 
 
@@ -42,10 +42,12 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_schedule_history);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        lvSchedule = (ListView) findViewById(R.id.lvSchedule);
+
         addControls();
         ServiceHandler serviceHandler = new ServiceHandler();
         schedulelist.put("userId", "6");
-        serviceHandler.makeServiceCall("http://192.168.1.16/web_app/public/api/v1/schedule/user/{userId}", Request.Method.GET, schedulelist, new ServerCallback() {
+        serviceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/schedule/user/{userId}", Request.Method.GET, schedulelist, new ServerCallback() {
             @Override
             public void onSuccess(JSONObject result) {
                 Log.d("Result_volley",result.toString());
@@ -55,11 +57,20 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error)
                     {
-                        ArrayList<Schedule> scheduleList = new ArrayList<Schedule>();
-//                        schedule = gson.fromJson(result.getString("content"), Schedule.class);
+
+                        listSchedule = new ArrayList<Schedule>();
                         Type listType = new TypeToken<List<Schedule>>() {}.getType();
-                        scheduleList = gson.fromJson(result.getString("content"), listType );
-                        Log.d("array",String.valueOf(scheduleList.size()));
+                        listSchedule = gson.fromJson(result.getString("content"), listType );
+                        Log.d("array",String.valueOf(listSchedule.size()));
+
+
+                        listSchedule.add(new  Schedule(schedule.getScheduleId(), schedule.getDriverId(), schedule.getVehicleId(), schedule.getStartPointAddress(), schedule.getEndPointAddress(), schedule.getIntendStartTime(), schedule.getIntendEndTime(), schedule.getScheduleStatusTypeId(), schedule.getLocationLatStart(), schedule.getLocationLongStart(), schedule.getLocationLatEnd(), schedule.getLocationLongEnd(), schedule.getRealStartTime(),schedule.getRealEndTime(),schedule.getDeviceId()));
+                        scheduleAdapter = new ScheduleAdapter(
+                                ScheduleHistoryActivity.this,
+                                R.layout.schedule_list_layout,
+                                listSchedule);
+                        lvSchedule.setAdapter(scheduleAdapter);
+
                     }
                     else {
 
@@ -75,6 +86,8 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
 
             }
         });
+
+
     }
 
     private void addControls() {
@@ -91,13 +104,6 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
         tabHistory.setContent(R.id.tabHistory);
         tabHost.addTab(tabHistory);
 
-        lvSchedule = (ListView) findViewById(R.id.lvSchedule);
-        listSchedule = new ArrayList<>();
-        adapterSchedule = new ArrayAdapter<Schedule>(
-                ScheduleHistoryActivity.this,
-                android.R.layout.simple_list_item_1,
-                (List<Schedule>) schedulelist);
-        lvSchedule.setAdapter(adapterSchedule);
     }
 
 }
