@@ -27,7 +27,7 @@ import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.model.User;
 import vn.efode.vts.service.DeviceTokenService;
-import vn.efode.vts.service.ServiceHandler;
+import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.sign_in.forgot_password.EnterPhoneActivity;
 import vn.efode.vts.utils.ServerCallback;
 
