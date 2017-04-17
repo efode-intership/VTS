@@ -1,4 +1,4 @@
-package vn.efode.vts.service;
+package vn.efode.vts.utils;
 
 import android.os.AsyncTask;
 import android.util.Log;

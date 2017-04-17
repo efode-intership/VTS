@@ -1,4 +1,4 @@
-package vn.efode.vts.service;
+package vn.efode.vts.utils;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -11,6 +11,10 @@ import java.util.List;
 
 /**
  * Created by Tuan on 10/04/2017.
+ */
+
+/**
+ * Class để parse JsonObject từ google map API lấy các location
  */
 
 public class PathJSONParser {

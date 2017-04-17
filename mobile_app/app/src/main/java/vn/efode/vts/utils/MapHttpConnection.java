@@ -1,4 +1,4 @@
-package vn.efode.vts.service;
+package vn.efode.vts.utils;
 
 import android.util.Log;
 
@@ -11,6 +11,10 @@ import java.net.URL;
 
 /**
  * Created by Tuan on 10/04/2017.
+ */
+
+/**
+ * Make request to Googole Map API
  */
 
 public class MapHttpConnection {
