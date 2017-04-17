@@ -15,7 +15,7 @@
             android:id="@+id/edittext_dialog_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
+            android:background="@drawable/border"
             android:ems="10"
             android:hint="Nhập thêm thông tin về cảnh báo này"
             android:inputType="textPersonName"

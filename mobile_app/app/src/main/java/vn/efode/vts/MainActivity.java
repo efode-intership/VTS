@@ -25,11 +25,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -44,10 +47,28 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
+import vn.efode.vts.adapter.WarningAdapter;
+import vn.efode.vts.model.WarningTypes;
 import vn.efode.vts.utils.ReadTask;
+import vn.efode.vts.utils.ServerCallback;
+import vn.efode.vts.utils.ServiceHandler;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
@@ -68,13 +89,17 @@ public class MainActivity extends AppCompatActivity
     final private static int REQ_PERMISSION = 20;
     private static int REQUEST_LOCATION = 10;
     private static String API_KEY_DIRECTION = "AIzaSyAJCQ6Wf-aQbUbF5wLRMs4XtgCS-vph6IE";
-    private static String API_KEY_MATRIX =  "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
+    private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
     private ListView listView;
     private EditText edtDescription;
     private Button btnOk;
     private Button btnCancel;
     double longitude;
     double latitude;
+    private String showWarningUrl = ServiceHandler.DOMAIN + "/api/v1/warningTypes";
+    private String addWarningUrl = ServiceHandler.DOMAIN + "/api/v1/warning/create";
+    private WarningTypes warningTypes;
+    private ArrayList<WarningTypes> arrWarning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,7 +228,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_profile) {
-            Intent intent = new Intent(MainActivity.this,ProfileActivity.class);
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_home) {
 
@@ -247,7 +272,7 @@ public class MainActivity extends AppCompatActivity
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                
+
 
                 //Prompt the user once explanation has been shown
                 ActivityCompat.requestPermissions(this,
@@ -502,15 +527,122 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    public void showWarning(){
+    public void showWarning() {
         // custom dialog
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_add_warning);
         dialog.setTitle("Thêm cảnh báo");
-
-        // set the custom dialog components - text, image and button
-
         listView = (ListView) dialog.findViewById(R.id.listview_dialog_warning);
+        // set the custom dialog components - text, image and button
+        ServiceHandler serviceHandler = new ServiceHandler();
+        HashMap<String,String> params = new HashMap<String,String>();
+        params.put("","");
+
+        serviceHandler.makeServiceCall(showWarningUrl, Request.Method.GET, params, new ServerCallback() {
+            @Override
+            public void onSuccess(JSONObject result) {
+                Log.d("Resultsxxx", result.toString());
+
+                Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+                try {
+                    Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                    if (!error) {
+                        arrWarning = new ArrayList<WarningTypes>();
+                        Type listType = new TypeToken<List<WarningTypes>>() {}.getType();
+                        arrWarning = gson.fromJson(result.getString("content"), listType );
+
+
+                        final WarningAdapter warningAdapter = new WarningAdapter(
+                                MainActivity.this,
+                                R.layout.warning_types_list,
+                                arrWarning);
+                        listView.setAdapter(warningAdapter);
+                        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                                warningTypes = (WarningTypes) adapterView.getItemAtPosition(i);
+                                Toast.makeText(MainActivity.this,"Thông báo " + warningTypes.getType() + " thành công",Toast.LENGTH_SHORT).show();
+                                Log.d("positiss",String.valueOf(warningTypes.getWarningTypeId()));
+
+                                //Request warning
+                                HashMap<String,String> paramsCreateWarning = new HashMap<String,String>();
+                                paramsCreateWarning.put("userId","6");
+                                paramsCreateWarning.put("warningTypeId",String.valueOf(warningTypes.getWarningTypeId()));
+                                paramsCreateWarning.put("locationLat","10");
+                                paramsCreateWarning.put("locationLong","10");
+                                paramsCreateWarning.put("description",edtDescription.getText().toString());
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                String startTime = sdf.format(new Date());
+                                paramsCreateWarning.put("startTime",startTime);
+
+                                Date date = null;
+                                try {
+                                    date = sdf.parse(startTime);
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                Calendar calendar = Calendar.getInstance();
+
+                                calendar.setTime(date);
+                                calendar.add(Calendar.SECOND, warningTypes.getDefaultTime());
+                                String endTime = sdf.format(calendar.getTime());
+                                Log.d("timesss",startTime);
+                                Log.d("timesss",endTime);
+                                Log.d("timesss",String.valueOf(warningTypes.getDefaultTime()));
+
+                                paramsCreateWarning.put("endTime",endTime);
+                                ServiceHandler serviceHandler = new ServiceHandler();
+                                serviceHandler.makeServiceCall(addWarningUrl, Request.Method.POST,
+                                        paramsCreateWarning, new ServerCallback() {
+                                            @Override
+                                            public void onSuccess(JSONObject result) {
+                                                Log.d("Result",result.toString());
+                                                Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+                                                try {
+                                                    Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                                                    if (!error) {
+
+
+                                                    }
+                                                    else {
+
+                                                    }
+
+
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onError(VolleyError error){
+                                                Log.d("Result",error.getMessage());
+                                            }
+
+                                        });
+
+
+
+
+                            }
+                        });
+                    }
+                    else {
+
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onError(VolleyError error){
+                Log.d("Resultsxxx",error.getMessage());
+            }
+        });
+
 
         edtDescription = (EditText) dialog.findViewById(R.id.edittext_dialog_description);
         //edtDescription.setLayoutParams(new LinearLayout.LayoutParams(200,50));
@@ -520,7 +652,6 @@ public class MainActivity extends AppCompatActivity
         btnOk.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 dialog.dismiss();
-
             }
         });
 
@@ -534,4 +665,6 @@ public class MainActivity extends AppCompatActivity
 
         dialog.show();
     }
+
+
 }

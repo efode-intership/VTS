@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 import vn.efode.vts.R;
-import vn.efode.vts.service.ServiceHandler;
+import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.sign_in.SignInActivity;
 import vn.efode.vts.utils.ServerCallback;
 
@@ -48,7 +48,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d("intensss",getIntent().getStringExtra("RESET_PASSWORD_TOKEN"));
 
-                if (edtNewpass.getText().toString().equals(edtConfirm.getText().toString()) && !edtNewpass.equals("")) {
+                if (edtNewpass.getText().toString().equals(edtConfirm.getText().toString()) && !edtNewpass.getText().toString().equals("")) {
                     final Intent intent = new Intent(ChangePasswordActivity.this, SignInActivity.class);
 
                     HashMap<String, String> params = new HashMap<String, String>();
