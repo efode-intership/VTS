@@ -1,5 +1,6 @@
 package vn.efode.vts.model;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -7,17 +8,25 @@ import java.util.Date;
  */
 
 public class User {
+
     private int id;
     private String name;
-    private String password;
     private String email;
     private String phone;
     private String birthday;
     private String sex;
     private String address;
     private String userStatusTypeId;
-    private String rememberToken;
     private String image;
+    private Timestamp lastLoginTime;
+
+    public Timestamp getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public void setLastLoginTime(Timestamp lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+    }
 
     public int getId() {
         return id;
@@ -33,14 +42,6 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getEmail() {
@@ -89,14 +90,6 @@ public class User {
 
     public void setUserStatusTypeId(String userStatusTypeId) {
         this.userStatusTypeId = userStatusTypeId;
-    }
-
-    public String getRememberToken() {
-        return rememberToken;
-    }
-
-    public void setRememberToken(String rememberToken) {
-        this.rememberToken = rememberToken;
     }
 
     public String getImage() {
