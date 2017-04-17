@@ -14,7 +14,6 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 import vn.efode.vts.application.ApplicationController;
-import vn.efode.vts.utils.ServerCallback;
 
 /**
  * Created by Tuan on 04/04/2017.
@@ -91,7 +90,9 @@ public class ServiceHandler {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.e(VOLLEY_TAG, error.getMessage());
-                    callback.onError(error);
+                    if (callback != null) {
+                        callback.onError(error);
+                    }
                 }
             });
         }
