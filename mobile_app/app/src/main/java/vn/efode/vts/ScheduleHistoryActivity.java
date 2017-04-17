@@ -47,7 +47,7 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
         addControls();
         ServiceHandler serviceHandler = new ServiceHandler();
         schedulelist.put("userId", "6");
-        serviceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/schedule/user/{userId}", Request.Method.GET, schedulelist, new ServerCallback() {
+        ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/schedule/user/{userId}", Request.Method.GET, schedulelist, new ServerCallback() {
             @Override
             public void onSuccess(JSONObject result) {
                 Log.d("Result_volley",result.toString());
