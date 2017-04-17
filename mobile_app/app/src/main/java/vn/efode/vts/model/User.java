@@ -1,7 +1,6 @@
 package vn.efode.vts.model;
 
 import java.sql.Timestamp;
-import java.util.Date;
 
 /**
  * Created by Nam on 04/04/2017.

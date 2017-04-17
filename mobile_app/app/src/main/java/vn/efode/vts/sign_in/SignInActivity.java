@@ -23,13 +23,12 @@ import java.util.HashMap;
 
 import vn.efode.vts.MainActivity;
 import vn.efode.vts.R;
-import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.model.User;
 import vn.efode.vts.service.DeviceTokenService;
-import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.sign_in.forgot_password.EnterPhoneActivity;
 import vn.efode.vts.utils.ServerCallback;
+import vn.efode.vts.utils.ServiceHandler;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -48,6 +47,13 @@ public class SignInActivity extends AppCompatActivity {
         txtPassWord = (EditText) findViewById(R.id.txtPassWord);
         txtForgotPassword = (TextView)findViewById(R.id.textview_signin_forgotpassword);
 
+        if(ApplicationController.getCurrentUser() != null) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
+
+        txtUserName.setText("tuan@gmail.com");
+        txtPassWord.setText("123123");
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,7 +69,8 @@ public class SignInActivity extends AppCompatActivity {
                     params.put("email", txtUserName.getText().toString());
                     params.put("password", txtPassWord.getText().toString());
 
-                    ServiceHandler.makeServiceCall("http://192.168.0.130/web_app/public/api/v1/user/validate", Request.Method.POST, params, new ServerCallback() {
+                    ServiceHandler serviceHandler = new ServiceHandler();
+                    serviceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/user/validate", Request.Method.POST, params, new ServerCallback() {
                         @Override
                         public void onSuccess(JSONObject result) {
                             Log.d("Result", result.toString());
@@ -88,6 +95,7 @@ public class SignInActivity extends AppCompatActivity {
 
                                     Intent intent = new Intent(SignInActivity.this, MainActivity.class);
                                     startActivity(intent);
+
                                 }
                                 else {
                                     Toast.makeText(SignInActivity.this, "Vui lòng kiểm tra lại UserName hoặc PassWord!!!", Toast.LENGTH_SHORT).show();
@@ -110,6 +118,7 @@ public class SignInActivity extends AppCompatActivity {
 
 
             }
+
         });
         txtForgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
