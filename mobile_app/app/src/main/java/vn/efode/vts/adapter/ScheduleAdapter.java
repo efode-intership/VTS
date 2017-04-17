@@ -49,20 +49,13 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule>{
 
         final Schedule schedule = this.objects.get(position);
         txtScheduleId.setText("Schedule Id: " + schedule.getScheduleId());
-        txtDriverId.setText("Driver Id: : " + schedule.getDriverId());
+        txtDriverId.setText("Driver Id: " + schedule.getDriverId());
         txtVehicleId.setText("Vehicle Id: " + schedule.getVehicleId());
         txtStartPointAddress.setText("Start Point Address: " + schedule.getStartPointAddress());
         txtEndPointAddress.setText("End Point Address: " + schedule.getEndPointAddress());
         txtIntendStartTime.setText("Intend Start Time: " + schedule.getIntendStartTime());
         txtIntendEndTime.setText("Intend End Time: " + schedule.getIntendEndTime());
 
-//        txtDetails.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(context, ScheduleDetailsActivity.class);
-//                context.startActivity(intent);
-//            }
-//        });
 
         return row;
     }
