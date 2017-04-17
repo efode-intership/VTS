@@ -26,7 +26,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 import vn.efode.vts.model.User;
-import vn.efode.vts.service.ServiceHandler;
+import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.utils.ServerCallback;
 
 public class ProfileActivity extends AppCompatActivity {

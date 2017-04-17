@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 import vn.efode.vts.R;
-import vn.efode.vts.service.ServiceHandler;
+import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.utils.ServerCallback;
 
 public class EnterPhoneActivity extends AppCompatActivity {

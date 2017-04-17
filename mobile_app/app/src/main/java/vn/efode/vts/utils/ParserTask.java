@@ -12,12 +12,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static vn.efode.vts.MainActivity.map;
+import static vn.efode.vts.MainActivity.mGoogleMap;
 
 /**
  * Created by Tuan on 10/04/2017.
  */
 
+/**
+ * Get List location in background and draw them in google map
+ */
 public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
     @Override
@@ -64,9 +67,8 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
             polyLineOptions.color(Color.BLUE);
         }
         if (polyLineOptions != null) {
-            map.addPolyline(polyLineOptions);
+            mGoogleMap.addPolyline(polyLineOptions);
         }
-
 
     }
 }
