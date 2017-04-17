@@ -22,6 +22,10 @@ public class ApplicationController extends Application {
     public static final String TAG = "VolleyPatterns";//Log or request TAG
     private RequestQueue mRequestQueue;//Global request queue for Volley
     private static ApplicationController sInstance;//A singleton instance of the application class for easy access in other places
+
+    /**
+     * Shared preference user session key's name.
+     */
     public static final String USER_SESSION = "user_session";
 
     /**
