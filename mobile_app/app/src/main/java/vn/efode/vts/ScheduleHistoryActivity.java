@@ -23,7 +23,7 @@ import java.util.List;
 
 import vn.efode.vts.adapter.ScheduleAdapter;
 import vn.efode.vts.model.Schedule;
-import vn.efode.vts.service.ServiceHandler;
+import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.utils.ServerCallback;
 
 
