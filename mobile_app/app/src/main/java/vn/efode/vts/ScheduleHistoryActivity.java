@@ -23,8 +23,8 @@ import java.util.List;
 
 import vn.efode.vts.adapter.ScheduleAdapter;
 import vn.efode.vts.model.Schedule;
-import vn.efode.vts.service.ServiceHandler;
 import vn.efode.vts.utils.ServerCallback;
+import vn.efode.vts.utils.ServiceHandler;
 
 
 public class ScheduleHistoryActivity extends AppCompatActivity {
@@ -45,9 +45,8 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
         lvSchedule = (ListView) findViewById(R.id.lvSchedule);
 
         addControls();
-        ServiceHandler serviceHandler = new ServiceHandler();
         schedulelist.put("userId", "6");
-        serviceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/schedule/user/{userId}", Request.Method.GET, schedulelist, new ServerCallback() {
+        ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/schedule/user/{userId}", Request.Method.GET, schedulelist, new ServerCallback() {
             @Override
             public void onSuccess(JSONObject result) {
                 Log.d("Result_volley",result.toString());

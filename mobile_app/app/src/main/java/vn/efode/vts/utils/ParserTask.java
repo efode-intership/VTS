@@ -1,4 +1,4 @@
-package vn.efode.vts.service;
+package vn.efode.vts.utils;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
