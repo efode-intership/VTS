@@ -115,6 +115,15 @@ Route::post('/api/v1/user/validate', ['as' => 'validateUser', 'uses' => 'UserCon
   */
   Route::get('api/v1/warningTypes', 'WarningTypeController@getWarningTypeList');
 
+  /**
+   * Find nearby location by distance.
+   * @var locationLat
+   * @var locationLong
+   * @var distance
+   * @return \Illuminate\Http\Response
+   */
+  Route::get('api/v1/warning/search/{locationLat}/{locationLong}/{distance}', 'WarningController@getWarningByRadius');
+
 
 
 
@@ -142,3 +151,47 @@ Route::post('/api/v1/user/validate', ['as' => 'validateUser', 'uses' => 'UserCon
  * @return json data
  */
  Route::get('api/v1/schedule/user/{userId}', 'ScheduleController@getScheduleByUserId');
+
+
+ /**
+  * Start schedule.
+  * url: ../api/v1/schedule/start
+  * @var scheduleId
+  * @var deviceId
+  * @return json data
+  */
+  Route::post('api/v1/schedule/start', 'ScheduleController@startSchedule');
+
+  /**
+   * Complete schedule.
+   * url: ../api/v1/schedule/complete
+   * @var scheduleId
+   * @var deviceId
+   * @return json data
+   */
+   Route::post('api/v1/schedule/complete', 'ScheduleController@completeSchedule');
+
+   /**
+    * Cancel started schedule.
+    * url: ../api/v1/schedule/start
+    * @var scheduleId
+    * @var deviceId
+    * @return json data
+    */
+    Route::post('api/v1/schedule/cancel', 'ScheduleController@cancelSchedule');
+
+  /**
+   * Get incoming schedule by User id
+   * url: ../api/v1/schedule/user
+   * @var userId
+   * @return json data
+   */
+   Route::get('api/v1/schedule/incoming/user/{userId}', 'ScheduleController@getIncomingSchedule');
+
+ // Token group
+ /**
+ * Mapping token - user.
+ * @var deviceId
+ * @var userId
+ */
+ Route::post('api/v1/token/save', 'TokenController@saveToken');
