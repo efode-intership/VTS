@@ -30,10 +30,15 @@ class UserController extends Controller
       $email = $request->email;
     	$password = $request->password;
       if (Auth::attempt(['email' => $email, 'password' => $password])) {
+            $user = Auth::user();
+            date_default_timezone_set("Asia/Bangkok");
+            $date = date('Y-m-d G:i:s');
+            $user->last_login_time = $date;
+            $user->save();
             // Authentication passed...
             return response()->json(array(
                       'error' => false,
-                      'content' => Auth::user(),
+                      'content' => $user,
                       'status_code' => 200
                   ));
         }
