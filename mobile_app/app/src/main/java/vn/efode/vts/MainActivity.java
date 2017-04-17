@@ -569,8 +569,11 @@ public class MainActivity extends AppCompatActivity
                                 HashMap<String,String> paramsCreateWarning = new HashMap<String,String>();
                                 paramsCreateWarning.put("userId","6");
                                 paramsCreateWarning.put("warningTypeId",String.valueOf(warningTypes.getWarningTypeId()));
-                                paramsCreateWarning.put("locationLat","10");
-                                paramsCreateWarning.put("locationLong","10");
+                                Log.d("location_warning", latLng.toString());
+                                Log.d("location_warning", String.valueOf(latLng.latitude));
+                                Log.d("location_warning", String.valueOf(latLng.longitude));
+                                paramsCreateWarning.put("locationLat",String.valueOf(latLng.latitude));
+                                paramsCreateWarning.put("locationLong",String.valueOf(latLng.longitude));
                                 paramsCreateWarning.put("description",edtDescription.getText().toString());
                                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                                 String startTime = sdf.format(new Date());
