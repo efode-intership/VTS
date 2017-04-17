@@ -63,8 +63,10 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
             polyLineOptions.width(4);
             polyLineOptions.color(Color.BLUE);
         }
+        if (polyLineOptions != null) {
+            map.addPolyline(polyLineOptions);
+        }
 
-        map.addPolyline(polyLineOptions);
 
     }
 }
