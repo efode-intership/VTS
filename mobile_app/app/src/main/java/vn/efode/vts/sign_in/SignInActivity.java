@@ -24,6 +24,10 @@ import java.util.HashMap;
 import vn.efode.vts.MainActivity;
 import vn.efode.vts.R;
 import vn.efode.vts.utils.ServiceHandler;
+import vn.efode.vts.application.ApplicationController;
+import vn.efode.vts.model.User;
+import vn.efode.vts.service.DeviceTokenService;
+import vn.efode.vts.service.ServiceHandler;
 import vn.efode.vts.sign_in.forgot_password.EnterPhoneActivity;
 import vn.efode.vts.utils.ServerCallback;
 
@@ -59,8 +63,7 @@ public class SignInActivity extends AppCompatActivity {
                     params.put("email", txtUserName.getText().toString());
                     params.put("password", txtPassWord.getText().toString());
 
-                    ServiceHandler serviceHandler = new ServiceHandler();
-                    serviceHandler.makeServiceCall("http://192.168.0.130/web_app/public/api/v1/user/validate", Request.Method.POST, params, new ServerCallback() {
+                    ServiceHandler.makeServiceCall("http://192.168.0.130/web_app/public/api/v1/user/validate", Request.Method.POST, params, new ServerCallback() {
                         @Override
                         public void onSuccess(JSONObject result) {
                             Log.d("Result", result.toString());
@@ -68,7 +71,21 @@ public class SignInActivity extends AppCompatActivity {
                             Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
                             try {
                                 Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                                String userJson = result.getString("content");
+                                // save user into session
+                                ApplicationController.sharedPreferences.edit().putString(ApplicationController.USER_SESSION,userJson).commit();
+                                User user = ApplicationController.getCurrentUser();
                                 if (!error) {
+                                    // mapping device token with user
+                                    String deviceToken = ApplicationController.sharedPreferences.getString(DeviceTokenService.DEVICE_TOKEN, null);
+                                    if (deviceToken != null && user != null) {
+                                        String saveTokenUrl = "/api/v1/token/save";
+                                        HashMap<String, String> saveTokenParams = new HashMap<String, String>();
+                                        saveTokenParams.put("deviceId", deviceToken);
+                                        saveTokenParams.put("userId", String.valueOf(user.getId()));
+                                        ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN +saveTokenUrl, Request.Method.POST, saveTokenParams, null);
+                                    }
+
                                     Intent intent = new Intent(SignInActivity.this, MainActivity.class);
                                     startActivity(intent);
                                 }

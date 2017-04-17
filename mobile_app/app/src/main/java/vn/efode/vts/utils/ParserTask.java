@@ -1,4 +1,4 @@
-package vn.efode.vts.utils;
+package vn.efode.vts.service;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -66,8 +66,9 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
             polyLineOptions.width(4);
             polyLineOptions.color(Color.BLUE);
         }
-
-        mGoogleMap.addPolyline(polyLineOptions);
+        if (polyLineOptions != null) {
+            mGoogleMap.addPolyline(polyLineOptions);
+        }
 
     }
 }

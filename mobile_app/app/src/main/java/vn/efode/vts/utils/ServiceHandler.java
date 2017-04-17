@@ -26,7 +26,7 @@ import vn.efode.vts.utils.ServerCallback;
  */
 public class ServiceHandler {
     private String result = null;
-    private String VOLLEY_TAG = "VOLLEY";
+    private static String VOLLEY_TAG = "VOLLEY";
 
     public final static String DOMAIN = "http://192.168.0.130/web_app/public";
 
@@ -40,7 +40,7 @@ public class ServiceHandler {
      * @param params Map key, value params.
      * @param callback Interface callback functions.
      */
-    public void makeServiceCall(String url, int method, HashMap<String,String> params, final ServerCallback callback){
+    public static void makeServiceCall(String url, int method, HashMap<String,String> params, final ServerCallback callback){
         JsonObjectRequest req = null;
         StringRequest sr = null;
         if(method == Request.Method.POST){
@@ -50,7 +50,9 @@ public class ServiceHandler {
                         public void onResponse(JSONObject response) {
                             try {
                                 Log.d(VOLLEY_TAG, response.toString(4));
-                                callback.onSuccess(response); // call back function here
+                                if (callback != null) {
+                                    callback.onSuccess(response); // call back function here
+                                }
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -60,7 +62,9 @@ public class ServiceHandler {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.e(VOLLEY_TAG, error.getMessage());
-                    callback.onError(error);
+                    if (callback != null) {
+                        callback.onError(error);
+                    }
                 }
             });
         }
