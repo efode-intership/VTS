@@ -1,4 +1,4 @@
-package vn.efode.vts.sign_in.forgot_password;
+package vn.efode.vts.forgot_password;
 
 import android.content.Intent;
 import android.graphics.Color;

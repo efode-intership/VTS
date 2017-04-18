@@ -27,8 +27,8 @@
         <activity
             android:name=".ScheduleHistoryActivity"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".sign_in.forgot_password.ChangePasswordActivity" />
-        <activity android:name=".sign_in.SignInActivity"
+        <activity android:name=".forgot_password.ChangePasswordActivity" />
+        <activity android:name=".SignInActivity"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,8 +36,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".sign_in.forgot_password.EnterPhoneActivity" />
-        <activity android:name=".sign_in.forgot_password.VerificationActivity" />
+        <activity android:name=".forgot_password.EnterPhoneActivity" />
+        <activity android:name=".forgot_password.VerificationActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

@@ -8,7 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -21,9 +24,8 @@ import vn.efode.vts.model.WarningTypes;
 
 public class WarningAdapter extends ArrayAdapter<WarningTypes> {
 
-    private TextView txtId;
     private TextView txtType;
-    private TextView txtDescription;
+    private ImageView imgType;
 
     Activity context; //Màn hình sử dụng layout này (giao diện này)
     int resource; // Layout cho từng dòng muốn hiển thị
@@ -41,14 +43,23 @@ public class WarningAdapter extends ArrayAdapter<WarningTypes> {
 
         LayoutInflater inflater = this.context.getLayoutInflater();
         View row = inflater.inflate(this.resource, null);
-        txtId = (TextView) row.findViewById(R.id.textview_warningtypeslist_id);
         txtType = (TextView) row.findViewById(R.id.textview_warningtypeslist_type);
-        txtDescription = (TextView) row.findViewById(R.id.textview_warningtypeslist_description);
+        imgType = (ImageView) row.findViewById(R.id.imageview_warningtypeslist_image);
 
         final WarningTypes warningTypes = this.objects.get(position);
-        txtId.setText(String.valueOf(warningTypes.getWarningTypeId()));
+
         txtType.setText(warningTypes.getType());
-        txtDescription.setText(warningTypes.getDescription());
+        //imgType.setImageURI(Uri.parse(warningTypes.getImage()));
+        //Picasso.with(context).load(warningTypes.getImage()).resize(100, 100).into(imgType);
+        if(warningTypes.getWarningTypeId() == 1) {
+            Picasso.with(context).load(R.drawable.ketxe).resize(100, 100).into(imgType);
+        }else if(warningTypes.getWarningTypeId() == 2) {
+            Picasso.with(context).load(R.drawable.pokemon).resize(100, 100).into(imgType);
+        }else if(warningTypes.getWarningTypeId() == 3) {
+            Picasso.with(context).load(R.drawable.hongduong).resize(100, 100).into(imgType);
+        }else  {
+            Picasso.with(context).load(R.drawable.hongxe).resize(100, 100).into(imgType);
+        }
 
         return row;
     }

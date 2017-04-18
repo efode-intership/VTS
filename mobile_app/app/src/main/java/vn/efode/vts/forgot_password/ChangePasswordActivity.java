@@ -1,4 +1,4 @@
-package vn.efode.vts.sign_in.forgot_password;
+package vn.efode.vts.forgot_password;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,8 +22,9 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 import vn.efode.vts.R;
+import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.utils.ServiceHandler;
-import vn.efode.vts.sign_in.SignInActivity;
+import vn.efode.vts.SignInActivity;
 import vn.efode.vts.utils.ServerCallback;
 
 public class ChangePasswordActivity extends AppCompatActivity {
@@ -52,7 +53,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     final Intent intent = new Intent(ChangePasswordActivity.this, SignInActivity.class);
 
                     HashMap<String, String> params = new HashMap<String, String>();
-                    params.put("email", "tuan@gmail.com");
+                    params.put("email", ApplicationController.getCurrentUser().getEmail());
                     params.put("newPassword", edtNewpass.getText().toString());
                     params.put("resetPasswordToken", getIntent().getStringExtra("RESET_PASSWORD_TOKEN"));
 

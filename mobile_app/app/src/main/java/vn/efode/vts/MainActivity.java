@@ -29,6 +29,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -67,7 +68,6 @@ import java.util.List;
 import vn.efode.vts.adapter.WarningAdapter;
 import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.model.WarningTypes;
-import vn.efode.vts.sign_in.SignInActivity;
 import vn.efode.vts.utils.ReadTask;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity
     private EditText edtDescription;
     private Button btnOk;
     private Button btnCancel;
+    private TextView txtConfirmWarning;
     double longitude;
     double latitude;
     private String showWarningUrl = ServiceHandler.DOMAIN + "/api/v1/warningTypes";
@@ -530,10 +531,10 @@ public class MainActivity extends AppCompatActivity
 
     public void showWarning() {
         // custom dialog
-        final Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.dialog_add_warning);
-        dialog.setTitle("Thêm cảnh báo");
-        listView = (ListView) dialog.findViewById(R.id.listview_dialog_warning);
+        final Dialog dialogShowWarning = new Dialog(this);
+        dialogShowWarning.setContentView(R.layout.dialog_add_warning);
+        dialogShowWarning.setTitle("Thêm cảnh báo");
+        listView = (ListView) dialogShowWarning.findViewById(R.id.listview_dialog_warning);
         // set the custom dialog components - text, image and button
         ServiceHandler serviceHandler = new ServiceHandler();
         HashMap<String,String> params = new HashMap<String,String>();
@@ -542,7 +543,6 @@ public class MainActivity extends AppCompatActivity
         serviceHandler.makeServiceCall(showWarningUrl, Request.Method.GET, params, new ServerCallback() {
             @Override
             public void onSuccess(JSONObject result) {
-                Log.d("Resultsxxx", result.toString());
 
                 Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
                 try {
@@ -561,74 +561,9 @@ public class MainActivity extends AppCompatActivity
                         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
                                 warningTypes = (WarningTypes) adapterView.getItemAtPosition(i);
-                                Toast.makeText(MainActivity.this,"Thông báo " + warningTypes.getType() + " thành công",Toast.LENGTH_SHORT).show();
-                                Log.d("positiss",String.valueOf(warningTypes.getWarningTypeId()));
-
-                                //Request warning
-                                HashMap<String,String> paramsCreateWarning = new HashMap<String,String>();
-                                paramsCreateWarning.put("userId","6");
-                                paramsCreateWarning.put("warningTypeId",String.valueOf(warningTypes.getWarningTypeId()));
-                                Log.d("location_warning", latLng.toString());
-                                Log.d("location_warning", String.valueOf(latLng.latitude));
-                                Log.d("location_warning", String.valueOf(latLng.longitude));
-                                paramsCreateWarning.put("locationLat",String.valueOf(latLng.latitude));
-                                paramsCreateWarning.put("locationLong",String.valueOf(latLng.longitude));
-                                paramsCreateWarning.put("description",edtDescription.getText().toString());
-                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                String startTime = sdf.format(new Date());
-                                paramsCreateWarning.put("startTime",startTime);
-
-                                Date date = null;
-                                try {
-                                    date = sdf.parse(startTime);
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                Calendar calendar = Calendar.getInstance();
-
-                                calendar.setTime(date);
-                                calendar.add(Calendar.SECOND, warningTypes.getDefaultTime());
-                                String endTime = sdf.format(calendar.getTime());
-                                Log.d("timesss",startTime);
-                                Log.d("timesss",endTime);
-                                Log.d("timesss",String.valueOf(warningTypes.getDefaultTime()));
-
-                                paramsCreateWarning.put("endTime",endTime);
-                                ServiceHandler serviceHandler = new ServiceHandler();
-                                serviceHandler.makeServiceCall(addWarningUrl, Request.Method.POST,
-                                        paramsCreateWarning, new ServerCallback() {
-                                            @Override
-                                            public void onSuccess(JSONObject result) {
-                                                Log.d("Result",result.toString());
-                                                Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-                                                try {
-                                                    Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
-                                                    if (!error) {
-
-
-                                                    }
-                                                    else {
-
-                                                    }
-
-
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onError(VolleyError error){
-                                                Log.d("Result",error.getMessage());
-                                            }
-
-                                        });
-
-
-
-
+                                addWarning();
+                                dialogShowWarning.dismiss();
                             }
                         });
                     }
@@ -648,26 +583,103 @@ public class MainActivity extends AppCompatActivity
         });
 
 
-        edtDescription = (EditText) dialog.findViewById(R.id.edittext_dialog_description);
-        //edtDescription.setLayoutParams(new LinearLayout.LayoutParams(200,50));
-        btnOk = (Button) dialog.findViewById(R.id.button_dialog_ok);
-        btnCancel = (Button) dialog.findViewById(R.id.button_dialog_cancel);
+        dialogShowWarning.show();
+    }
 
+    public void addWarning(){
+
+        final Dialog dialogConfirmWarning = new Dialog(MainActivity.this);
+        dialogConfirmWarning.setContentView(R.layout.dialog_confirm_warning);
+        dialogConfirmWarning.setTitle("Xác nhận");
+
+
+        btnOk = (Button) dialogConfirmWarning.findViewById(R.id.button_confirmwarning_done);
+        btnCancel = (Button) dialogConfirmWarning.findViewById(R.id.button_confirmwarning_cancel);
+        txtConfirmWarning = (TextView) dialogConfirmWarning.findViewById(R.id.textview_confirmwarning_confirm);
+        edtDescription = (EditText) dialogConfirmWarning.findViewById(R.id.edittext_confirmwarning_description);
+        txtConfirmWarning.setText("Xác nhận cảnh báo " + warningTypes.getType() + "?");
         btnOk.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.dismiss();
+            @Override
+            public void onClick(View view) {
+
+
+                //Request warning
+                HashMap<String,String> paramsCreateWarning = new HashMap<String,String>();
+                paramsCreateWarning.put("userId", String.valueOf(ApplicationController.getCurrentUser().getId()));
+                paramsCreateWarning.put("warningTypeId",String.valueOf(warningTypes.getWarningTypeId()));
+                Log.d("location_warning", latLng.toString());
+                Log.d("location_warning", String.valueOf(latLng.latitude));
+                Log.d("location_warning", String.valueOf(latLng.longitude));
+                paramsCreateWarning.put("locationLat",String.valueOf(latLng.latitude));
+                paramsCreateWarning.put("locationLong",String.valueOf(latLng.longitude));
+                paramsCreateWarning.put("description",String.valueOf(edtDescription.getText()));
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String startTime = sdf.format(new Date());
+                paramsCreateWarning.put("startTime",startTime);
+
+                Date date = null;
+                try {
+                    date = sdf.parse(startTime);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                Calendar calendar = Calendar.getInstance();
+
+                calendar.setTime(date);
+                calendar.add(Calendar.MINUTE, warningTypes.getDefaultTime());
+                String endTime = sdf.format(calendar.getTime());
+                Log.d("timesss",startTime);
+                Log.d("timesss",endTime);
+                Log.d("timesss",String.valueOf(warningTypes.getDefaultTime()));
+
+                paramsCreateWarning.put("endTime",endTime);
+                ServiceHandler serviceHandler = new ServiceHandler();
+                serviceHandler.makeServiceCall(addWarningUrl, Request.Method.POST,
+                        paramsCreateWarning, new ServerCallback() {
+                            @Override
+                            public void onSuccess(JSONObject result) {
+                                Log.d("Result",result.toString());
+                                Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+                                try {
+                                    Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                                    if (!error) {
+
+                                        Toast.makeText(MainActivity.this,"Thông báo " + warningTypes.getType() + " thành công",Toast.LENGTH_SHORT).show();
+                                        Log.d("positiss",String.valueOf(warningTypes.getWarningTypeId()));
+                                    }
+                                    else {
+                                        Toast.makeText(MainActivity.this,"Không thành công",Toast.LENGTH_SHORT).show();
+                                    }
+
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            @Override
+                            public void onError(VolleyError error){
+                                Log.d("Result",error.getMessage());
+                                Toast.makeText(MainActivity.this,"Không thành công",Toast.LENGTH_SHORT).show();
+                            }
+
+                        });
+
+
+
+
+                dialogConfirmWarning.dismiss();
             }
         });
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.dismiss();
-
+            @Override
+            public void onClick(View view) {
+                dialogConfirmWarning.dismiss();
             }
         });
 
-
-        dialog.show();
+        dialogConfirmWarning.show();
     }
 
 

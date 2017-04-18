@@ -1,4 +1,4 @@
-package vn.efode.vts.sign_in.forgot_password;
+package vn.efode.vts.forgot_password;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import vn.efode.vts.R;
+import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.utils.ServerCallback;
 
@@ -50,7 +51,7 @@ public class VerificationActivity extends AppCompatActivity {
                 final Intent intent = new Intent(VerificationActivity.this, ChangePasswordActivity.class);
 
                 HashMap<String,String> params = new HashMap<String,String>();
-                params.put("email","tuan@gmail.com");
+                params.put("email", ApplicationController.getCurrentUser().getEmail());
                 params.put("confirmCode", edtNumber.getText().toString());
 
                 ServiceHandler serviceHandler = new ServiceHandler();

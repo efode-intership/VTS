@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="vn.efode.vts.sign_in.SignInActivity">
+    tools:context="vn.efode.vts.SignInActivity">
 
     <LinearLayout
         android:layout_width="368dp"
@@ -42,7 +42,8 @@
             android:selectAllOnFocus="false"
             android:singleLine="false"
             tools:layout_editor_absoluteX="42dp"
-            tools:layout_editor_absoluteY="105dp" />
+            tools:layout_editor_absoluteY="105dp"
+            android:text="tuan@gmail.com"/>
 
         <EditText
             android:id="@+id/txtPassWord"
@@ -52,7 +53,8 @@
             android:layout_weight="0.29"
             android:ems="10"
             android:hint="Mật khẩu"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:text="123123"/>
 
         <LinearLayout
             android:layout_width="wrap_content"

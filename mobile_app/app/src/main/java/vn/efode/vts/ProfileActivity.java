@@ -25,9 +25,10 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
+import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.model.User;
-import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.utils.ServerCallback;
+import vn.efode.vts.utils.ServiceHandler;
 
 public class ProfileActivity extends AppCompatActivity {
     private Button btnCancel;
@@ -69,56 +70,23 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        HashMap<String,String> params = new HashMap<String,String>();
-        params.put("email","tuan@gmail.com");
-        params.put("password","123123");
+        user = ApplicationController.getCurrentUser();
 
-        ServiceHandler serviceHandler = new ServiceHandler();
-        serviceHandler.makeServiceCall(validateUrl, Request.Method.POST,
-                params, new ServerCallback() {
-                    @Override
-                    public void onSuccess(JSONObject result) {
-                        Log.d("Result",result.toString());
-                        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-                        try {
-                            Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
-                            if (!error) {
-                                user = gson.fromJson(result.getString("content"), User.class);
-
-                                if(user.getName()!= null)
-                                edtName.setText(user.getName());
-                                if(user.getSex()!= null)
-                                edtSex.setText(user.getSex());
-                                if(user.getPhone()!= null)
-                                edtPhone.setText(user.getPhone());
-                                if(user.getBirthday()!= null)
-                                edtBirth.setText(user.getBirthday());
-                                if(user.getAddress()!= null)
-                                edtAddress.setText(user.getAddress());
-                                if(user.getImage()!= null){
-                                    Log.d("sads",user.getImage());
-                                    String urlImage = user.getImage();
-                                    Picasso.with(ProfileActivity.this).load(urlImage).resize(400,400).into(imgProfile);
-                                }
-
-
-                            }
-                            else {
-
-                            }
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onError(VolleyError error){
-                        Log.d("Result",error.getMessage());
-                    }
-
-                });
+        if(user.getName()!= null)
+            edtName.setText(user.getName());
+        if(user.getSex()!= null)
+            edtSex.setText(user.getSex());
+        if(user.getPhone()!= null)
+            edtPhone.setText(user.getPhone());
+        if(user.getBirthday()!= null)
+            edtBirth.setText(user.getBirthday());
+        if(user.getAddress()!= null)
+            edtAddress.setText(user.getAddress());
+        if(user.getImage()!= null){
+            Log.d("sads",user.getImage());
+            String urlImage = user.getImage();
+            Picasso.with(ProfileActivity.this).load(urlImage).resize(400,400).into(imgProfile);
+        }
 
 
     }
@@ -144,12 +112,12 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(edtNewPass.getText().toString().equals(edtConfirm.getText().toString()) && !edtNewPass.getText().toString().equals("")){
                     HashMap<String,String> params = new HashMap<String,String>();
-                    params.put("email","tuan@gmail.com");
+                    params.put("email",ApplicationController.getCurrentUser().getEmail());
                     params.put("currentPassword",edtPassword.getText().toString());
                     params.put("newPassword",edtNewPass.getText().toString());
 
-                    ServiceHandler serviceHandler = new ServiceHandler();
-                    serviceHandler.makeServiceCall(changPasswordUrl, Request.Method.POST,
+                    //ServiceHandler serviceHandler = new ServiceHandler();
+                    ServiceHandler.makeServiceCall(changPasswordUrl, Request.Method.POST,
                             params, new ServerCallback() {
                                 @Override
                                 public void onSuccess(JSONObject result) {

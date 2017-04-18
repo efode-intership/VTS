@@ -1,4 +1,4 @@
-package vn.efode.vts.sign_in;
+package vn.efode.vts;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,12 +21,10 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
-import vn.efode.vts.MainActivity;
-import vn.efode.vts.R;
 import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.model.User;
 import vn.efode.vts.service.DeviceTokenService;
-import vn.efode.vts.sign_in.forgot_password.EnterPhoneActivity;
+import vn.efode.vts.forgot_password.EnterPhoneActivity;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 

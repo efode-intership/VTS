@@ -12,9 +12,8 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import vn.efode.vts.MainActivity;
 import vn.efode.vts.R;
-import vn.efode.vts.sign_in.SignInActivity;
+import vn.efode.vts.SignInActivity;
 
 /**
  * Created by Tri on 4/17/17.
