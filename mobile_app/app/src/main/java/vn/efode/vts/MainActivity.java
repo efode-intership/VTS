@@ -9,12 +9,12 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -38,13 +38,16 @@ import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -103,7 +106,6 @@ public class MainActivity extends AppCompatActivity
     final private static int REQ_PERMISSION = 20;// Value permission locaiton
     final private static int REQ_PERMISSION_CALL = 100;// Value permission call phone
     private static int REQUEST_LOCATION = 10;
-    final private static int REQ_PERMISSION = 20;
     private static String API_KEY_DIRECTION = "AIzaSyAJCQ6Wf-aQbUbF5wLRMs4XtgCS-vph6IE";
     private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
     private static Schedule scheduleLatest = null;//Lich trinh gan nhat cua user
@@ -118,7 +120,6 @@ public class MainActivity extends AppCompatActivity
     private String addWarningUrl = ServiceHandler.DOMAIN + "/api/v1/warning/create";
     private WarningTypes warningTypes;
     private ArrayList<WarningTypes> arrWarning;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -218,6 +219,9 @@ public class MainActivity extends AppCompatActivity
         else return true;
     }
 
+    /**
+     * call server
+     */
     private void callServer() {
         String phone = getString(R.string.phone);
         Intent intent = new Intent(Intent.ACTION_CALL);
@@ -302,16 +306,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
+//        LatLng test = new LatLng(11.8719808, 106.790409);
+//        makeMaker(test,"Orther Location");
 
         if(checkLocationPermission()){
             mGoogleMap.setMyLocationEnabled(true);
             buildGoogleApiClient();//setting GoogleAPIclient
         }
-
-
-
-
-
     }
 
     /**
@@ -735,9 +736,6 @@ public class MainActivity extends AppCompatActivity
                             }
 
                         });
-
-
-
 
                 dialogConfirmWarning.dismiss();
             }
