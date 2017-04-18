@@ -1,8 +1,11 @@
 package vn.efode.vts;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TabHost;
 
@@ -51,7 +54,7 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
             @Override
             public void onSuccess(JSONObject result) {
                 Log.d("Result_volley",result.toString());
-                Schedule schedule = new Schedule();
+                final Schedule schedule = new Schedule();
                 Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
                 try {
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
@@ -64,12 +67,25 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
                         Log.d("array",String.valueOf(listSchedule.size()));
 
 
-                        listSchedule.add(new  Schedule(schedule.getScheduleId(), schedule.getDriverId(), schedule.getVehicleId(), schedule.getStartPointAddress(), schedule.getEndPointAddress(), schedule.getIntendStartTime(), schedule.getIntendEndTime(), schedule.getScheduleStatusTypeId(), schedule.getLocationLatStart(), schedule.getLocationLongStart(), schedule.getLocationLatEnd(), schedule.getLocationLongEnd(), schedule.getRealStartTime(),schedule.getRealEndTime(),schedule.getDeviceId()));
+//                        listSchedule.add(new  Schedule(schedule.getScheduleId(), schedule.getDriverId(), schedule.getVehicleId(), schedule.getStartPointAddress(), schedule.getEndPointAddress(), schedule.getIntendStartTime(), schedule.getIntendEndTime(), schedule.getScheduleStatusTypeId(), schedule.getLocationLatStart(), schedule.getLocationLongStart(), schedule.getLocationLatEnd(), schedule.getLocationLongEnd(), schedule.getRealStartTime(),schedule.getRealEndTime(),schedule.getDeviceId()));
                         scheduleAdapter = new ScheduleAdapter(
                                 ScheduleHistoryActivity.this,
                                 R.layout.schedule_list_layout,
                                 listSchedule);
                         lvSchedule.setAdapter(scheduleAdapter);
+
+                        lvSchedule.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                Schedule schedule = listSchedule.get(i);
+                                Intent intent = new Intent(ScheduleHistoryActivity.this, ScheduleDetailsActivity.class);
+                                Bundle bundle = new Bundle();
+//                                bundle.putSerializable("Schedules", schedule);
+                                bundle.putSerializable("ListSchedule", schedule);
+                                intent.putExtra("ScheduleDetails", bundle);
+                                startActivity(intent);
+                            }
+                        });
 
                     }
                     else {

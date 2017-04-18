@@ -65,7 +65,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Xem Chi Tiết"
+        android:text="Nhấn Vào Lịch Trình Để Xem Chi Tiết"
         android:textAlignment="center"
         android:textColor="@color/cast_libraries_material_featurehighlight_outer_highlight_default_color" />
 

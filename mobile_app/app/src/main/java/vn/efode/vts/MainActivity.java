@@ -65,7 +65,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import vn.efode.vts.adapter.WarningAdapter;
+import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.model.WarningTypes;
+import vn.efode.vts.sign_in.SignInActivity;
 import vn.efode.vts.utils.ReadTask;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
@@ -233,11 +235,14 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_home) {
 
         } else if (id == R.id.nav_schedule) {
-            Intent intent1 = new Intent(MainActivity.this, ScheduleHistoryActivity.class);
-            startActivity(intent1);
+            Intent intent = new Intent(MainActivity.this, ScheduleHistoryActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_signout) {
 
+            ApplicationController.sharedPreferences.edit().remove(ApplicationController.USER_SESSION).commit();
+            Intent intent = new Intent(MainActivity.this, SignInActivity.class);
+            startActivity(intent);
         }
 
 
@@ -257,10 +262,6 @@ public class MainActivity extends AppCompatActivity
             mGoogleMap.setMyLocationEnabled(true);
             buildGoogleApiClient();
         }
-
-
-
-
 
     }
 

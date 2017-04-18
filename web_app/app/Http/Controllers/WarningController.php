@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use DB;
 use App\Warning;
 
 
@@ -44,13 +44,13 @@ class WarningController extends Controller
       try {
         $warning->save();
       } catch (Exception $e) {
-        // // TODO implement logger
-        //   echo 'Caught exception: ',  $e->getMessage(), "\n";
-        //   return response()->json(array(
-        //             'error' => true,
-        //             'content' => 'Failed.',
-        //             'status_code' => 404
-        //         ));
+        // TODO implement logger
+          echo 'Caught exception: ',  $e->getMessage(), "\n";
+          return response()->json(array(
+                    'error' => true,
+                    'content' => 'Failed.',
+                    'status_code' => 404
+                ));
       }
       return response()->json(array(
                 'error' => false,
@@ -58,6 +58,44 @@ class WarningController extends Controller
                 'status_code' => 200
             ));
 
+    }
+
+    /**
+     * Find nearby location by distance.
+     * @var locationLat
+     * @var locationLong
+     * @var distance
+     * @return \Illuminate\Http\Response
+     */
+    public function getWarningByRadius($locationLat, $locationLong, $distance)
+    {
+      // $locationLat = $request->locationLat;
+      // $locationLong = $request->locationLong;
+      // $distance = $request->distance;
+      // 6371 is the radius of the earth in Kilometer
+      $results = DB::select( DB::raw("SELECT
+                                        *, (
+                                          6371 * acos (
+                                            cos ( radians( :locationLat) )
+                                            * cos( radians( location_lat ) )
+                                            * cos( radians( location_long ) - radians( :locationLong) )
+                                            + sin ( radians( :locationLatCopy) )
+                                            * sin( radians( location_lat ) )
+                                          )
+                                        ) AS distance
+                                      FROM warning
+                                      WHERE end_time <
+                                      HAVING distance < :distance
+                                      ORDER BY distance"),
+                                      array('locationLat' => $locationLat,
+                                            'locationLong' => $locationLong,
+                                            'locationLatCopy' => $locationLat,
+                                            'distance' => $distance));
+    return response()->json(array(
+              'error' => false,
+              'content' => $results,
+              'status_code' => 200
+          ));
     }
 
 

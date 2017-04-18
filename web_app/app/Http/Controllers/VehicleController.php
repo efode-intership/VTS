@@ -20,8 +20,9 @@ class VehicleController extends Controller
     }
 
     /**
-     * Validate user.
+     * Get vehicle information.
      *
+     * @var id vehicle's id.
      * @return \Illuminate\Http\Response
      */
     public function getVehicle($id)
