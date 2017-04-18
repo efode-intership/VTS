@@ -3,6 +3,7 @@ package vn.efode.vts;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -19,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -36,10 +38,8 @@ import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
@@ -67,10 +67,13 @@ import java.util.List;
 
 import vn.efode.vts.adapter.WarningAdapter;
 import vn.efode.vts.application.ApplicationController;
+import vn.efode.vts.model.Schedule;
 import vn.efode.vts.model.WarningTypes;
 import vn.efode.vts.utils.ReadTask;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
+
+import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
@@ -82,16 +85,15 @@ public class MainActivity extends AppCompatActivity
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
 
-    LatLng latLng;
-    Marker currLocationMarker;
+    LatLng latLng;//Current location
+    Marker currLocationMarker;//Current maker
 
     boolean temp = true;//Just zoom 1 time
 
-    PendingResult<LocationSettingsResult> result;
     final private static int REQ_PERMISSION = 20;
-    private static int REQUEST_LOCATION = 10;
     private static String API_KEY_DIRECTION = "AIzaSyAJCQ6Wf-aQbUbF5wLRMs4XtgCS-vph6IE";
     private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
+    private static Schedule scheduleLatest = null;//Lich trinh gan nhat cua user
     private ListView listView;
     private EditText edtDescription;
     private Button btnOk;
@@ -172,7 +174,7 @@ public class MainActivity extends AppCompatActivity
 //            public void onSuccess(JSONObject result) {
 //                Log.d("Result", result.toString());
 //            }
-//            @Override
+//            @Overrid
 //            public void onError(VolleyError error){
 //                Log.d("Result",error.getMessage());
 //            }
@@ -180,6 +182,14 @@ public class MainActivity extends AppCompatActivity
 
         addControls();
         addEvents();
+
+
+        String userId = "6";
+        Log.d("ScheduleAAA","START");
+        getScheduleLatest(userId);//Lấy shedule gần nhất của user dựa theo userid
+        Log.d("ScheduleAAA","END");
+
+        Log.d("Devide ID AAAA", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null));
     }
 
     private void addEvents() {
@@ -236,14 +246,14 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_home) {
 
         } else if (id == R.id.nav_schedule) {
-            Intent intent = new Intent(MainActivity.this, ScheduleHistoryActivity.class);
-            startActivity(intent);
+            Intent intent1 = new Intent(MainActivity.this, ScheduleHistoryActivity.class);
+            startActivity(intent1);
 
         } else if (id == R.id.nav_signout) {
-
             ApplicationController.sharedPreferences.edit().remove(ApplicationController.USER_SESSION).commit();
             Intent intent = new Intent(MainActivity.this, SignInActivity.class);
             startActivity(intent);
+            finish();
         }
 
 
@@ -257,12 +267,14 @@ public class MainActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
 
-        makeMaker(new LatLng(10.8719808, 106.790409), "Nong Lam University");
-
         if(checkLocationPermission()){
             mGoogleMap.setMyLocationEnabled(true);
-            buildGoogleApiClient();
+            buildGoogleApiClient();//setting GoogleAPIclient
         }
+
+
+
+
 
     }
 
@@ -463,10 +475,10 @@ public class MainActivity extends AppCompatActivity
         }
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(50000); //5 seconds
+        mLocationRequest.setInterval(50000); //50 seconds
         mLocationRequest.setFastestInterval(30000); //30 seconds
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        //mLocationRequest.setSmallestDisplacement(0.1F); //1/10 meter
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//        mLocationRequest.setSmallestDisplacement(0.1F); //1/10 meter
 
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
 
@@ -510,7 +522,8 @@ public class MainActivity extends AppCompatActivity
 
         if(temp){
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-            drawroadBetween2Location(latLng,new LatLng(10.8719808, 106.790409));
+            showDialogStartJourney();
+//            drawroadBetween2Location(latLng,new LatLng(10.8719808, 106.790409));
             temp = false;
         }
 //        MarkerOptions markerOptions = new MarkerOptions();
@@ -680,6 +693,111 @@ public class MainActivity extends AppCompatActivity
         });
 
         dialogConfirmWarning.show();
+    }
+    /**
+     * Function to call API start journey
+     * @param scheduleId schedule ID
+     * @param deviceId Token ID device
+     */
+    private void startJourney(final String scheduleId, String deviceId){
+        HashMap<String, String> params = new HashMap<String,String>();
+        params.put("scheduleId",scheduleId);
+        params.put("deviceId",deviceId);
+
+        ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/schedule/start", Request.Method.POST, params, new ServerCallback() {
+            @Override
+            public void onSuccess(JSONObject result) {
+                Log.d("Result_volley",result.toString());
+                Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+                try {
+                    Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                    if (!error) {
+                        LatLng locationDestination = new LatLng(Double.parseDouble(scheduleLatest.getLocationLatEnd()),
+                                Double.parseDouble(scheduleLatest.getLocationLongEnd()));
+                        makeMaker(locationDestination,scheduleLatest.getEndPointAddress());
+                        drawroadBetween2Location(latLng,new LatLng(Double.parseDouble(scheduleLatest.getLocationLatEnd()),
+                                Double.parseDouble(scheduleLatest.getLocationLongEnd())));
+                    }
+                }catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+
+            }
+        });
+
+    }
+
+    /**
+     * Lấy shedule gần nhất của user dựa theo userid
+     * @param userId userId
+     */
+    private void getScheduleLatest(String userId){
+
+        HashMap<String, String> params = new HashMap<String,String>();
+        params.put("userId",userId);
+
+        ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/schedule/incoming/user/{userId}", Request.Method.GET, params, new ServerCallback() {
+            @Override
+            public void onSuccess(JSONObject result) {
+                Log.d("Result_volley",result.toString());
+                Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+                try {
+                    Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                    if (!error) {
+
+                        scheduleLatest = gson.fromJson(result.getString("content"), Schedule.class);//Gan schedule gan nhat
+                        if(scheduleLatest != null)
+                            Log.d("AAAAAAAA", String.valueOf(scheduleLatest.getScheduleId()));
+                    }
+                }catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+
+            }
+        });
+
+    }
+
+    /**
+     * Show dialog request user start journey
+     * Yes -> call API start journey
+     * No -> call API cancel journey
+     */
+    private void showDialogStartJourney(){
+        if(scheduleLatest != null ){
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("You have journey go to "+ scheduleLatest.getEndPointAddress() + " with "
+                            + scheduleLatest.getIntendStartTime() + " [id:"+scheduleLatest.getScheduleId()+ "]")
+                    .setMessage("Do you want start journey now?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            startJourney(String.valueOf(scheduleLatest.getScheduleId()),ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null));
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        }
+        else {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Have fun tonight")
+                    .setMessage("You don't have any schedule!")
+                    .show();
+
+        }
+
     }
 
 
