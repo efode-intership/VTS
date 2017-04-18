@@ -3,7 +3,6 @@ package vn.efode.vts;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -14,13 +13,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -67,13 +64,10 @@ import java.util.List;
 
 import vn.efode.vts.adapter.WarningAdapter;
 import vn.efode.vts.application.ApplicationController;
-import vn.efode.vts.model.Schedule;
 import vn.efode.vts.model.WarningTypes;
 import vn.efode.vts.utils.ReadTask;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
-
-import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
@@ -90,6 +84,10 @@ public class MainActivity extends AppCompatActivity
 
     boolean temp = true;//Just zoom 1 time
 
+    PendingResult<LocationSettingsResult> result;
+    final private static int REQ_PERMISSION = 20;// Value permission locaiton
+    final private static int REQ_PERMISSION_CALL = 100;// Value permission call phone
+    private static int REQUEST_LOCATION = 10;
     final private static int REQ_PERMISSION = 20;
     private static String API_KEY_DIRECTION = "AIzaSyAJCQ6Wf-aQbUbF5wLRMs4XtgCS-vph6IE";
     private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
@@ -119,8 +117,7 @@ public class MainActivity extends AppCompatActivity
         fab_call.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Call", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+               callServer();
             }
         });
 
@@ -174,7 +171,7 @@ public class MainActivity extends AppCompatActivity
 //            public void onSuccess(JSONObject result) {
 //                Log.d("Result", result.toString());
 //            }
-//            @Overrid
+//            @Override
 //            public void onError(VolleyError error){
 //                Log.d("Result",error.getMessage());
 //            }
@@ -190,6 +187,28 @@ public class MainActivity extends AppCompatActivity
         Log.d("ScheduleAAA","END");
 
         Log.d("Devide ID AAAA", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null));
+    }
+
+    /**
+     * check permission to call phone
+     * @return
+     */
+    private boolean checkPermissionCallPhone(){
+        if (ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.CALL_PHONE},REQ_PERMISSION_CALL);
+            return false;
+        }
+        else return true;
+    }
+
+    private void callServer() {
+        String phone = getString(R.string.phone);
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        Uri uri = Uri.parse("tel:" + phone);
+        intent.setData(uri);
+        if(checkPermissionCallPhone())
+            startActivity(intent);
+
     }
 
     private void addEvents() {
@@ -246,8 +265,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_home) {
 
         } else if (id == R.id.nav_schedule) {
-            Intent intent1 = new Intent(MainActivity.this, ScheduleHistoryActivity.class);
-            startActivity(intent1);
+            Intent intent = new Intent(MainActivity.this, ScheduleHistoryActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_signout) {
             ApplicationController.sharedPreferences.edit().remove(ApplicationController.USER_SESSION).commit();
@@ -415,6 +434,17 @@ public class MainActivity extends AppCompatActivity
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+            case REQ_PERMISSION_CALL: {
+                if ( grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED ){
+                    // permission was granted, yay!
+                    if (ActivityCompat.checkSelfPermission(this,
+                            android.Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+                        callServer();
+                    }
                 }
                 return;
             }

@@ -184,6 +184,7 @@ public class ProfileActivity extends AppCompatActivity {
             case android.R.id.home:
                 Intent i = new Intent(this,MainActivity.class);
                 this.startActivity(i);
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

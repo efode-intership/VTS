@@ -26,7 +26,7 @@ public class ApplicationController extends Application {
     /**
      * Shared preference user session key's name.
      */
-    public static final String USER_SESSION = "user_session";
+    public static String USER_SESSION = "user_session";
 
     /**
      * Common shared preference.

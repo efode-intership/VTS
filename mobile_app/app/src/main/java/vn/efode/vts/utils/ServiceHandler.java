@@ -49,9 +49,11 @@ public class ServiceHandler {
                         public void onResponse(JSONObject response) {
                             try {
                                 Log.d(VOLLEY_TAG, response.toString(4));
-                                if (callback != null) {
+                                if(callback != null)
+                                {
                                     callback.onSuccess(response); // call back function here
                                 }
+
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
