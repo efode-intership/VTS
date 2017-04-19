@@ -75,9 +75,8 @@ class WarningController extends Controller
      */
     public function getWarningByRadius($locationLat, $locationLong, $distance)
     {
-      $locationLat = $request->locationLat;
-      $locationLong = $request->locationLong;
-      $distance = $request->distance;
+      $date = new DateTime();
+      $date = date_format($date, 'Y-m-d G:i:s');;
       // 6371 is the radius of the earth in Kilometer
       $results = DB::select( DB::raw("SELECT
                                         *, (
@@ -90,11 +89,13 @@ class WarningController extends Controller
                                           )
                                         ) AS distance
                                       FROM warning
+                                      WHERE end_time > :endTime
                                       HAVING distance < :distance
                                       ORDER BY distance"),
                                       array('locationLat' => $locationLat,
                                             'locationLong' => $locationLong,
                                             'locationLatCopy' => $locationLat,
+                                            'endTime' => $date,
                                             'distance' => $distance));
     return response()->json(array(
               'error' => false,

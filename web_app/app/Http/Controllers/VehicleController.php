@@ -46,6 +46,7 @@ class VehicleController extends Controller
       // $locationLat = 10;
       // $locationLong = 10;
       // $distance = 100000;
+      // 6371 is the earth radius in Kilometer
       $results = DB::select( DB::raw("SELECT
                                         lastLocation.*, (
                                           6371 * acos (
