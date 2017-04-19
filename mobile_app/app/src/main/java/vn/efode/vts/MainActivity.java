@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -60,17 +62,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import vn.efode.vts.adapter.WarningAdapter;
 import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.model.Schedule;
+import vn.efode.vts.model.Warning;
 import vn.efode.vts.model.WarningTypes;
 import vn.efode.vts.utils.ReadTask;
 import vn.efode.vts.utils.ServerCallback;
@@ -120,6 +121,10 @@ public class MainActivity extends AppCompatActivity
     private String addWarningUrl = ServiceHandler.DOMAIN + "/api/v1/warning/create";
     private WarningTypes warningTypes;
     private ArrayList<WarningTypes> arrWarning;
+    private ArrayList<Warning> arrWarningPoint;
+    private Timer timerShowWarning;
+    private TimerTask timerTaskShowWarning;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -486,6 +491,7 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         registerReceiver(gpsReceiver, new IntentFilter("android.location.PROVIDERS_CHANGED"));//Register broadcast r
+        startTimer();
     }
 
     /**
@@ -520,7 +526,7 @@ public class MainActivity extends AppCompatActivity
         Log.d("onConnected",String.valueOf(mLastLocation));
         if (mLastLocation != null) {
 //            place marker at current position
-            mGoogleMap.clear();
+           // mGoogleMap.clear();
             latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
@@ -538,7 +544,7 @@ public class MainActivity extends AppCompatActivity
         mLocationRequest.setSmallestDisplacement(5); //5 meter
 
 //        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-
+        showWarningPoint();
     }
 
     private BroadcastReceiver gpsReceiver = new BroadcastReceiver() {
@@ -600,6 +606,25 @@ public class MainActivity extends AppCompatActivity
         //LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
+
+    public void startTimer() {
+        //set a new Timer
+        timerShowWarning = new Timer();
+
+        //initialize the TimerTask's job
+        showWarningPoint();
+
+        //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
+        timerShowWarning.schedule(timerTaskShowWarning, 5000, 30000); //
+    }
+
+    public void stoptimertask(View v) {
+        //stop the timer, if it's not already null
+        if (timerShowWarning != null) {
+            timerShowWarning.cancel();
+            timerShowWarning = null;
+        }
+    }
 
     public void showWarning() {
         // custom dialog
@@ -685,26 +710,26 @@ public class MainActivity extends AppCompatActivity
                 paramsCreateWarning.put("locationLat",String.valueOf(latLng.latitude));
                 paramsCreateWarning.put("locationLong",String.valueOf(latLng.longitude));
                 paramsCreateWarning.put("description",String.valueOf(edtDescription.getText()));
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String startTime = sdf.format(new Date());
-                paramsCreateWarning.put("startTime",startTime);
-
-                Date date = null;
-                try {
-                    date = sdf.parse(startTime);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                Calendar calendar = Calendar.getInstance();
-
-                calendar.setTime(date);
-                calendar.add(Calendar.MINUTE, warningTypes.getDefaultTime());
-                String endTime = sdf.format(calendar.getTime());
-                Log.d("timesss",startTime);
-                Log.d("timesss",endTime);
-                Log.d("timesss",String.valueOf(warningTypes.getDefaultTime()));
-
-                paramsCreateWarning.put("endTime",endTime);
+//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                String startTime = sdf.format(new Date());
+//                paramsCreateWarning.put("startTime",startTime);
+//
+//                Date date = null;
+//                try {
+//                    date = sdf.parse(startTime);
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                }
+//                Calendar calendar = Calendar.getInstance();
+//
+//                calendar.setTime(date);
+//                calendar.add(Calendar.MINUTE, warningTypes.getDefaultTime());
+//                String endTime = sdf.format(calendar.getTime());
+//                Log.d("timesss",startTime);
+//                Log.d("timesss",endTime);
+//                Log.d("timesss",String.valueOf(warningTypes.getDefaultTime()));
+//
+//                paramsCreateWarning.put("endTime",endTime);
                 ServiceHandler serviceHandler = new ServiceHandler();
                 serviceHandler.makeServiceCall(addWarningUrl, Request.Method.POST,
                         paramsCreateWarning, new ServerCallback() {
@@ -717,7 +742,6 @@ public class MainActivity extends AppCompatActivity
                                     if (!error) {
 
                                         Toast.makeText(MainActivity.this,"Thông báo " + warningTypes.getType() + " thành công",Toast.LENGTH_SHORT).show();
-                                        Log.d("positiss",String.valueOf(warningTypes.getWarningTypeId()));
                                     }
                                     else {
                                         Toast.makeText(MainActivity.this,"Không thành công",Toast.LENGTH_SHORT).show();
@@ -749,6 +773,89 @@ public class MainActivity extends AppCompatActivity
         });
 
         dialogConfirmWarning.show();
+    }
+
+    public void showWarningPoint(){
+
+        timerTaskShowWarning = new TimerTask() {
+            public void run() {
+
+                Log.d("start_warning_point", "start_warning_point");
+                ServiceHandler serviceHandler = new ServiceHandler();
+                HashMap<String,String> params = new HashMap<String,String>();
+                params.put("locationLat",String.valueOf(latLng.latitude));
+                Log.d("long_lat_point", String.valueOf(latitude));
+                Log.d("long_lat_point", String.valueOf(longitude));
+                params.put("locationLong",String.valueOf(latLng.longitude));
+                params.put("distance","5");
+
+                serviceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/warning/search/{locationLat}/{locationLong}/{distance}", Request.Method.GET, params, new ServerCallback() {
+                    @Override
+                    public void onSuccess(JSONObject result) {
+
+                        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+                        try {
+                            Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                            if (!error) {
+                                Log.d("not_error", "not_error");
+                                //Warning showPoint = new Warning();
+                                arrWarningPoint = new ArrayList<Warning>();
+                                Type listType = new TypeToken<List<Warning>>() {}.getType();
+                                arrWarningPoint = gson.fromJson(result.getString("content"), listType );
+                                for(int i=0;i<arrWarningPoint.size();i++){
+                                    Log.d("long_lat_location", arrWarningPoint.get(i).getLocationLat().toString());
+                                    Log.d("long_lat_location", arrWarningPoint.get(i).getLocationLong().toString());
+                                    LatLng warningPosition = new LatLng(arrWarningPoint.get(i).getLocationLat(),arrWarningPoint.get(i).getLocationLong());
+                                    BitmapDrawable bitmapdraw;
+                                    Bitmap b;
+                                    if(arrWarningPoint.get(i).getWarningTypeId() == 1){
+                                        bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.mapmarker);
+                                        b =bitmapdraw.getBitmap();
+                                    }
+                                    else if(arrWarningPoint.get(i).getWarningTypeId() == 2) {
+                                        bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.mapmarker);
+                                        b =bitmapdraw.getBitmap();
+                                    }
+                                    else if(arrWarningPoint.get(i).getWarningTypeId() == 3) {
+                                        bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.mapmarker);
+                                        b =bitmapdraw.getBitmap();
+                                    }
+                                    else {
+                                        bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.mapmarker);
+                                        b =bitmapdraw.getBitmap();
+                                    }
+                                    Bitmap warningMarker = Bitmap.createScaledBitmap(b, 70, 130, false);
+                                    Marker warning = mGoogleMap.addMarker(new MarkerOptions()
+                                            .position(warningPosition)
+                                            .icon(BitmapDescriptorFactory.fromBitmap(warningMarker))
+                                            .title(arrWarningPoint.get(i).getDescription())
+                                            .visible(true)
+                                    );
+
+                                }
+
+
+                            }
+                            else {
+                                Log.d("loixxxxxxx", "loixxx");
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    @Override
+                    public void onError(VolleyError error){
+                        Log.d("Resultsxxx",error.getMessage());
+                    }
+                });
+
+            }
+        };
+
+
+
     }
     /**
      * Function to call API start journey
