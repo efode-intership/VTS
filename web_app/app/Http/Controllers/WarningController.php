@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 use App\Warning;
+use DateTime;
+use DateInterval;
 
 
 class WarningController extends Controller
@@ -33,14 +35,18 @@ class WarningController extends Controller
     public function createWarning(Request $request)
     {
       $warning = new Warning();
-      // $warning->warning_id = 1;
       $warning->driver_id = $request->userId;
       $warning->warning_type_id = $request->warningTypeId;
       $warning->location_lat = $request->locationLat;
       $warning->location_long = $request->locationLong;
       $warning->description = $request->description;
-      $warning->start_time = $request->startTime;
-      $warning->end_time = $request->endTime;
+      date_default_timezone_set("Asia/Bangkok");
+      $startDate = new DateTime();
+      $endTime = $startDate;
+      $warning->start_time = date_format($startDate, 'Y-m-d G:i:s');;
+      $minuteToAdd = 60;
+      $endTime->add(new DateInterval('PT' . $minuteToAdd . 'M'));
+      $warning->end_time = date_format($endTime, 'Y-m-d G:i:s');
       try {
         $warning->save();
       } catch (Exception $e) {
@@ -69,9 +75,8 @@ class WarningController extends Controller
      */
     public function getWarningByRadius($locationLat, $locationLong, $distance)
     {
-      // $locationLat = $request->locationLat;
-      // $locationLong = $request->locationLong;
-      // $distance = $request->distance;
+      $date = new DateTime();
+      $date = date_format($date, 'Y-m-d G:i:s');;
       // 6371 is the radius of the earth in Kilometer
       $results = DB::select( DB::raw("SELECT
                                         *, (
@@ -84,12 +89,13 @@ class WarningController extends Controller
                                           )
                                         ) AS distance
                                       FROM warning
-                                      WHERE end_time <
+                                      WHERE end_time > :endTime
                                       HAVING distance < :distance
                                       ORDER BY distance"),
                                       array('locationLat' => $locationLat,
                                             'locationLong' => $locationLong,
                                             'locationLatCopy' => $locationLat,
+                                            'endTime' => $date,
                                             'distance' => $distance));
     return response()->json(array(
               'error' => false,

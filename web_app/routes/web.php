@@ -188,6 +188,21 @@ Route::post('/api/v1/user/validate', ['as' => 'validateUser', 'uses' => 'UserCon
    */
    Route::get('api/v1/schedule/incoming/user/{userId}', 'ScheduleController@getIncomingSchedule');
 
+   /**
+   * Insert schedule active data.
+   * @var scheduleId
+   * @var locationLat
+   * @var locationLong
+   * @var speed
+   * @var deviceId
+   * return json data.
+   */
+   Route::post('api/v1/scheduleActive/insert','ScheduleController@insertScheduleActive');
+
+
+// Vehicle group
+Route::get('api/v1/vehicle/nearby/{locationLat}/{locationLong}/{distance}','VehicleController@getNearbyVehicle');
+
  // Token group
  /**
  * Mapping token - user.

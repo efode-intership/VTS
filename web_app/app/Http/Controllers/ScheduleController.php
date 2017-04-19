@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Schedule;
+use App\ScheduleActive;
 
 
 class ScheduleController extends Controller
@@ -145,6 +146,41 @@ class ScheduleController extends Controller
                   'content' => 'Failed',
                   'status_code' => 404
               ));
+      }
+      return response()->json(array(
+                'error' => false,
+                'content' => 'Succeeded',
+                'status_code' => 200
+            ));
+    }
+
+    /**
+    * Insert schedule active data.
+    * @var scheduleId
+    * @var locationLat
+    * @var locationLong
+    * @var speed
+    * @var deviceId
+    * @return json data.
+    */
+    public function insertScheduleActive(Request $request)
+    {
+      $scheduleActive = new ScheduleActive();
+      $scheduleActive->schedule_id = $request->scheduleId;
+      $scheduleActive->location_lat = $request->locationLat;
+      $scheduleActive->location_long = $request->locationLong;
+      $scheduleActive->speed = $request->speed;
+      $scheduleActive->device_id = $request->deviceId;
+      try {
+        $scheduleActive->save();
+      } catch (Exception $e) {
+          // TODO implement logger
+          echo 'Caught exception: ',  $e->getMessage(), "\n";
+          return response()->json(array(
+                    'error' => true,
+                    'content' => 'Failed',
+                    'status_code' => 404
+                ));
       }
       return response()->json(array(
                 'error' => false,

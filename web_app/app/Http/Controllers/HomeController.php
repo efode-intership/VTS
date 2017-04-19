@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use DB;
 use Illuminate\Http\Request;
 use App\Schedule;
+use DateTime;
+use DateInterval;
 
 class HomeController extends Controller
 {
@@ -32,22 +34,11 @@ class HomeController extends Controller
         // $newToken->save();
         $scheduleId = '1';
         $deviceId = '1';
-        $schedule = Schedule::where('schedule_id',$scheduleId)->first();
-        if ($schedule != null) {
-          $schedule->device_id = $deviceId;
-          $schedule->schedule_status_type_id = '3'; // TODO 'In progress' status
-          $schedule->save();
-        } else {
-          return response()->json(array(
-                    'error' => true,
-                    'content' => 'Failed',
-                    'status_code' => 404
-                ));
-        }
-        return response()->json(array(
-                  'error' => false,
-                  'content' => 'Succeeded',
-                  'status_code' => 200
-              ));
+        date_default_timezone_set("Asia/Bangkok");
+        $date = new DateTime();
+        $minuteToAdd = 5;
+        $date->add(new DateInterval('PT' . $minuteToAdd . 'M'));
+        $end_time = date_format($date, 'Y-m-d G:i:s');
+        return  $end_time;
     }
 }
