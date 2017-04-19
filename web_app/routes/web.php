@@ -199,6 +199,10 @@ Route::post('/api/v1/user/validate', ['as' => 'validateUser', 'uses' => 'UserCon
    */
    Route::post('api/v1/scheduleActive/insert','ScheduleController@insertScheduleActive');
 
+
+// Vehicle group
+Route::get('api/v1/vehicle/nearby/{locationLat}/{locationLong}/{distance}','VehicleController@getNearbyVehicle');
+
  // Token group
  /**
  * Mapping token - user.
