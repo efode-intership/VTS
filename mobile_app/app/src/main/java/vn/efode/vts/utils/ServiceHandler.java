@@ -71,10 +71,11 @@ public class ServiceHandler {
         }
         else {
 
-            // replace param value into url
-            for (String key : params.keySet()) {
-                url = url.replace("{"+key+"}", params.get(key));
-            }
+            // replace param value into url | else using call API Google Play service EX: "https://maps.googleapis.com/maps/api/distancematrix"
+            if(params != null)
+                for (String key : params.keySet()) {
+                    url = url.replace("{"+key+"}", params.get(key));
+                }
             sr = new StringRequest(Request.Method.GET,
                     url,
                     new Response.Listener<String>() {

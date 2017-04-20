@@ -14,6 +14,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -73,10 +74,12 @@ import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.model.Schedule;
 import vn.efode.vts.model.Warning;
 import vn.efode.vts.model.WarningTypes;
+import vn.efode.vts.utils.PathJSONParser;
 import vn.efode.vts.utils.ReadTask;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
+import static android.os.Build.VERSION_CODES.M;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 
 public class MainActivity extends AppCompatActivity
@@ -92,7 +95,7 @@ public class MainActivity extends AppCompatActivity
     LatLng latLng;//Current location
     Marker currLocationMarker;//Current maker
 
-    int demo = 0;//Demo controll fab button cancel/completed journey
+//    int demo = 0;//Demo controll fab button cancel/completed journey
 
     boolean temp = true;//Just zoom 1 time
 
@@ -102,6 +105,8 @@ public class MainActivity extends AppCompatActivity
 
     private static int CONTROLL_ON = 1;
     private static int CONTROLL_OFF = -1;
+
+    private static Location previousLocation = null;
 
     PendingResult<LocationSettingsResult> result;
     final private static int REQ_PERMISSION = 20;// Value permission locaiton
@@ -205,11 +210,8 @@ public class MainActivity extends AppCompatActivity
 
 
         String userId = "6";
-        Log.d("ScheduleAAA","START");
         getScheduleLatest(userId);//Lấy shedule gần nhất của user dựa theo userid
-        Log.d("ScheduleAAA","END");
 
-        Log.d("Devide ID AAAA", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null));
     }
 
     /**
@@ -498,7 +500,7 @@ public class MainActivity extends AppCompatActivity
      * check permission for app
      */
     private void checkPermisstion(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= M) {
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED) {
 
@@ -520,13 +522,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onConnected(Bundle bundle) {
         Toast.makeText(this, "onConnected", Toast.LENGTH_SHORT).show();
-        checkLocationPermission();
-        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
+//        checkLocationPermission();
+        Location mLastLocation = getCurrentLocation();
         Log.d("onConnected",String.valueOf(mLastLocation));
         if (mLastLocation != null) {
 //            place marker at current position
-           // mGoogleMap.clear();
+//            mGoogleMap.clear();
             latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
@@ -576,21 +577,16 @@ public class MainActivity extends AppCompatActivity
 
         //place marker at current position
         //mGoogleMap.clear();
-        demo++;
-        if(demo == 2) {//Changed fabbutton cancel journey to complete journey
-            controllFabSchedule = true;
-            fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.completed));
-        }
+//        demo++;
+//        if(demo == 2) {//Changed fabbutton cancel journey to complete journey
+//            controllFabSchedule = true;
+//            fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.completed));
+//        }
         if (currLocationMarker != null) {
             currLocationMarker.remove();
         }
         latLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-        if(temp){
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-//            drawroadBetween2Location(latLng,new LatLng(10.8719808, 106.790409));
-            temp = false;
-        }
+        sendLocationDataToServer(location);//Send data to server
 //        MarkerOptions markerOptions = new MarkerOptions();
 //        markerOptions.position(latLng);
 //        markerOptions.title("Current Position");
@@ -1073,4 +1069,107 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
+    /**
+     * get Current Location
+     * @return location
+     */
+    private Location getCurrentLocation(){
+        Location mLastLocation = null;
+        checkLocationPermission();
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        Log.d("CurrentLocation",mLastLocation.getLatitude() + " | " + mLastLocation.getLongitude());
+        return mLastLocation;
+    }
+
+    /**
+     * get URL to call API distance
+     * @param origin source location
+     * @param dest destination location
+     * @return string url
+     */
+    private String getURLDistance(Location origin, Location dest){
+        String output = "json";
+
+        // Origin of route
+        String str_origin = "origin=" + origin.getLatitude() + "," + origin.getLongitude();
+
+        // Destination of route
+        String str_dest = "destination=" + dest.getLatitude() + "," + dest.getLongitude();
+
+        //key
+        String keyDistance = "key=" + API_KEY_MATRIX;
+
+        // Building the parameters to the web service
+//        String parameters = str_origin+"&"+str_dest+"&"+sensor;
+        String parameters = "?units=imperial&"+ str_origin + "&" + str_dest + "&" + keyDistance;
+
+        String url = "https://maps.googleapis.com/maps/api/distancematrix/" + output + parameters;
+        Log.d("AAAAAAAAAAAAAa",url);
+        return url;
+    }
+
+
+    /**
+     * send Location data to server
+     * @param origin previous location 2s
+     */
+    private void sendLocationDataToServer(final Location origin){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //Do something after 2s
+                Location currentLocation = getCurrentLocation();
+                Double speed = getSpeed(origin,currentLocation);
+                HashMap<String,String> params = new HashMap<String, String>();
+                params.put("scheduleId", String.valueOf(scheduleLatest.getScheduleId()));
+                params.put("locationLat", String.valueOf(currentLocation.getLatitude()));
+                params.put("locationLong", String.valueOf(currentLocation.getLongitude()));
+                params.put("speed", String.valueOf(speed));
+                params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
+                        Request.Method.POST, params, new ServerCallback() {
+                            @Override
+                            public void onSuccess(JSONObject result) {
+                                Toast.makeText(MainActivity.this,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onError(VolleyError error) {
+                                Toast.makeText(MainActivity.this,error.getMessage(),Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        }, 2000);
+
+    }
+
+    /**
+     * get Speed with 2 location
+     * @param origin previous location
+     * @param dest current location
+     * @return speed(double)
+     */
+    private Double getSpeed(Location origin, Location dest){
+        final Double[] speed = {0.0};
+        if(previousLocation != null){
+            ServiceHandler.makeServiceCall(getURLDistance(origin,dest),
+                    Request.Method.GET, null, new ServerCallback() {
+                        @Override
+                        public void onSuccess(JSONObject result) {
+                            Double distance = PathJSONParser.pareDistance(result);
+
+                            speed[0] = distance * 60 * 60;
+                        }
+
+                        @Override
+                        public void onError(VolleyError error) {
+
+                        }
+                    });
+        }
+        return speed[0];
+    }
+
 }

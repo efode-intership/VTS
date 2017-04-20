@@ -1,8 +1,11 @@
 package vn.efode.vts.utils;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -86,4 +89,33 @@ public class PathJSONParser {
         }
         return poly;
     }
+
+    public static Double pareDistance(JSONObject result){
+        JSONArray rows = null;
+        JSONArray elements = null;
+        Double distanceValue = 0.0;
+        try {
+            rows = result.getJSONArray("rows");
+
+            elements = ((JSONObject) rows.get(0)).getJSONArray("elements");
+//            JSONObject distance = (JSONObject) ((JSONObject) elements.get(0)).get("distance");
+//            distanceValue = distance.getString("text");
+
+            JSONObject obj = (JSONObject) rows.get(0);
+            for (int i = 0; i < elements.length(); i++) {
+                JSONObject jsonObject  = (JSONObject) elements.get(i);
+                JSONObject distance  = (JSONObject) jsonObject.get("distance");
+                String[] value =  distance.getString("text").split(" ");
+                distanceValue += Double.parseDouble(value[0]);
+                JSONObject duration  = (JSONObject) jsonObject.get("duration");
+            }
+
+            Log.d("AAAAAAAAAAAAAa", String.valueOf(distanceValue));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return distanceValue;
+
+    }
+
 }
