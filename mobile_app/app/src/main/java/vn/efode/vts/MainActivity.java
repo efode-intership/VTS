@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity
     private static String API_KEY_DIRECTION = "AIzaSyAJCQ6Wf-aQbUbF5wLRMs4XtgCS-vph6IE";
     private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
     private static Schedule scheduleLatest = null;//Lich trinh gan nhat cua user
+    public static Schedule scheduleActive = null; //Schedule dang chay cua user
     private ListView listView;
     private EditText edtDescription;
     private Button btnOk;
@@ -492,8 +493,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d("onResume","AAAAAAAAAAAAAA");
+//        if(scheduleActive != null){
+//            Log.d("AAAAAAAAAAAAAA", String.valueOf(scheduleActive.getScheduleId()));
+//        }
         registerReceiver(gpsReceiver, new IntentFilter("android.location.PROVIDERS_CHANGED"));//Register broadcast r
-        startTimer();
     }
 
     /**
@@ -529,12 +533,12 @@ public class MainActivity extends AppCompatActivity
 //            place marker at current position
 //            mGoogleMap.clear();
             latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latLng);
-            markerOptions.title("Current Position");
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-            currLocationMarker = mGoogleMap.addMarker(markerOptions);
+//            MarkerOptions markerOptions = new MarkerOptions();
+//            markerOptions.position(latLng);
+//            markerOptions.title("Current Position");
+//            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+//            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+//            currLocationMarker = mGoogleMap.addMarker(markerOptions);
             showDialogStartJourney();
         }
 
@@ -543,9 +547,10 @@ public class MainActivity extends AppCompatActivity
         mLocationRequest.setFastestInterval(30000); //30 seconds
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         mLocationRequest.setSmallestDisplacement(5); //5 meter
+        controllonLocationChanged(CONTROLL_ON);//Enable event onLocationChanged
 
 //        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-        showWarningPoint();
+//        showWarningPoint();
     }
 
     private BroadcastReceiver gpsReceiver = new BroadcastReceiver() {
@@ -554,9 +559,12 @@ public class MainActivity extends AppCompatActivity
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
             if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 //Do your stuff on GPS status change
+                checkLocationPermission();
                 Toast.makeText(MainActivity.this,"GPS enable!",Toast.LENGTH_LONG).show();
             }
-            else  Toast.makeText(MainActivity.this,"GPS disable!",Toast.LENGTH_LONG).show();
+            else  {
+                Toast.makeText(MainActivity.this,"GPS disable!",Toast.LENGTH_LONG).show();
+            }
         }
     };
 
@@ -574,7 +582,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
-
+        startTimer();
         //place marker at current position
         //mGoogleMap.clear();
 //        demo++;
@@ -586,7 +594,8 @@ public class MainActivity extends AppCompatActivity
             currLocationMarker.remove();
         }
         latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        sendLocationDataToServer(location);//Send data to server
+        if(scheduleActive != null)
+            sendLocationDataToServer(location);//Send data to server
 //        MarkerOptions markerOptions = new MarkerOptions();
 //        markerOptions.position(latLng);
 //        markerOptions.title("Current Position");
@@ -596,7 +605,7 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(this,"Location Changed",Toast.LENGTH_SHORT).show();
 //
 //        //zoom to current position:
-//        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
 
         //If you only need one location, unregister the listener
         //LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
@@ -859,7 +868,7 @@ public class MainActivity extends AppCompatActivity
      * @param deviceId Token ID device
      */
     private void startJourney(final String scheduleId, String deviceId){
-        controllonLocationChanged(CONTROLL_ON);//Enable event onLocationChanged
+
         HashMap<String, String> params = new HashMap<String,String>();
         params.put("scheduleId",scheduleId);
         params.put("deviceId",deviceId);
@@ -872,11 +881,12 @@ public class MainActivity extends AppCompatActivity
                 try {
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
-                        LatLng locationDestination = new LatLng(Double.parseDouble(scheduleLatest.getLocationLatEnd()),
-                                Double.parseDouble(scheduleLatest.getLocationLongEnd()));
-                        makeMaker(locationDestination,scheduleLatest.getEndPointAddress());
-                        drawroadBetween2Location(latLng,new LatLng(Double.parseDouble(scheduleLatest.getLocationLatEnd()),
-                                Double.parseDouble(scheduleLatest.getLocationLongEnd())));
+                        LatLng locationDestination = new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
+                                Double.parseDouble(scheduleActive.getLocationLongEnd()));
+                        makeMaker(locationDestination,scheduleActive.getEndPointAddress());
+                        drawroadBetween2Location(latLng,new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
+                                Double.parseDouble(scheduleActive.getLocationLongEnd())));
+
                         ctrollFabButtonSchedule(CONTROLL_ON);
                     }
                 }catch (JSONException e) {
@@ -940,7 +950,8 @@ public class MainActivity extends AppCompatActivity
                     .setMessage("Do you want start journey now?")
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            startJourney(String.valueOf(scheduleLatest.getScheduleId()),ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null));
+                            scheduleActive = scheduleLatest;//set schedule active = scheduleLatest
+                            startJourney(String.valueOf(scheduleActive.getScheduleId()),ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null));
                         }
                     })
                     .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -999,6 +1010,7 @@ public class MainActivity extends AppCompatActivity
                         fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.completed));
 
                     }
+                    scheduleActive = null;//don't active any schedule
                     fabControllSchedule.setVisibility(View.INVISIBLE);
 
                 }
@@ -1079,7 +1091,7 @@ public class MainActivity extends AppCompatActivity
         checkLocationPermission();
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
-        Log.d("CurrentLocation",mLastLocation.getLatitude() + " | " + mLastLocation.getLongitude());
+//        Log.d("CurrentLocation",mLastLocation.getLatitude() + " | " + mLastLocation.getLongitude());
         return mLastLocation;
     }
 
@@ -1123,7 +1135,7 @@ public class MainActivity extends AppCompatActivity
                 Location currentLocation = getCurrentLocation();
                 Double speed = getSpeed(origin,currentLocation);
                 HashMap<String,String> params = new HashMap<String, String>();
-                params.put("scheduleId", String.valueOf(scheduleLatest.getScheduleId()));
+                params.put("scheduleId", String.valueOf(scheduleActive.getScheduleId()));
                 params.put("locationLat", String.valueOf(currentLocation.getLatitude()));
                 params.put("locationLong", String.valueOf(currentLocation.getLongitude()));
                 params.put("speed", String.valueOf(speed));
