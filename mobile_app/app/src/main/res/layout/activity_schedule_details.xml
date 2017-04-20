@@ -124,6 +124,11 @@
             android:text="Device Id: "
             android:textStyle="bold" />
 
+        <Button
+            android:id="@+id/btn_start_schedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="START JOURNEY"/>
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

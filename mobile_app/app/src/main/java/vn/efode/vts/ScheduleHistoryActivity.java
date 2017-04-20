@@ -87,7 +87,6 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
                                 startActivity(intent);
                             }
                         });
-
                     }
                     else {
 
