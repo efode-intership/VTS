@@ -1,7 +1,9 @@
 package vn.efode.vts;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -85,9 +87,37 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btn_start_schedule:
-
+                showDialogAccept();
                 break;
         }
+    }
+
+    /**
+     * Show dialog accept or not
+     */
+    private void showDialogAccept() {
+        if(MainActivity.scheduleActive == null)
+            new AlertDialog.Builder(ScheduleDetailsActivity.this)
+                    .setTitle("Do you want start this schedule?")
+                    .setMessage("Scheduleid:" + schedule.getScheduleId() + "\nAddress: "+schedule.getEndPointAddress())
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                                swtichActivityAndPutData();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        else
+            new AlertDialog.Builder(ScheduleDetailsActivity.this)
+                .setTitle("You are in a schedule active!")
+                .setMessage("Scheduleid:" + MainActivity.scheduleActive.getScheduleId() + "\nAddress: "+ MainActivity.scheduleActive.getEndPointAddress())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     /**
@@ -95,10 +125,7 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
      */
     private void swtichActivityAndPutData(){
         Intent intent = new Intent(ScheduleDetailsActivity.this, MainActivity.class);
-        Bundle bundle = new Bundle();
-//                                bundle.putSerializable("Schedules", schedule);
-        bundle.putSerializable("ListSchedule", schedule);
-        intent.putExtra("ScheduleDetails", bundle);
+        MainActivity.scheduleActive = schedule;
         startActivity(intent);
         finish();
     }

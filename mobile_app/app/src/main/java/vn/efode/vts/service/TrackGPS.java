@@ -1,233 +1,283 @@
 package vn.efode.vts.service;
 
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
-import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONObject;
+
+import java.util.HashMap;
+
 import vn.efode.vts.MainActivity;
+import vn.efode.vts.application.ApplicationController;
+import vn.efode.vts.utils.PathJSONParser;
+import vn.efode.vts.utils.ServerCallback;
+import vn.efode.vts.utils.ServiceHandler;
+
+import static vn.efode.vts.MainActivity.mGoogleMap;
+import static vn.efode.vts.MainActivity.scheduleActive;
+import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 
 /**
  * Created by Tuan on 10/04/2017.
  */
 
-public class TrackGPS extends Service implements LocationListener {
+public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+    private static GoogleApiClient mGoogleApiClient;
+    private Context mContext;
+    private static LocationRequest mLocationRequest;
 
-    private final Context mContext;
+    private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
+    public static Location previousLocation = null;
 
+    public static boolean canGetLocation = false;
 
-    boolean checkGPS = false;
-
-
-    boolean checkNetwork = false;
-
-    boolean canGetLocation = false;
-
-    Location loc;
-    double latitude;
-    double longitude;
+    boolean zoomOneTime = true;//Just zoom 1 time
 
 
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
+    private static int CONTROLL_ON = 1;
+    private static int CONTROLL_OFF = -1;
 
+    final private static int REQ_PERMISSION = 20;// Value permission locaiton
 
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
-    protected LocationManager locationManager;
-
-    public TrackGPS(Context mContext) {
-        this.mContext = mContext;
-        getLocation();
+    public TrackGPS(Context context){
+        mContext = context;
+        buildGoogleApiClient();
     }
 
-    private Location getLocation() {
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(5000); //50 seconds
+        mLocationRequest.setFastestInterval(3000); //30 seconds
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+//        mLocationRequest.setSmallestDisplacement(5); //5 meter
 
-        try {
-            locationManager = (LocationManager) mContext
-                    .getSystemService(LOCATION_SERVICE);
+        controllonLocationChanged(CONTROLL_ON);//Enable event onLocationChanged
+    }
 
-            // getting GPS status
-            checkGPS = locationManager
-                    .isProviderEnabled(LocationManager.GPS_PROVIDER);
+    @Override
+    public void onConnectionSuspended(int i) {
 
-            // getting network status
-            checkNetwork = locationManager
-                    .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
 
-            if (!checkGPS && !checkNetwork) {
-                Toast.makeText(mContext, "No Service Provider Available", Toast.LENGTH_SHORT).show();
-            } else {
-                this.canGetLocation = true;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                                    != PackageManager.PERMISSION_GRANTED) {
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-                                ActivityCompat.requestPermissions((MainActivity) mContext,new String[]{
-                                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                                        android.Manifest.permission.INTERNET
-                                }, 10);
-                            }
-                            if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                                    != PackageManager.PERMISSION_GRANTED) {
-                                ActivityCompat.requestPermissions((MainActivity) mContext, new String[]{
-                                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                                        android.Manifest.permission.INTERNET
-                                }, 10);
-                            }
-                        }
-                // First get location from Network Provider
-                if (checkNetwork) {
-                    Toast.makeText(mContext, "Network", Toast.LENGTH_SHORT).show();
+    }
 
-                    try {
-                        Log.d("LOCATIONNETWORK", "Network1");
-                        locationManager.requestLocationUpdates(
-                                LocationManager.NETWORK_PROVIDER,
-                                MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                        Log.d("LOCATIONNETWORK", "Network2");
-                        if (locationManager != null) {
-                            Log.d("LOCATIONNETWORK", "Network3");
-                            loc = locationManager
-                                    .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                            Log.d("LOCATIONNETWORK", "Network4");
 
-                        }
-
-                        if (loc != null) {
-                            latitude = loc.getLatitude();
-                            longitude = loc.getLongitude();
-
-                            Log.d("LOCATIONNETWORK",latitude + " | " + longitude);
-
-                        }
-                    }
-                    catch(SecurityException e){
-                        Log.d("LOCATIONNETWORK", e.getMessage());
-                    }
-                }
-                else {
-                    // if GPS Enabled get lat/long using GPS Services
-                    if (checkGPS) {
-                        Toast.makeText(mContext,"GPS",Toast.LENGTH_SHORT).show();
-                        if (loc == null) {
-                            try {
-                                locationManager.requestLocationUpdates(
-                                        LocationManager.GPS_PROVIDER,
-                                        MIN_TIME_BW_UPDATES,
-                                        MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                                Log.d("GPS Enabled", "GPS Enabled");
-                                if (locationManager != null) {
-                                    loc = locationManager
-                                            .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                                    if (loc != null) {
-                                        latitude = loc.getLatitude();
-                                        longitude = loc.getLongitude();
-                                    }
-                                }
-                            } catch (SecurityException e) {
-
-                            }
-                        }
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+    @Override
+    public void onLocationChanged(Location location) {
+        if(zoomOneTime){//Just zoom 1 time
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()),11));
+            zoomOneTime =false;
         }
+        Log.d("ONLOCATIONCHANGE","AAAAAAAAAAAAA");
 
-        return loc;
+        if(MainActivity.scheduleActive != null)
+            sendLocationDataToServer(location);//Send data to server
     }
 
-    public double getLongitude() {
-        if (loc != null) {
-            longitude = loc.getLongitude();
-        }
-        return longitude;
-    }
-
-    public double getLatitude() {
-        if (loc != null) {
-            latitude = loc.getLatitude();
-        }
-        return latitude;
-    }
-
-    public boolean canGetLocation() {
-        return this.canGetLocation;
-    }
-
-    public void showSettingsAlert() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
-
-
-        alertDialog.setTitle("GPS Not Enabled");
-
-        alertDialog.setMessage("Do you wants to turn On GPS");
-
-
-        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                ((AppCompatActivity)mContext).startActivityForResult(intent,1);
-            }
-        });
-
-
-        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-
-        alertDialog.show();
-    }
-
-
-    public void stopUsingGPS() {
-        if (locationManager != null) {
-
-            locationManager.removeUpdates(TrackGPS.this);
-        }
-    }
-
-
+    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
+    /**
+     * Check permission to using location
+     * @return true - can
+     */
+    public boolean checkLocationPermission() {
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//
+//                ActivityCompat.requestPermissions((MainActivity) mContext,new String[]{
+//                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+//                        android.Manifest.permission.INTERNET
+//                }, REQ_PERMISSION);
+//            }
+//            if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//                ActivityCompat.requestPermissions((MainActivity) mContext, new String[]{
+//                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+//                        android.Manifest.permission.INTERNET
+//                }, REQ_PERMISSION);
+//            }
+//            return false;
+//        }
+        if (ActivityCompat.checkSelfPermission(mContext,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale((MainActivity) mContext,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+
+                //Prompt the user once explanation has been shown
+                ActivityCompat.requestPermissions((MainActivity) mContext,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQ_PERMISSION);
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions((Activity) mContext,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQ_PERMISSION);
+            }
+            canGetLocation = false;
+            return false;
+        } else {
+            mGoogleMap.setMyLocationEnabled(true);
+            canGetLocation = true;
+            return true;
+        }
+    }
+
+    public synchronized void buildGoogleApiClient() {
+        Toast.makeText(mContext, "buildGoogleApiClient", Toast.LENGTH_SHORT).show();
+        mGoogleApiClient = new GoogleApiClient.Builder(mContext)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    /**
+     * get Current Location
+     * @return location
+     */
+    public Location getCurrentLocation(){
+        Location mLastLocation = null;
+        if(checkLocationPermission())
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+    //        Log.d("CurrentLocation",mLastLocation.getLatitude() + " | " + mLastLocation.getLongitude());
+        return mLastLocation;
+    }
+
+    /**
+     * Register / Unregister the listener location changed
+     * @param value
+     */
+    public void controllonLocationChanged(int value){
+        if(value == CONTROLL_OFF)// unregister the listener
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        if(value == CONTROLL_ON) {//register the listener to listen location change
+            if(checkLocationPermission())
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
+    }
+
+    /**
+     * send Location data to server
+     * @param origin previous location 2s
+     */
+    private void sendLocationDataToServer(final Location origin){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //Do something after 2s
+                Location currentLocation = getCurrentLocation();
+                Double speed = getSpeed(origin,currentLocation);
+                HashMap<String,String> params = new HashMap<String, String>();
+                params.put("scheduleId", String.valueOf(scheduleActive.getScheduleId()));
+                params.put("locationLat", String.valueOf(currentLocation.getLatitude()));
+                params.put("locationLong", String.valueOf(currentLocation.getLongitude()));
+                params.put("speed", String.valueOf(speed));
+                params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
+                        Request.Method.POST, params, new ServerCallback() {
+                            @Override
+                            public void onSuccess(JSONObject result) {
+                                Toast.makeText(mContext,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onError(VolleyError error) {
+                                Toast.makeText(mContext,error.getMessage(),Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        }, 2000);
 
     }
 
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
+    /**
+     * get Speed with 2 location
+     * @param origin previous location
+     * @param dest current location
+     * @return speed(double)
+     */
+    private Double getSpeed(Location origin, Location dest){
+        final Double[] speed = {0.0};
+            ServiceHandler.makeServiceCall(getURLDistance(origin,dest),
+                    Request.Method.GET, null, new ServerCallback() {
+                        @Override
+                        public void onSuccess(JSONObject result) {
+                            Double distance = PathJSONParser.pareDistance(result);
 
+                            speed[0] = distance * 60 * 60;
+                        }
+
+                        @Override
+                        public void onError(VolleyError error) {
+
+                        }
+                    });
+        return speed[0];
     }
 
-    @Override
-    public void onProviderEnabled(String s) {
+    /**
+     * get URL to call API distance
+     * @param origin source location
+     * @param dest destination location
+     * @return string url
+     */
+    private String getURLDistance(Location origin, Location dest){
+        String output = "json";
 
+        // Origin of route
+        String str_origin = "origin=" + origin.getLatitude() + "," + origin.getLongitude();
+
+        // Destination of route
+        String str_dest = "destination=" + dest.getLatitude() + "," + dest.getLongitude();
+
+        //key
+        String keyDistance = "key=" + API_KEY_MATRIX;
+
+        // Building the parameters to the web service
+//        String parameters = str_origin+"&"+str_dest+"&"+sensor;
+        String parameters = "?units=imperial&"+ str_origin + "&" + str_dest + "&" + keyDistance;
+
+        String url = "https://maps.googleapis.com/maps/api/distancematrix/" + output + parameters;
+        Log.d("AAAAAAAAAAAAAa",url);
+        return url;
     }
 
-    @Override
-    public void onProviderDisabled(String s) {
-
-    }
 }

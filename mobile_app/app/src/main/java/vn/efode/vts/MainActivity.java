@@ -1,6 +1,6 @@
 package vn.efode.vts;
 
-import android.app.Dialog;
+        import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,7 +14,6 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -39,13 +38,10 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -74,6 +70,7 @@ import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.model.Schedule;
 import vn.efode.vts.model.Warning;
 import vn.efode.vts.model.WarningTypes;
+import vn.efode.vts.service.TrackGPS;
 import vn.efode.vts.utils.PathJSONParser;
 import vn.efode.vts.utils.ReadTask;
 import vn.efode.vts.utils.ServerCallback;
@@ -83,7 +80,7 @@ import static android.os.Build.VERSION_CODES.M;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
@@ -92,12 +89,15 @@ public class MainActivity extends AppCompatActivity
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
 
+    private static TrackGPS trackgps;
+
+
     LatLng latLng;//Current location
     Marker currLocationMarker;//Current maker
 
 //    int demo = 0;//Demo controll fab button cancel/completed journey
 
-    boolean temp = true;//Just zoom 1 time
+    boolean zoomOneTime = true;//Just zoom 1 time
 
     boolean controllFabSchedule = false;//Boolean to controll fabButton Cancel/Completed Journey
 
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity
         fab_call.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               callServer();
+                callServer();
             }
         });
 
@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        Log.d("MAPPPP", "onCreate");
+        Log.d("onCreate", "AAAAAAAAAAAAAA");
 
 
 //        HashMap<String,String> params = new HashMap<String,String>();
@@ -247,7 +247,6 @@ public class MainActivity extends AppCompatActivity
 
     private void addControls() {
 
-
     }
 
     @Override
@@ -316,11 +315,15 @@ public class MainActivity extends AppCompatActivity
         mGoogleMap = googleMap;
 //        LatLng test = new LatLng(11.8719808, 106.790409);
 //        makeMaker(test,"Orther Location");
+        trackgps = new TrackGPS(MainActivity.this);
+//        if(trackgps.canGetLocation){
+//            showDialogStartJourney();
+//        }
 
-        if(checkLocationPermission()){
-            mGoogleMap.setMyLocationEnabled(true);
-            buildGoogleApiClient();//setting GoogleAPIclient
-        }
+//        if(checkLocationPermission()){
+//
+//            buildGoogleApiClient();//setting GoogleAPIclient
+//        }
     }
 
     /**
@@ -355,15 +358,15 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    protected synchronized void buildGoogleApiClient() {
-        Toast.makeText(this, "buildGoogleApiClient", Toast.LENGTH_SHORT).show();
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-        mGoogleApiClient.connect();
-    }
+//    protected synchronized void buildGoogleApiClient() {
+//        Toast.makeText(this, "buildGoogleApiClient", Toast.LENGTH_SHORT).show();
+//        mGoogleApiClient = new GoogleApiClient.Builder(this)
+//                .addConnectionCallbacks(this)
+//                .addOnConnectionFailedListener(this)
+//                .addApi(LocationServices.API)
+//                .build();
+//        mGoogleApiClient.connect();
+//    }
 
     /**
      * Draw road between 2 location in google map
@@ -457,7 +460,9 @@ public class MainActivity extends AppCompatActivity
                     if (ActivityCompat.checkSelfPermission(this,
                             android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         mGoogleMap.setMyLocationEnabled(true);
-                        buildGoogleApiClient();
+                        trackgps.controllonLocationChanged(CONTROLL_ON);
+                        showDialogStartJourney();
+//                        buildGoogleApiClient();
 
                     }
                 } else {
@@ -494,9 +499,9 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         Log.d("onResume","AAAAAAAAAAAAAA");
-//        if(scheduleActive != null){
-//            Log.d("AAAAAAAAAAAAAA", String.valueOf(scheduleActive.getScheduleId()));
-//        }
+        if(scheduleActive != null){
+            Log.d("AAAAAAAAAAAAAA", String.valueOf(scheduleActive.getScheduleId()));
+        }
         registerReceiver(gpsReceiver, new IntentFilter("android.location.PROVIDERS_CHANGED"));//Register broadcast r
     }
 
@@ -523,35 +528,35 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
-        Toast.makeText(this, "onConnected", Toast.LENGTH_SHORT).show();
-//        checkLocationPermission();
-        Location mLastLocation = getCurrentLocation();
-        Log.d("onConnected",String.valueOf(mLastLocation));
-        if (mLastLocation != null) {
-//            place marker at current position
-//            mGoogleMap.clear();
-            latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-//            MarkerOptions markerOptions = new MarkerOptions();
-//            markerOptions.position(latLng);
-//            markerOptions.title("Current Position");
-//            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-//            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-//            currLocationMarker = mGoogleMap.addMarker(markerOptions);
-            showDialogStartJourney();
-        }
-
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(50000); //50 seconds
-        mLocationRequest.setFastestInterval(30000); //30 seconds
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        mLocationRequest.setSmallestDisplacement(5); //5 meter
-        controllonLocationChanged(CONTROLL_ON);//Enable event onLocationChanged
-
-//        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-//        showWarningPoint();
-    }
+//    @Override
+//    public void onConnected(Bundle bundle) {
+//        Toast.makeText(this, "onConnected", Toast.LENGTH_SHORT).show();
+////        checkLocationPermission();
+//        Location mLastLocation = getCurrentLocation();
+//        Log.d("onConnected",String.valueOf(mLastLocation));
+//        if (mLastLocation != null) {
+////            place marker at current position
+////            mGoogleMap.clear();
+//            latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+////            MarkerOptions markerOptions = new MarkerOptions();
+////            markerOptions.position(latLng);
+////            markerOptions.title("Current Position");
+////            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+////            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+////            currLocationMarker = mGoogleMap.addMarker(markerOptions);
+//            showDialogStartJourney();
+//        }
+//
+//        mLocationRequest = new LocationRequest();
+//        mLocationRequest.setInterval(50000); //50 seconds
+//        mLocationRequest.setFastestInterval(30000); //30 seconds
+//        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+//        mLocationRequest.setSmallestDisplacement(5); //5 meter
+//        controllonLocationChanged(CONTROLL_ON);//Enable event onLocationChanged
+//
+////        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+////        showWarningPoint();
+//    }
 
     private BroadcastReceiver gpsReceiver = new BroadcastReceiver() {
         @Override
@@ -559,7 +564,6 @@ public class MainActivity extends AppCompatActivity
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
             if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 //Do your stuff on GPS status change
-                checkLocationPermission();
                 Toast.makeText(MainActivity.this,"GPS enable!",Toast.LENGTH_LONG).show();
             }
             else  {
@@ -568,48 +572,52 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
-    @Override
-    public void onConnectionSuspended(int i) {
-        Toast.makeText(this,"onConnectionSuspended",Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        Toast.makeText(this,"onConnectionFailed",Toast.LENGTH_SHORT).show();
-    }
-
-
-
-    @Override
-    public void onLocationChanged(Location location) {
-        startTimer();
-        //place marker at current position
-        //mGoogleMap.clear();
-//        demo++;
-//        if(demo == 2) {//Changed fabbutton cancel journey to complete journey
-//            controllFabSchedule = true;
-//            fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.completed));
+//    @Override
+//    public void onConnectionSuspended(int i) {
+//        Toast.makeText(this,"onConnectionSuspended",Toast.LENGTH_SHORT).show();
+//    }
+//
+//    @Override
+//    public void onConnectionFailed(ConnectionResult connectionResult) {
+//        Toast.makeText(this,"onConnectionFailed",Toast.LENGTH_SHORT).show();
+//    }
+//
+//
+//
+//    @Override
+//    public void onLocationChanged(Location location) {
+//        startTimer();
+//        //place marker at current position
+//        //mGoogleMap.clear();
+////        demo++;
+////        if(demo == 2) {//Changed fabbutton cancel journey to complete journey
+////            controllFabSchedule = true;
+////            fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.completed));
+////        }
+//        if (currLocationMarker != null) {
+//            currLocationMarker.remove();
 //        }
-        if (currLocationMarker != null) {
-            currLocationMarker.remove();
-        }
-        latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        if(scheduleActive != null)
-            sendLocationDataToServer(location);//Send data to server
-//        MarkerOptions markerOptions = new MarkerOptions();
-//        markerOptions.position(latLng);
-//        markerOptions.title("Current Position");
-//        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-//        currLocationMarker = mGoogleMap.addMarker(markerOptions);
+//        latLng = new LatLng(location.getLatitude(), location.getLongitude());
+//        if(scheduleActive != null)
+//            sendLocationDataToServer(location);//Send data to server
+////        MarkerOptions markerOptions = new MarkerOptions();
+////        markerOptions.position(latLng);
+////        markerOptions.title("Current Position");
+////        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+////        currLocationMarker = mGoogleMap.addMarker(markerOptions);
+////
+//        Toast.makeText(this,"Location Changed",Toast.LENGTH_SHORT).show();
 //
-        Toast.makeText(this,"Location Changed",Toast.LENGTH_SHORT).show();
+////        //zoom to current position:
+//        if(zoomOneTime){//Just zoom 1 time
+//            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
+//            zoomOneTime =false;
+//        }
 //
-//        //zoom to current position:
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
-
-        //If you only need one location, unregister the listener
-        //LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-    }
+//
+//        //If you only need one location, unregister the listener
+//        //LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+//    }
 
 
     public void startTimer() {
@@ -868,7 +876,6 @@ public class MainActivity extends AppCompatActivity
      * @param deviceId Token ID device
      */
     private void startJourney(final String scheduleId, String deviceId){
-
         HashMap<String, String> params = new HashMap<String,String>();
         params.put("scheduleId",scheduleId);
         params.put("deviceId",deviceId);
@@ -884,7 +891,9 @@ public class MainActivity extends AppCompatActivity
                         LatLng locationDestination = new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
                                 Double.parseDouble(scheduleActive.getLocationLongEnd()));
                         makeMaker(locationDestination,scheduleActive.getEndPointAddress());
-                        drawroadBetween2Location(latLng,new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
+                        drawroadBetween2Location(new LatLng(trackgps.getCurrentLocation().getLatitude(),
+                                trackgps.getCurrentLocation().getLongitude()),
+                                new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
                                 Double.parseDouble(scheduleActive.getLocationLongEnd())));
 
                         ctrollFabButtonSchedule(CONTROLL_ON);
@@ -910,7 +919,7 @@ public class MainActivity extends AppCompatActivity
 
         HashMap<String, String> params = new HashMap<String,String>();
         params.put("userId",userId);
-
+        Log.d("AAAAAAAA",userId);
         ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/schedule/incoming/user/{userId}", Request.Method.GET, params, new ServerCallback() {
             @Override
             public void onSuccess(JSONObject result) {
@@ -942,7 +951,7 @@ public class MainActivity extends AppCompatActivity
      * Yes -> call API start journey
      * No -> call API cancel journey
      */
-    private void showDialogStartJourney(){
+    public void showDialogStartJourney(){
         if(scheduleLatest != null ){
             new AlertDialog.Builder(MainActivity.this)
                     .setTitle("You have journey go to "+ scheduleLatest.getEndPointAddress() + " with "
@@ -973,17 +982,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Register / Unregister the listener location changed
+     * Register / Unregister the listener location
      * @param value
      */
-    private void controllonLocationChanged(int value){
-        if(value == CONTROLL_OFF)// unregister the listener
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        if(value == CONTROLL_ON) {//register the listener to listen location change
-            checkLocationPermission();
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-        }
-    }
+//    private void controllonLocationChanged(int value){changed
+//        if(value == CONTROLL_OFF)// unregister the listener
+//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+//        if(value == CONTROLL_ON) {//register the listener to listen location change
+//            checkLocationPermission();
+//            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+//        }
+//    }
 
     /**
      * Invisible/Visible fab button Controll schedule
@@ -1035,7 +1044,7 @@ public class MainActivity extends AppCompatActivity
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
                         mGoogleMap.clear();
-                        controllonLocationChanged(CONTROLL_OFF);
+//                        controllonLocationChanged(CONTROLL_OFF);
                         Toast.makeText(MainActivity.this, "Completed journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
                     }
                 }catch (JSONException e) {
@@ -1067,7 +1076,7 @@ public class MainActivity extends AppCompatActivity
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
                         mGoogleMap.clear();
-                        controllonLocationChanged(CONTROLL_OFF);
+//                        controllonLocationChanged(CONTROLL_OFF);
                         Toast.makeText(MainActivity.this, "Cancel journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
                     }
                 }catch (JSONException e) {
@@ -1082,18 +1091,18 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    /**
-     * get Current Location
-     * @return location
-     */
-    private Location getCurrentLocation(){
-        Location mLastLocation = null;
-        checkLocationPermission();
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-//        Log.d("CurrentLocation",mLastLocation.getLatitude() + " | " + mLastLocation.getLongitude());
-        return mLastLocation;
-    }
+//    /**
+//     * get Current Location
+//     * @return location
+//     */
+//    private Location getCurrentLocation(){
+//        Location mLastLocation = null;
+//        checkLocationPermission();
+//        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+//                mGoogleApiClient);
+////        Log.d("CurrentLocation",mLastLocation.getLatitude() + " | " + mLastLocation.getLongitude());
+//        return mLastLocation;
+//    }
 
     /**
      * get URL to call API distance
@@ -1127,35 +1136,35 @@ public class MainActivity extends AppCompatActivity
      * send Location data to server
      * @param origin previous location 2s
      */
-    private void sendLocationDataToServer(final Location origin){
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                //Do something after 2s
-                Location currentLocation = getCurrentLocation();
-                Double speed = getSpeed(origin,currentLocation);
-                HashMap<String,String> params = new HashMap<String, String>();
-                params.put("scheduleId", String.valueOf(scheduleActive.getScheduleId()));
-                params.put("locationLat", String.valueOf(currentLocation.getLatitude()));
-                params.put("locationLong", String.valueOf(currentLocation.getLongitude()));
-                params.put("speed", String.valueOf(speed));
-                params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-                ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
-                        Request.Method.POST, params, new ServerCallback() {
-                            @Override
-                            public void onSuccess(JSONObject result) {
-                                Toast.makeText(MainActivity.this,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
-                            }
-
-                            @Override
-                            public void onError(VolleyError error) {
-                                Toast.makeText(MainActivity.this,error.getMessage(),Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            }
-        }, 2000);
-
-    }
+//    private void sendLocationDataToServer(final Location origin){
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                //Do something after 2s
+//                Location currentLocation = getCurrentLocation();
+//                Double speed = getSpeed(origin,currentLocation);
+//                HashMap<String,String> params = new HashMap<String, String>();
+//                params.put("scheduleId", String.valueOf(scheduleActive.getScheduleId()));
+//                params.put("locationLat", String.valueOf(currentLocation.getLatitude()));
+//                params.put("locationLong", String.valueOf(currentLocation.getLongitude()));
+//                params.put("speed", String.valueOf(speed));
+//                params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+//                ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
+//                        Request.Method.POST, params, new ServerCallback() {
+//                            @Override
+//                            public void onSuccess(JSONObject result) {
+//                                Toast.makeText(MainActivity.this,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
+//                            }
+//
+//                            @Override
+//                            public void onError(VolleyError error) {
+//                                Toast.makeText(MainActivity.this,error.getMessage(),Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+//            }
+//        }, 2000);
+//
+//    }
 
     /**
      * get Speed with 2 location
@@ -1184,4 +1193,8 @@ public class MainActivity extends AppCompatActivity
         return speed[0];
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
 }
