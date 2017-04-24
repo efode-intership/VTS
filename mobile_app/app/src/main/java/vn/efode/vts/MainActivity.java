@@ -66,6 +66,7 @@ import java.util.TimerTask;
 
 import vn.efode.vts.adapter.WarningAdapter;
 import vn.efode.vts.application.ApplicationController;
+import vn.efode.vts.model.OtherVehiclesInformation;
 import vn.efode.vts.model.Schedule;
 import vn.efode.vts.model.Warning;
 import vn.efode.vts.model.WarningTypes;
@@ -95,6 +96,10 @@ public class MainActivity extends AppCompatActivity
 
     LatLng latLng;//Current location
     Marker currLocationMarker;//Current maker
+    /**
+     * Selected vehicle marker.
+     */
+    OtherVehiclesInformation selectedVehicleMarker;
 
 //    int demo = 0;//Demo controll fab button cancel/completed journey
 
@@ -131,24 +136,67 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<Warning> arrWarningPoint;
     private Timer timerShowWarning;
     private TimerTask timerTaskShowWarning;
+    private Timer timerShowOtherVehicles;
+    private TimerTask timerTaskShowOtherVehicles;
+
+    private Button btnConfirmCallServer;
+    private Button btnCancelCallServer;
+    private TextView txtDriverName;
+    private TextView txtDriverPhone;
+    private Button btnCancelCallOthervehicles;
+    private Button btnConfirmCallOtherVehicles;
+    private ArrayList<OtherVehiclesInformation> listOrtherVehicles;
+    private Dialog dialogCallOtherVehicles;
     private int ID_KETXE = 1;
     private int ID_PIKACHU = 2;
     private int ID_HONGDUONG = 3;
 
+    /**
+     * Vehicle marker map.
+     */
+    final HashMap<Marker, OtherVehiclesInformation> vehicleMarkerMap = new HashMap<Marker, OtherVehiclesInformation>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setupVehicleDialog();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         MapsInitializer.initialize(this);
 
+        /**
+         * setOnClick button call server
+         */
         FloatingActionButton fab_call = (FloatingActionButton) findViewById(R.id.fab_call);
         fab_call.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                callServer();
+                final Dialog dialogCallServer = new Dialog(MainActivity.this);
+                dialogCallServer.setContentView(R.layout.dialog_confirm_call_server);
+                dialogCallServer.setTitle("Call Server");
+
+                btnConfirmCallServer = (Button) dialogCallServer.findViewById(R.id.btnConfirmCallServer);
+                btnCancelCallServer = (Button) dialogCallServer.findViewById(R.id.btnCancelCallServer);
+
+                btnConfirmCallServer.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        callServer();
+                        dialogCallServer.dismiss();
+                    }
+                });
+
+                btnCancelCallServer.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialogCallServer.dismiss();
+                    }
+                });
+
+                dialogCallServer.show();
+
             }
         });
 
@@ -174,6 +222,7 @@ public class MainActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         Log.d("onCreate", "AAAAAAAAAAAAAA");
+
 
 //        HashMap<String,String> params = new HashMap<String,String>();
 //        params.put("email","tuan@gmail.com");
@@ -320,6 +369,7 @@ public class MainActivity extends AppCompatActivity
 //        LatLng test = new LatLng(11.8719808, 106.790409);
 //        makeMaker(test,"Orther Location");
         trackgps = new TrackGPS(MainActivity.this);
+        startTimerVehicles();
 //        if(trackgps.canGetLocation){
 //            showDialogStartJourney();
 //        }
@@ -635,6 +685,20 @@ public class MainActivity extends AppCompatActivity
 
         //schedule the timer, after the first 5000ms the TimerTask will run every 30000ms
         timerShowWarning.schedule(timerTaskShowWarning, 5000, 30000); //
+    }
+
+    /**
+     * Timer Other Vehicles
+     */
+    public void startTimerVehicles() {
+        //set a new Timer
+        timerShowOtherVehicles = new Timer();
+
+        //initialize the TimerTask's job
+        showOrtherVehicles();
+
+        //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
+        timerShowOtherVehicles.schedule(timerTaskShowOtherVehicles, 5000, 30000);
     }
 
     /**
@@ -1211,6 +1275,143 @@ public class MainActivity extends AppCompatActivity
                     });
         }
         return speed[0];
+    }
+
+    /**
+     * Show Other Vehicles Infomation
+     */
+
+    private void showOrtherVehicles()
+    {
+        timerTaskShowOtherVehicles = new TimerTask() {
+            @Override
+            public void run() {
+
+                if (trackgps.mGoogleApiClient.isConnected())
+                {
+                    Log.d("start_show_other_vehicles", "start_show_other_vehicles");
+                    trackgps.getCurrentLocation(new LocationCallback() {
+                        @Override
+                        public void onSuccess() {
+                        }
+
+                        @Override
+                        public void onError() {
+
+                        }
+                    });
+
+                    HashMap<String,String> params = new HashMap<String, String>();
+
+                    params.put("locationLat", String.valueOf(mLocation.getLatitude()));
+                    params.put("locationLong", String.valueOf(mLocation.getLongitude()));
+                    params.put("distance", "1000");
+
+                    ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/vehicle/nearby/{locationLat}/{locationLong}/{distance}", Request.Method.GET, params, new ServerCallback() {
+                        @Override
+                        public void onSuccess(JSONObject result) {
+                            Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+                            try {
+                                Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                                if (!error)
+                                {
+
+                                    listOrtherVehicles = new ArrayList<OtherVehiclesInformation>();
+                                    Type listType = new TypeToken<List<OtherVehiclesInformation>>() {}.getType();
+                                    listOrtherVehicles = gson.fromJson(result.getString("content"), listType );
+                                    Log.d("array",String.valueOf(listOrtherVehicles.size()));
+                                    for (Marker marker : vehicleMarkerMap.keySet()) {
+                                        marker.remove();
+                                    }
+                                    vehicleMarkerMap.clear();
+                                    for (final OtherVehiclesInformation object : listOrtherVehicles) {
+//                            makeMaker(new LatLng(Double.parseDouble(object.getLocationLat()),
+//                                    Double.parseDouble(object.getLocationLong())),"Driver name: " + object.getDriverName()+ "\n" + "Driver phone: " + object.getDriverPhone());
+                                        LatLng otherVehiclePosition = new LatLng(Double.parseDouble(object.getLocationLat()), Double.parseDouble(object.getLocationLong()));
+
+//                                        BitmapDrawable bitmapDrawable;
+//                                        Bitmap bitmap;
+//                                        bitmapDrawable = (BitmapDrawable) getResources().getDrawable(R.drawable.vehicles);
+//                                        bitmap = bitmapDrawable.getBitmap();
+//                                        Bitmap vehicleMarker = Bitmap.createScaledBitmap(bitmap, 100, 130, false);
+
+                                        Marker show = mGoogleMap.addMarker(new MarkerOptions()
+                                                .position(otherVehiclePosition)
+                                                .title(object.getDriverName())
+                                                .snippet(object.getDriverPhone())
+//                                                .icon(BitmapDescriptorFactory.fromBitmap(vehicleMarker))
+                                                .visible(true));
+                                        vehicleMarkerMap.put(show, object);
+                                    }
+                                    mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                                        @Override
+                                        public boolean onMarkerClick(final Marker marker) {
+                                            selectedVehicleMarker = vehicleMarkerMap.get(marker);
+                                            Log.d("selectedVehicleMarker", String.valueOf(marker.getId()));
+                                            if (selectedVehicleMarker != null) {
+                                                txtDriverName.setText("Driver Name: " + selectedVehicleMarker.getDriverName());
+                                                txtDriverPhone.setText("Driver Phone: " + selectedVehicleMarker.getDriverPhone());
+                                                dialogCallOtherVehicles.show();
+                                                return true;
+                                            }
+                                            return false;
+                                        }
+                                    });
+                                }
+                                else {
+
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
+                        @Override
+                        public void onError(VolleyError error) {
+
+                        }
+                    });
+                }
+
+            }
+        };
+
+    }
+
+    /**
+     * Setup show vehicle info dialog.
+     */
+    private void setupVehicleDialog() {
+        dialogCallOtherVehicles = new Dialog(MainActivity.this);
+        dialogCallOtherVehicles.setContentView(R.layout.dialog_confirm_call_other_vehicles);
+        dialogCallOtherVehicles.setTitle("Call Other Vehicles");
+
+        btnConfirmCallOtherVehicles = (Button) dialogCallOtherVehicles.findViewById(R.id.btnConfirmCallOtherVehicles);
+        btnCancelCallOthervehicles = (Button) dialogCallOtherVehicles.findViewById(R.id.btnCancelCallOthervehicles);
+        txtDriverName = (TextView) dialogCallOtherVehicles.findViewById(R.id.txtDriverName);
+        txtDriverPhone = (TextView) dialogCallOtherVehicles.findViewById(R.id.txtDriverPhone);
+
+        btnConfirmCallOtherVehicles.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String phoneVehicles = selectedVehicleMarker.getDriverPhone();
+                Intent intent = new Intent(Intent.ACTION_CALL);
+                Uri uri = Uri.parse("tel:" + phoneVehicles);
+                intent.setData(uri);
+                if (checkPermissionCallPhone())
+                    startActivity(intent);
+                dialogCallOtherVehicles.dismiss();
+            }
+        });
+
+        btnCancelCallOthervehicles.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialogCallOtherVehicles.dismiss();
+            }
+        });
     }
 
     @Override
