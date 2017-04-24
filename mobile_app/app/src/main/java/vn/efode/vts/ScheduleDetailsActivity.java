@@ -15,11 +15,11 @@ import vn.efode.vts.model.Schedule;
 
 public class ScheduleDetailsActivity extends AppCompatActivity implements View.OnClickListener{
 
-    TextView txtScheduleId, txtDriverId, txtVehicleId, txtStartPointAddress, txtEndPointAddress, txtIntendStartTime, txtIntendEndTime, txtScheduleStatusTypeId, txtLocationLatStart, txtLocationLongStart, txtLocationLatEnd, txtLocationLongEnd, txtDeviceId;
-    Intent intent;
+    TextView txtScheduleId, txtDriverId, txtVehicleId, txtStartPointAddress, txtEndPointAddress, txtIntendStartTime, txtIntendEndTime, txtScheduleStatusTypeId;
+    Intent intentSchedule, intentHistory;
     ArrayList<Schedule> schedulesDetails;
     Button btnStartSchedule;
-    Schedule schedule;
+    Schedule schedule, history;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,22 +27,50 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
         setContentView(R.layout.activity_schedule_details);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-        intent = getIntent();
-        Bundle bundle = intent.getBundleExtra("ScheduleDetails");
-        schedule = new Schedule();
-        schedule = (Schedule) bundle.get("ListSchedule");
-
         addControlls();
         addEvents();
-        setContent();
+
+        intentSchedule = getIntent();
+        Bundle bundleSchedule = intentSchedule.getBundleExtra("ScheduleDetails");
+        schedule = new Schedule();
+        schedule = (Schedule) bundleSchedule.get("ListSchedule");
+
+        setContentSchedule();
+
+//        setContentHistory();
 
     }
 
     /**
      * set content details about schedule
      */
-    private void setContent() {
+//    private void setContentHistory() {
+//        txtScheduleId.setText("Schedule ID: " + history.getScheduleId());
+//        txtIntendStartTime.setText("Intend Start Time: " + history.getIntendStartTime());
+//        txtIntendEndTime.setText("Intend End Time: " + history.getIntendEndTime());
+//        txtDriverId.setText("Driver Id: " + history.getDriverId());
+//        txtVehicleId.setText("Vehicle Id: " + history.getVehicleId());
+//        txtStartPointAddress.setText("Start Point Address: " + history.getStartPointAddress());
+//        txtEndPointAddress.setText("End Point Address: " + history.getEndPointAddress());
+//
+//        if(history.getScheduleStatusTypeId() == 1) {
+//            btnStartSchedule.setVisibility(View.VISIBLE);
+//            txtScheduleStatusTypeId.setText("Schedule Status Type: CHUA CHAY");
+//        }
+//        else btnStartSchedule.setVisibility(View.INVISIBLE);
+//
+//        if (history.getScheduleStatusTypeId() == 2)
+//            txtScheduleStatusTypeId.setText("Schedule Status Type: DA HOAN THANH");
+//        else
+//            if (history.getScheduleStatusTypeId() == 3)
+//                txtScheduleStatusTypeId.setText("Schedule Status Type: DANG CHAY");
+//            else
+//                if (history.getScheduleStatusTypeId() == 4)
+//                    txtScheduleStatusTypeId.setText("Schedule Status Type: DA HUY");
+//
+//    }
+
+    private void setContentSchedule() {
         txtScheduleId.setText("Schedule ID: " + schedule.getScheduleId());
         txtIntendStartTime.setText("Intend Start Time: " + schedule.getIntendStartTime());
         txtIntendEndTime.setText("Intend End Time: " + schedule.getIntendEndTime());
@@ -50,15 +78,22 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
         txtVehicleId.setText("Vehicle Id: " + schedule.getVehicleId());
         txtStartPointAddress.setText("Start Point Address: " + schedule.getStartPointAddress());
         txtEndPointAddress.setText("End Point Address: " + schedule.getEndPointAddress());
-        txtScheduleStatusTypeId.setText("Schedule Status Type Id: " + schedule.getScheduleStatusTypeId());
-        txtLocationLatStart.setText("Location Lat Start: " + schedule.getLocationLatStart());
-        txtLocationLongStart.setText("Location Long Start: " + schedule.getLocationLongStart());
-        txtLocationLatEnd.setText("Location Lat End: " + schedule.getLocationLatEnd());
-        txtLocationLongEnd.setText("Location Long End: " + schedule.getLocationLongEnd());
-        txtDeviceId.setText("Device Id: " + schedule.getDeviceId());
-        if(schedule.getScheduleStatusTypeId() == 1)
+
+        if(schedule.getScheduleStatusTypeId() == 1) {
             btnStartSchedule.setVisibility(View.VISIBLE);
+            txtScheduleStatusTypeId.setText("Schedule Status Type: NOT START!!!");
+        }
         else btnStartSchedule.setVisibility(View.INVISIBLE);
+
+        if (schedule.getScheduleStatusTypeId() == 2)
+            txtScheduleStatusTypeId.setText("Schedule Status Type: COMPLETE!!!");
+        else
+        if (schedule.getScheduleStatusTypeId() == 3)
+            txtScheduleStatusTypeId.setText("Schedule Status Type: ACTIVE!!!");
+        else
+        if (schedule.getScheduleStatusTypeId() == 4)
+            txtScheduleStatusTypeId.setText("Schedule Status Type: CANCEL!!!");
+
     }
 
     private void addEvents() {
@@ -75,11 +110,6 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
         txtIntendStartTime = (TextView) findViewById(R.id.txtIntendStartTime);
         txtIntendEndTime = (TextView) findViewById(R.id.txtIntendEndTime);
         txtScheduleStatusTypeId = (TextView) findViewById(R.id.txtScheduleStatusTypeId);
-        txtLocationLatStart = (TextView) findViewById(R.id.txtLocationLatStart);
-        txtLocationLongStart = (TextView) findViewById(R.id.txtLocationLongStart);
-        txtLocationLatEnd = (TextView) findViewById(R.id.txtLocationLatEnd);
-        txtLocationLongEnd = (TextView) findViewById(R.id.txtLocationLongEnd);
-        txtDeviceId = (TextView) findViewById(R.id.txtDeviceId);
 
     }
 

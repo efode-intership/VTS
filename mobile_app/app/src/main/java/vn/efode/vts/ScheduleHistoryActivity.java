@@ -26,15 +26,18 @@ import java.util.HashMap;
 import java.util.List;
 
 import vn.efode.vts.adapter.ScheduleAdapter;
+import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.model.Schedule;
-import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.utils.ServerCallback;
+import vn.efode.vts.utils.ServiceHandler;
 
 
 public class ScheduleHistoryActivity extends AppCompatActivity {
 
-    ListView lvSchedule;
+    ListView lvSchedule, lvHistory;
     ArrayList<Schedule> listSchedule;
+    List<Schedule> notStartedList = new ArrayList<Schedule>(); //List Schedule not start
+    List<Schedule> historyList = new ArrayList<Schedule>(); //List Schedule complete or cancel
     HashMap<String,String> schedulelist = new HashMap<String, String>();
     ScheduleAdapter scheduleAdapter;
 
@@ -47,10 +50,11 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         lvSchedule = (ListView) findViewById(R.id.lvSchedule);
+        lvHistory = (ListView) findViewById(R.id.lvHistory);
 
         addControls();
         ServiceHandler serviceHandler = new ServiceHandler();
-        schedulelist.put("userId", "6");
+        schedulelist.put("userId", String.valueOf(ApplicationController.getCurrentUser().getId()));
         ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/schedule/user/{userId}", Request.Method.GET, schedulelist, new ServerCallback() {
             @Override
             public void onSuccess(JSONObject result) {
@@ -66,27 +70,59 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
                         Type listType = new TypeToken<List<Schedule>>() {}.getType();
                         listSchedule = gson.fromJson(result.getString("content"), listType );
                         Log.d("array",String.valueOf(listSchedule.size()));
+//                        List<Schedule> notStartedList = new ArrayList<Schedule>();
+//                        List<Schedule> history = new ArrayList<Schedule>();
+                        for (int i = 0; i < listSchedule.size(); i++)
+                        {
+                            if (listSchedule.get(i).getScheduleStatusTypeId() == 1)
+                            {
+                                notStartedList.add(listSchedule.get(i));
+
+                            }
+                            scheduleAdapter = new ScheduleAdapter(
+                                    ScheduleHistoryActivity.this,
+                                    R.layout.schedule_list_layout,
+                                    notStartedList);
+                            lvSchedule.setAdapter(scheduleAdapter);
 
 
-//                        listSchedule.add(new  Schedule(schedule.getScheduleId(), schedule.getDriverId(), schedule.getVehicleId(), schedule.getStartPointAddress(), schedule.getEndPointAddress(), schedule.getIntendStartTime(), schedule.getIntendEndTime(), schedule.getScheduleStatusTypeId(), schedule.getLocationLatStart(), schedule.getLocationLongStart(), schedule.getLocationLatEnd(), schedule.getLocationLongEnd(), schedule.getRealStartTime(),schedule.getRealEndTime(),schedule.getDeviceId()));
-                        scheduleAdapter = new ScheduleAdapter(
-                                ScheduleHistoryActivity.this,
-                                R.layout.schedule_list_layout,
-                                listSchedule);
-                        lvSchedule.setAdapter(scheduleAdapter);
+                            if (listSchedule.get(i).getScheduleStatusTypeId() == 2 || listSchedule.get(i).getScheduleStatusTypeId() == 4)
+                            {
+                                historyList.add(listSchedule.get(i));
+                            }
+                            scheduleAdapter = new ScheduleAdapter(
+                                    ScheduleHistoryActivity.this,
+                                    R.layout.schedule_list_layout,
+                                    historyList);
+                            lvHistory.setAdapter(scheduleAdapter);
+
+                        }
+
+                        lvHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                Schedule history = historyList.get(i);
+                                Intent intentHistory = new Intent(ScheduleHistoryActivity.this, ScheduleDetailsActivity.class);
+                                Bundle bundleHistory = new Bundle();
+                                bundleHistory.putSerializable("ListSchedule", history);
+                                intentHistory.putExtra("ScheduleDetails", bundleHistory);
+                                startActivity(intentHistory);
+                            }
+                        });
 
                         lvSchedule.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                Schedule schedule = listSchedule.get(i);
-                                Intent intent = new Intent(ScheduleHistoryActivity.this, ScheduleDetailsActivity.class);
-                                Bundle bundle = new Bundle();
+                                Schedule schedule = notStartedList.get(i);
+                                Intent intentSchedule = new Intent(ScheduleHistoryActivity.this, ScheduleDetailsActivity.class);
+                                Bundle bundleSchedule = new Bundle();
 //                                bundle.putSerializable("Schedules", schedule);
-                                bundle.putSerializable("ListSchedule", schedule);
-                                intent.putExtra("ScheduleDetails", bundle);
-                                startActivity(intent);
+                                bundleSchedule.putSerializable("ListSchedule", schedule);
+                                intentSchedule.putExtra("ScheduleDetails", bundleSchedule);
+                                startActivity(intentSchedule);
                             }
                         });
+
                     }
                     else {
 
@@ -103,7 +139,6 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -118,6 +153,9 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Set Tabhost
+     */
     private void addControls() {
         TabHost tabHost = (TabHost) findViewById(R.id.tabHost);
         tabHost.setup();
