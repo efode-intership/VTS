@@ -1,6 +1,6 @@
 package vn.efode.vts;
 
-        import android.app.Dialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -38,7 +38,6 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsResult;
@@ -71,14 +70,15 @@ import vn.efode.vts.model.Schedule;
 import vn.efode.vts.model.Warning;
 import vn.efode.vts.model.WarningTypes;
 import vn.efode.vts.service.TrackGPS;
-        import vn.efode.vts.utils.LocationCallback;
-        import vn.efode.vts.utils.PathJSONParser;
+import vn.efode.vts.utils.LocationCallback;
+import vn.efode.vts.utils.PathJSONParser;
 import vn.efode.vts.utils.ReadTask;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
 import static android.os.Build.VERSION_CODES.M;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
+import static vn.efode.vts.service.TrackGPS.mLocation;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity
 
     public static GoogleMap mGoogleMap = null;
     LocationRequest mLocationRequest;
-    GoogleApiClient mGoogleApiClient;
+//    GoogleApiClient mGoogleApiClient;
 
     private static TrackGPS trackgps;
 
@@ -131,6 +131,9 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<Warning> arrWarningPoint;
     private Timer timerShowWarning;
     private TimerTask timerTaskShowWarning;
+    private int ID_KETXE = 1;
+    private int ID_PIKACHU = 2;
+    private int ID_HONGDUONG = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,7 +174,6 @@ public class MainActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         Log.d("onCreate", "AAAAAAAAAAAAAA");
-
 
 //        HashMap<String,String> params = new HashMap<String,String>();
 //        params.put("email","tuan@gmail.com");
@@ -326,6 +328,7 @@ public class MainActivity extends AppCompatActivity
 //
 //            buildGoogleApiClient();//setting GoogleAPIclient
 //        }
+        startShowWarningTimer();
     }
 
     /**
@@ -487,6 +490,7 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
         }
+
     }
 
 
@@ -619,25 +623,35 @@ public class MainActivity extends AppCompatActivity
 //    }
 
 
-    public void startTimer() {
+    /**
+     * Timer send request get warning point and show to the map
+     */
+    public void startShowWarningTimer() {
         //set a new Timer
         timerShowWarning = new Timer();
 
         //initialize the TimerTask's job
         showWarningPoint();
 
-        //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
+        //schedule the timer, after the first 5000ms the TimerTask will run every 30000ms
         timerShowWarning.schedule(timerTaskShowWarning, 5000, 30000); //
     }
 
-    public void stoptimertask(View v) {
-        //stop the timer, if it's not already null
+    /**
+     * stop the ShowWarning timer, if it's not already null
+     * @param v
+     */
+    public void stopShowWarningTimerTask(View v) {
         if (timerShowWarning != null) {
             timerShowWarning.cancel();
             timerShowWarning = null;
         }
     }
 
+
+    /**
+     * show list warning when driver click button warning
+     */
     public void showWarning() {
         // custom dialog
         final Dialog dialogShowWarning = new Dialog(this);
@@ -646,8 +660,8 @@ public class MainActivity extends AppCompatActivity
         listView = (ListView) dialogShowWarning.findViewById(R.id.listview_dialog_warning);
         // set the custom dialog components - text, image and button
         ServiceHandler serviceHandler = new ServiceHandler();
-        HashMap<String,String> params = new HashMap<String,String>();
-        params.put("","");
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("", "");
 
         serviceHandler.makeServiceCall(showWarningUrl, Request.Method.GET, params, new ServerCallback() {
             @Override
@@ -658,8 +672,9 @@ public class MainActivity extends AppCompatActivity
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
                         arrWarning = new ArrayList<WarningTypes>();
-                        Type listType = new TypeToken<List<WarningTypes>>() {}.getType();
-                        arrWarning = gson.fromJson(result.getString("content"), listType );
+                        Type listType = new TypeToken<List<WarningTypes>>() {
+                        }.getType();
+                        arrWarning = gson.fromJson(result.getString("content"), listType);
 
 
                         final WarningAdapter warningAdapter = new WarningAdapter(
@@ -675,8 +690,7 @@ public class MainActivity extends AppCompatActivity
                                 dialogShowWarning.dismiss();
                             }
                         });
-                    }
-                    else {
+                    } else {
 
                     }
 
@@ -685,9 +699,10 @@ public class MainActivity extends AppCompatActivity
                     e.printStackTrace();
                 }
             }
+
             @Override
-            public void onError(VolleyError error){
-                Log.d("Resultsxxx",error.getMessage());
+            public void onError(VolleyError error) {
+                Log.d("Resultsxxx", error.getMessage());
             }
         });
 
@@ -695,6 +710,10 @@ public class MainActivity extends AppCompatActivity
         dialogShowWarning.show();
     }
 
+
+    /**
+     * add warning(locationLat,Long,Type,Description) to the database
+     */
     public void addWarning(){
 
         final Dialog dialogConfirmWarning = new Dialog(MainActivity.this);
@@ -712,70 +731,55 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
 
 
-                //Request warning
-                HashMap<String,String> paramsCreateWarning = new HashMap<String,String>();
-                paramsCreateWarning.put("userId", String.valueOf(ApplicationController.getCurrentUser().getId()));
-                paramsCreateWarning.put("warningTypeId",String.valueOf(warningTypes.getWarningTypeId()));
-                Log.d("location_warning", latLng.toString());
-                Log.d("location_warning", String.valueOf(latLng.latitude));
-                Log.d("location_warning", String.valueOf(latLng.longitude));
-                paramsCreateWarning.put("locationLat",String.valueOf(latLng.latitude));
-                paramsCreateWarning.put("locationLong",String.valueOf(latLng.longitude));
-                paramsCreateWarning.put("description",String.valueOf(edtDescription.getText()));
-//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//                String startTime = sdf.format(new Date());
-//                paramsCreateWarning.put("startTime",startTime);
-//
-//                Date date = null;
-//                try {
-//                    date = sdf.parse(startTime);
-//                } catch (ParseException e) {
-//                    e.printStackTrace();
-//                }
-//                Calendar calendar = Calendar.getInstance();
-//
-//                calendar.setTime(date);
-//                calendar.add(Calendar.MINUTE, warningTypes.getDefaultTime());
-//                String endTime = sdf.format(calendar.getTime());
-//                Log.d("timesss",startTime);
-//                Log.d("timesss",endTime);
-//                Log.d("timesss",String.valueOf(warningTypes.getDefaultTime()));
-//
-//                paramsCreateWarning.put("endTime",endTime);
-                ServiceHandler serviceHandler = new ServiceHandler();
-                serviceHandler.makeServiceCall(addWarningUrl, Request.Method.POST,
-                        paramsCreateWarning, new ServerCallback() {
-                            @Override
-                            public void onSuccess(JSONObject result) {
-                                Log.d("Result",result.toString());
-                                Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-                                try {
-                                    Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
-                                    if (!error) {
+                if (trackgps.mGoogleApiClient.isConnected()) {
+                    //Request warning
+                    LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+                    if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 
-                                        Toast.makeText(MainActivity.this,"Thông báo " + warningTypes.getType() + " thành công",Toast.LENGTH_SHORT).show();
-                                    }
-                                    else {
-                                        Toast.makeText(MainActivity.this,"Không thành công",Toast.LENGTH_SHORT).show();
+                        HashMap<String, String> paramsCreateWarning = new HashMap<String, String>();
+                        paramsCreateWarning.put("userId", String.valueOf(ApplicationController.getCurrentUser().getId()));
+                        paramsCreateWarning.put("warningTypeId", String.valueOf(warningTypes.getWarningTypeId()));
+                        paramsCreateWarning.put("locationLat", String.valueOf(mLocation.getLatitude()));
+                        paramsCreateWarning.put("locationLong", String.valueOf(mLocation.getLongitude()));
+                        paramsCreateWarning.put("description", String.valueOf(edtDescription.getText()));
+                        ServiceHandler serviceHandler = new ServiceHandler();
+                        serviceHandler.makeServiceCall(addWarningUrl, Request.Method.POST,
+                                paramsCreateWarning, new ServerCallback() {
+                                    @Override
+                                    public void onSuccess(JSONObject result) {
+                                        Log.d("Result", result.toString());
+                                        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+                                        try {
+                                            Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                                            if (!error) {
+
+                                                Toast.makeText(MainActivity.this, "Thông báo " + warningTypes.getType() + " thành công", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(MainActivity.this, "Không thành công", Toast.LENGTH_SHORT).show();
+                                            }
+
+
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
                                     }
 
+                                    @Override
+                                    public void onError(VolleyError error) {
+                                        Log.d("Result", error.getMessage());
+                                        Toast.makeText(MainActivity.this, "Không thành công", Toast.LENGTH_SHORT).show();
+                                    }
 
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
+                                });
 
-                            @Override
-                            public void onError(VolleyError error){
-                                Log.d("Result",error.getMessage());
-                                Toast.makeText(MainActivity.this,"Không thành công",Toast.LENGTH_SHORT).show();
-                            }
-
-                        });
-
+                    } else {
+                        Toast.makeText(MainActivity.this, "Chưa bật GPS", Toast.LENGTH_SHORT).show();
+                    }
+                } else Toast.makeText(MainActivity.this, "Lỗi", Toast.LENGTH_SHORT).show();
                 dialogConfirmWarning.dismiss();
             }
         });
+
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -787,88 +791,93 @@ public class MainActivity extends AppCompatActivity
         dialogConfirmWarning.show();
     }
 
+    /**
+     * Show warning point on Map
+     */
     public void showWarningPoint(){
 
         timerTaskShowWarning = new TimerTask() {
             public void run() {
+                if (trackgps.mGoogleApiClient.isConnected()) {
+                    Log.d("STttttt", "main1");
+                            Log.d("Location_lat_long", String.valueOf(mLocation.getLatitude()));
+                            Log.d("Location_lat_long", String.valueOf(mLocation.getLongitude()));
+                            Log.d("start_warning_point", "start_warning_point");
+                            ServiceHandler serviceHandler = new ServiceHandler();
+                            HashMap<String, String> params = new HashMap<String, String>();
+                            params.put("locationLat", String.valueOf(mLocation.getLatitude()));
+                            params.put("locationLong", String.valueOf(mLocation.getLongitude()));
+                            params.put("distance", "5");
 
-                Log.d("start_warning_point", "start_warning_point");
-                ServiceHandler serviceHandler = new ServiceHandler();
-                HashMap<String,String> params = new HashMap<String,String>();
-                params.put("locationLat",String.valueOf(latLng.latitude));
-                Log.d("long_lat_point", String.valueOf(latitude));
-                Log.d("long_lat_point", String.valueOf(longitude));
-                params.put("locationLong",String.valueOf(latLng.longitude));
-                params.put("distance","5");
+                            serviceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/warning/search/{locationLat}/{locationLong}/{distance}", Request.Method.GET, params, new ServerCallback() {
+                                @Override
+                                public void onSuccess(JSONObject result) {
 
-                serviceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/warning/search/{locationLat}/{locationLong}/{distance}", Request.Method.GET, params, new ServerCallback() {
-                    @Override
-                    public void onSuccess(JSONObject result) {
+//                        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+                                    Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+                                    try {
+                                        Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                                        if (!error) {
+                                            Log.d("not_error", "not_error");
+                                            //Warning showPoint = new Warning();
+                                            arrWarningPoint = new ArrayList<Warning>();
+                                            Type listType = new TypeToken<List<Warning>>() {
+                                            }.getType();
+                                            arrWarningPoint = gson.fromJson(result.getString("content"), listType);
+                                            for (int i = 0; i < arrWarningPoint.size(); i++) {
+                                                Log.d("long_lat_location", arrWarningPoint.get(i).getLocationLat().toString());
+                                                Log.d("long_lat_location", arrWarningPoint.get(i).getLocationLong().toString());
+                                                LatLng warningPosition = new LatLng(arrWarningPoint.get(i).getLocationLat(), arrWarningPoint.get(i).getLocationLong());
+                                                BitmapDrawable bitmapdraw;
+                                                Bitmap b;
 
-                        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-                        try {
-                            Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
-                            if (!error) {
-                                Log.d("not_error", "not_error");
-                                //Warning showPoint = new Warning();
-                                arrWarningPoint = new ArrayList<Warning>();
-                                Type listType = new TypeToken<List<Warning>>() {}.getType();
-                                arrWarningPoint = gson.fromJson(result.getString("content"), listType );
-                                for(int i=0;i<arrWarningPoint.size();i++){
-                                    Log.d("long_lat_location", arrWarningPoint.get(i).getLocationLat().toString());
-                                    Log.d("long_lat_location", arrWarningPoint.get(i).getLocationLong().toString());
-                                    LatLng warningPosition = new LatLng(arrWarningPoint.get(i).getLocationLat(),arrWarningPoint.get(i).getLocationLong());
-                                    BitmapDrawable bitmapdraw;
-                                    Bitmap b;
-                                    if(arrWarningPoint.get(i).getWarningTypeId() == 1){
-                                        bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.mapmarker);
-                                        b =bitmapdraw.getBitmap();
-                                    }
-                                    else if(arrWarningPoint.get(i).getWarningTypeId() == 2) {
-                                        bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.mapmarker);
-                                        b =bitmapdraw.getBitmap();
-                                    }
-                                    else if(arrWarningPoint.get(i).getWarningTypeId() == 3) {
-                                        bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.mapmarker);
-                                        b =bitmapdraw.getBitmap();
-                                    }
-                                    else {
-                                        bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.mapmarker);
-                                        b =bitmapdraw.getBitmap();
-                                    }
-                                    Bitmap warningMarker = Bitmap.createScaledBitmap(b, 70, 130, false);
-                                    Marker warning = mGoogleMap.addMarker(new MarkerOptions()
-                                            .position(warningPosition)
-                                            .icon(BitmapDescriptorFactory.fromBitmap(warningMarker))
-                                            .title(arrWarningPoint.get(i).getDescription())
-                                            .visible(true)
-                                    );
 
+                                                if (arrWarningPoint.get(i).getWarningTypeId() == ID_KETXE) {
+                                                    bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.pikachumarker);
+                                                    b = bitmapdraw.getBitmap();
+                                                } else if (arrWarningPoint.get(i).getWarningTypeId() == ID_PIKACHU) {
+                                                    bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.pikachumarker);
+                                                    b = bitmapdraw.getBitmap();
+                                                } else if (arrWarningPoint.get(i).getWarningTypeId() == ID_HONGDUONG) {
+                                                    bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.hongduongmarker);
+                                                    b = bitmapdraw.getBitmap();
+                                                } else {
+                                                    bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.hongduongmarker);
+                                                    b = bitmapdraw.getBitmap();
+                                                }
+                                                Bitmap warningMarker = Bitmap.createScaledBitmap(b, 100, 130, false);
+                                                Marker warning = mGoogleMap.addMarker(new MarkerOptions()
+                                                        .position(warningPosition)
+                                                        .icon(BitmapDescriptorFactory.fromBitmap(warningMarker))
+                                                        .title(arrWarningPoint.get(i).getDescription())
+                                                        .visible(true)
+                                                );
+
+                                            }
+
+                                        } else {
+                                            Log.d("loixxxxxxx", "loixxx");
+                                        }
+
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
 
+                                @Override
+                                public void onError(VolleyError error) {
+                                    Log.d("Resultsxxx", error.getMessage());
+                                }
+                    });
+                }
 
-                            }
-                            else {
-                                Log.d("loixxxxxxx", "loixxx");
-                            }
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    @Override
-                    public void onError(VolleyError error){
-                        Log.d("Resultsxxx",error.getMessage());
-                    }
-                });
 
             }
         };
 
-
-
     }
+
     /**
      * Function to call API start journey
      * @param scheduleId schedule ID
@@ -893,8 +902,8 @@ public class MainActivity extends AppCompatActivity
                         trackgps.getCurrentLocation(new LocationCallback() {
                             @Override
                             public void onSuccess() {
-                                drawroadBetween2Location(new LatLng(trackgps.mLocation.getLatitude(),
-                                                trackgps.mLocation.getLongitude()),
+                                drawroadBetween2Location(new LatLng(mLocation.getLatitude(),
+                                                mLocation.getLongitude()),
                                         new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
                                                 Double.parseDouble(scheduleActive.getLocationLongEnd())));
 
@@ -1209,6 +1218,10 @@ public class MainActivity extends AppCompatActivity
         super.onStart();
 //        if(scheduleActive == null)
 ////            showDialogStartJourney();
+//            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 
+    }
+    protected void onStop(){
+        super.onStop();
     }
 }

@@ -1,6 +1,6 @@
 package vn.efode.vts.model;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 /**
  * Created by Nam on 19/04/2017.
@@ -13,8 +13,8 @@ public class Warning {
     private Double locationLat;
     private Double LocationLong;
     private String description;
-    private Date startTime;
-    private Date endTime;
+    private Timestamp startTime;
+    private Timestamp endTime;
 
     public int getDriverId() {
         return driverId;
@@ -64,19 +64,19 @@ public class Warning {
         this.description = description;
     }
 
-    public Date getStartTime() {
+    public Timestamp getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(Timestamp startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime() {
+    public Timestamp getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(Timestamp endTime) {
         this.endTime = endTime;
     }
 }

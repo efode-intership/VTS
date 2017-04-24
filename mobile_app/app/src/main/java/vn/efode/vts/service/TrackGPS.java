@@ -44,18 +44,13 @@ import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
  */
 
 public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
-    private static GoogleApiClient mGoogleApiClient;
+    public static GoogleApiClient mGoogleApiClient;
     private Context mContext;
     private static LocationRequest mLocationRequest;
-
     private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
     public static Location mLocation = null;
-
     public static boolean canGetLocation = false;
-
     boolean zoomOneTime = true;//Just zoom 1 time
-
-
     private static int CONTROLL_ON = 1;
     private static int CONTROLL_OFF = -1;
 
@@ -68,10 +63,25 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.d("STttttt", "track");
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(5000); //50 seconds
         mLocationRequest.setFastestInterval(3000); //30 seconds
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+
+
+        getCurrentLocation(new LocationCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d("BUGAAAA", "1");
+            }
+
+            @Override
+            public void onError() {
+                Log.d("BUGAAAA", "2");
+            }
+        });
+
 //        mLocationRequest.setSmallestDisplacement(5); //5 meter
 
         controllonLocationChanged(CONTROLL_ON);//Enable event onLocationChanged
@@ -91,7 +101,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
     @Override
     public void onLocationChanged(Location location) {
         if(zoomOneTime){//Just zoom 1 time
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()),11));
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()),15));
             zoomOneTime =false;
         }
         Log.d("ONLOCATIONCHANGE","AAAAAAAAAAAAA");
@@ -153,7 +163,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
             canGetLocation = false;
             return false;
         } else {
-            mGoogleMap.setMyLocationEnabled(true);
+            //mGoogleMap.setMyLocationEnabled(true);
             canGetLocation = true;
             return true;
         }
@@ -182,11 +192,13 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
         if(checkLocationPermission()){
             mLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
+                if(mLocation != null)
                     callback.onSuccess();
             //        Log.d("CurrentLocation",mLastLocation.getLatitude() + " | " + mLastLocation.getLongitude());
+                else callback.onError();
 
         }
-        callback.onError();
+
     }
 
     /**
