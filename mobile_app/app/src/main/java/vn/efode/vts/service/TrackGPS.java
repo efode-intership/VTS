@@ -30,6 +30,7 @@ import java.util.HashMap;
 
 import vn.efode.vts.MainActivity;
 import vn.efode.vts.application.ApplicationController;
+import vn.efode.vts.utils.LocationCallback;
 import vn.efode.vts.utils.PathJSONParser;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
@@ -48,7 +49,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
     private static LocationRequest mLocationRequest;
 
     private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
-    public static Location previousLocation = null;
+    public static Location mLocation = null;
 
     public static boolean canGetLocation = false;
 
@@ -95,7 +96,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
         }
         Log.d("ONLOCATIONCHANGE","AAAAAAAAAAAAA");
 
-        if(MainActivity.scheduleActive != null)
+        if(scheduleActive != null)
             sendLocationDataToServer(location);//Send data to server
     }
 
@@ -172,13 +173,20 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
      * get Current Location
      * @return location
      */
-    public Location getCurrentLocation(){
-        Location mLastLocation = null;
-        if(checkLocationPermission())
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+    /**
+     * get Current Location
+     * @param callback callback when user can get location
+     * @return location
+     */
+    public void getCurrentLocation(LocationCallback callback){
+        if(checkLocationPermission()){
+            mLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
-    //        Log.d("CurrentLocation",mLastLocation.getLatitude() + " | " + mLastLocation.getLongitude());
-        return mLastLocation;
+                    callback.onSuccess();
+            //        Log.d("CurrentLocation",mLastLocation.getLatitude() + " | " + mLastLocation.getLongitude());
+
+        }
+        callback.onError();
     }
 
     /**
@@ -199,32 +207,45 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
      * @param origin previous location 2s
      */
     private void sendLocationDataToServer(final Location origin){
-        new Handler().postDelayed(new Runnable() {
+        getCurrentLocation(new LocationCallback() {
             @Override
-            public void run() {
-                //Do something after 2s
-                Location currentLocation = getCurrentLocation();
-                Double speed = getSpeed(origin,currentLocation);
-                HashMap<String,String> params = new HashMap<String, String>();
-                params.put("scheduleId", String.valueOf(scheduleActive.getScheduleId()));
-                params.put("locationLat", String.valueOf(currentLocation.getLatitude()));
-                params.put("locationLong", String.valueOf(currentLocation.getLongitude()));
-                params.put("speed", String.valueOf(speed));
-                params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-                ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
-                        Request.Method.POST, params, new ServerCallback() {
-                            @Override
-                            public void onSuccess(JSONObject result) {
-                                Toast.makeText(mContext,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
-                            }
+            public void onSuccess() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Do something after 2s
+                        if(scheduleActive != null){
+                            Double speed = getSpeed(origin,mLocation);
+                            HashMap<String,String> params = new HashMap<String, String>();
+                            params.put("scheduleId", String.valueOf(scheduleActive.getScheduleId()));
+                            params.put("locationLat", String.valueOf(mLocation.getLatitude()));
+                            params.put("locationLong", String.valueOf(mLocation.getLongitude()));
+                            params.put("speed", String.valueOf(speed));
+                            params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                            ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
+                                    Request.Method.POST, params, new ServerCallback() {
+                                        @Override
+                                        public void onSuccess(JSONObject result) {
+                                            Toast.makeText(mContext,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
+                                        }
 
-                            @Override
-                            public void onError(VolleyError error) {
-                                Toast.makeText(mContext,error.getMessage(),Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                                        @Override
+                                        public void onError(VolleyError error) {
+                                            Toast.makeText(mContext,error.getMessage(),Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                        }
+
+                    }
+                }, 2000);
             }
-        }, 2000);
+
+            @Override
+            public void onError() {
+
+            }
+        });
+
 
     }
 

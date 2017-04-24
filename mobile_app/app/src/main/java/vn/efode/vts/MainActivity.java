@@ -71,7 +71,8 @@ import vn.efode.vts.model.Schedule;
 import vn.efode.vts.model.Warning;
 import vn.efode.vts.model.WarningTypes;
 import vn.efode.vts.service.TrackGPS;
-import vn.efode.vts.utils.PathJSONParser;
+        import vn.efode.vts.utils.LocationCallback;
+        import vn.efode.vts.utils.PathJSONParser;
 import vn.efode.vts.utils.ReadTask;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
@@ -209,9 +210,9 @@ public class MainActivity extends AppCompatActivity
         addControls();
         addEvents();
 
-
-        String userId = "6";
-        getScheduleLatest(userId);//Lấy shedule gần nhất của user dựa theo userid
+//
+//        String userId = "6";
+//        getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 
     }
 
@@ -891,12 +892,23 @@ public class MainActivity extends AppCompatActivity
                         LatLng locationDestination = new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
                                 Double.parseDouble(scheduleActive.getLocationLongEnd()));
                         makeMaker(locationDestination,scheduleActive.getEndPointAddress());
-                        drawroadBetween2Location(new LatLng(trackgps.getCurrentLocation().getLatitude(),
-                                trackgps.getCurrentLocation().getLongitude()),
-                                new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
-                                Double.parseDouble(scheduleActive.getLocationLongEnd())));
+                        trackgps.getCurrentLocation(new LocationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                drawroadBetween2Location(new LatLng(trackgps.mLocation.getLatitude(),
+                                                trackgps.mLocation.getLongitude()),
+                                        new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
+                                                Double.parseDouble(scheduleActive.getLocationLongEnd())));
 
-                        ctrollFabButtonSchedule(CONTROLL_ON);
+                                ctrollFabButtonSchedule(CONTROLL_ON);
+                            }
+
+                            @Override
+                            public void onError() {
+
+                            }
+                        });
+
                     }
                 }catch (JSONException e) {
                     e.printStackTrace();
@@ -931,7 +943,7 @@ public class MainActivity extends AppCompatActivity
 
                         scheduleLatest = gson.fromJson(result.getString("content"), Schedule.class);//Gan schedule gan nhat
                         if(scheduleLatest != null)
-                            Log.d("AAAAAAAA", String.valueOf(scheduleLatest.getScheduleId()));
+                            showDialogStartJourney();
                     }
                 }catch (JSONException e) {
                     e.printStackTrace();
@@ -1076,7 +1088,8 @@ public class MainActivity extends AppCompatActivity
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
                         mGoogleMap.clear();
-//                        controllonLocationChanged(CONTROLL_OFF);
+                        scheduleActive = null;
+                        trackgps.controllonLocationChanged(CONTROLL_OFF);
                         Toast.makeText(MainActivity.this, "Cancel journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
                     }
                 }catch (JSONException e) {
@@ -1196,5 +1209,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+//        if(scheduleActive == null)
+////            showDialogStartJourney();
+//            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
     }
 }
