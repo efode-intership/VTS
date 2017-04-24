@@ -212,7 +212,8 @@ public class MainActivity extends AppCompatActivity
 
 //
 //        String userId = "6";
-//        getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
+        if(checkPermisstion())
+            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 
     }
 
@@ -462,7 +463,8 @@ public class MainActivity extends AppCompatActivity
                             android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         mGoogleMap.setMyLocationEnabled(true);
                         trackgps.controllonLocationChanged(CONTROLL_ON);
-                        showDialogStartJourney();
+                        Log.d("BUGAAAAA","REsult");
+                        getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 //                        buildGoogleApiClient();
 
                     }
@@ -509,24 +511,20 @@ public class MainActivity extends AppCompatActivity
     /**
      * check permission for app
      */
-    private void checkPermisstion(){
+    private boolean checkPermisstion(){
+        boolean accessFine = false;
+        boolean accessCoarse = false;
         if (Build.VERSION.SDK_INT >= M) {
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                ActivityCompat.requestPermissions(this, new String[]{
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.INTERNET
-                }, 10);
+                    == PackageManager.PERMISSION_GRANTED) {
+                accessFine = true;
             }
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                        android.Manifest.permission.INTERNET
-                }, 10);
+                    == PackageManager.PERMISSION_GRANTED) {
+                accessCoarse = true;
             }
         }
+        return accessCoarse & accessFine;
     }
 
 //    @Override
@@ -1211,6 +1209,6 @@ public class MainActivity extends AppCompatActivity
         super.onStart();
 //        if(scheduleActive == null)
 ////            showDialogStartJourney();
-//            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
+
     }
 }
