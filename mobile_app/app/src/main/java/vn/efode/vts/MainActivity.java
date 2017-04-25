@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity
     private static int CONTROLL_ON = 1;
     private static int CONTROLL_OFF = -1;
 
+    private static AlertDialog dialogRequestStartSchedule;
+
     private static Location previousLocation = null;
 
     PendingResult<LocationSettingsResult> result;
@@ -110,6 +112,8 @@ public class MainActivity extends AppCompatActivity
     private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
     private static Schedule scheduleLatest = null;//Lich trinh gan nhat cua user
     public static Schedule scheduleActive = null; //Schedule dang chay cua user
+
+    private boolean controllDraw = true;
     private ListView listView;
     private EditText edtDescription;
     private Button btnOk;
@@ -368,18 +372,6 @@ public class MainActivity extends AppCompatActivity
 
         trackgps = new TrackGPS(MainActivity.this);
 
-        Schedule scheduleSession = ApplicationController.getCurrentSchudle();
-        if (checkLocationPermission())
-            if(scheduleSession == null)
-                getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
-            else {
-                scheduleActive = scheduleSession;
-                Toast.makeText(MainActivity.this, "You are starting schedule id:" + scheduleActive.getScheduleId(), Toast.LENGTH_SHORT).show();
-                startTimerforSheculeSession();
-                fabCancel.setVisibility(View.VISIBLE);
-                fabComplete.setVisibility(View.VISIBLE);
-                addOnClickForButton();
-            }
         startTimerVehicles();
 //        if(trackgps.canGetLocation){
 //            showDialogStartJourney();
@@ -431,6 +423,7 @@ public class MainActivity extends AppCompatActivity
         // Start downloading json data from Google Directions API
         downloadTask.execute(url);
         Log.d("Log12/4", "12");
+        controllDraw = false;
 
         //To calculate distance between points
 //        float[] results = new float[1];
@@ -953,7 +946,7 @@ public class MainActivity extends AppCompatActivity
      * @param scheduleId schedule ID
      * @param deviceId Token ID device
      */
-    private void startJourney(final String scheduleId, String deviceId){
+    public void startJourney(final String scheduleId, String deviceId){
         HashMap<String, String> params = new HashMap<String,String>();
         Log.d("startJourney",scheduleId);
         Log.d("startJourney",deviceId);
@@ -968,18 +961,14 @@ public class MainActivity extends AppCompatActivity
                 try {
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
-                        ApplicationController.sharedPreferences.edit().putString(ApplicationController.SCHEDULE_SESSION,scheduleJson).commit();
+//                        ApplicationController.sharedPreferences.edit().putString(ApplicationController.SCHEDULE_SESSION,scheduleJson).commit();
                         LatLng locationDestination = new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
                                 Double.parseDouble(scheduleActive.getLocationLongEnd()));
                         makeMaker(locationDestination,scheduleActive.getEndPointAddress());
                         trackgps.getCurrentLocation(new LocationCallback() {
                             @Override
                             public void onSuccess() {
-                                drawroadBetween2Location(new LatLng(mLocation.getLatitude(),
-                                                mLocation.getLongitude()),
-                                        new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
-                                                Double.parseDouble(scheduleActive.getLocationLongEnd())));
-
+                                startTimerforSheculeSession();
 
                                 fabCancel.setVisibility(View.VISIBLE);
                                 fabComplete.setVisibility(View.VISIBLE);
@@ -1026,6 +1015,7 @@ public class MainActivity extends AppCompatActivity
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
                         scheduleJson = result.getString("content");
+                        Log.d("Latest Schedule",scheduleJson);
                         scheduleLatest = gson.fromJson(scheduleJson, Schedule.class);//Gan schedule gan nhat
                         showDialogStartJourney();
                     }
@@ -1049,31 +1039,72 @@ public class MainActivity extends AppCompatActivity
      */
     public void showDialogStartJourney(){
         if(scheduleLatest != null ){
-            new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("You have journey go to "+ scheduleLatest.getEndPointAddress() + " with "
-                            + scheduleLatest.getIntendStartTime() + " [id:"+scheduleLatest.getScheduleId()+ "]")
-                    .setMessage("Do you want start journey now?")
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            scheduleActive = scheduleLatest;//set schedule active = scheduleLatest
-                            Log.d("showDialogStartJourney", String.valueOf(scheduleActive.getScheduleId()));
-                            Log.d("showDialogStartJourney", String.valueOf(scheduleActive.getEndPointAddress()));
-                            startJourney(String.valueOf(scheduleActive.getScheduleId()),ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null));
-                        }
-                    })
-                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // do nothing
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
+            int statusSchedule = scheduleLatest.getScheduleStatusTypeId();
+            if(statusSchedule == 1){
+                dialogRequestStartSchedule = new AlertDialog.Builder(this).create();
+                dialogRequestStartSchedule.setTitle("You have journey go to "+ scheduleLatest.getEndPointAddress() + " with "
+                               + scheduleLatest.getIntendStartTime() + " [id:"+scheduleLatest.getScheduleId()+ "]");
+                dialogRequestStartSchedule.setMessage("Do you want start journey now?");
+                dialogRequestStartSchedule.setButton(Dialog.BUTTON_POSITIVE,"Yes",new DialogInterface.OnClickListener(){
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        scheduleActive = scheduleLatest;//set schedule active = scheduleLatest
+                        Log.d("showDialogStartJourney", String.valueOf(scheduleActive.getScheduleId()));
+                        Log.d("showDialogStartJourney", String.valueOf(scheduleActive.getEndPointAddress()));
+                        startJourney(String.valueOf(scheduleActive.getScheduleId()),ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null));
+                    }
+                });
+
+                dialogRequestStartSchedule.setButton(Dialog.BUTTON_NEGATIVE,"NO,Thanks!",new DialogInterface.OnClickListener(){
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //do nothing
+                    }
+                });
+                dialogRequestStartSchedule.setIcon(android.R.drawable.ic_dialog_alert);
+                dialogRequestStartSchedule.show();
+
+//                new AlertDialog.Builder(MainActivity.this)
+//                        .setTitle("You have journey go to "+ scheduleLatest.getEndPointAddress() + " with "
+//                                + scheduleLatest.getIntendStartTime() + " [id:"+scheduleLatest.getScheduleId()+ "]")
+//                        .setMessage("Do you want start journey now?")
+//                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                scheduleActive = scheduleLatest;//set schedule active = scheduleLatest
+//                                Log.d("showDialogStartJourney", String.valueOf(scheduleActive.getScheduleId()));
+//                                Log.d("showDialogStartJourney", String.valueOf(scheduleActive.getEndPointAddress()));
+//                                startJourney(String.valueOf(scheduleActive.getScheduleId()),ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null));
+//                            }
+//                        })
+//                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                // do nothing
+//                            }
+//                        })
+//                        .setIcon(android.R.drawable.ic_dialog_alert)
+//                        .show();
+            }
+            else if(statusSchedule == 3){
+                scheduleActive = scheduleLatest;
+                startTimerforSheculeSession();
+                fabCancel.setVisibility(View.VISIBLE);
+                fabComplete.setVisibility(View.VISIBLE);
+                addOnClickForButton();
+                Toast.makeText(MainActivity.this,"Schedule active id: "+ scheduleActive.getScheduleId(),Toast.LENGTH_SHORT).show();
+            }
+
         }
         else {
-            new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("Have fun tonight")
-                    .setMessage("You don't have any schedule!")
-                    .show();
+            dialogRequestStartSchedule = new AlertDialog.Builder(this).create();
+            dialogRequestStartSchedule.setTitle("Have fun tonight");
+            dialogRequestStartSchedule.setMessage("You don't have any schedule!");
+            dialogRequestStartSchedule.show();
+//            new AlertDialog.Builder(MainActivity.this)
+//                    .setTitle("Have fun tonight")
+//                    .setMessage("You don't have any schedule!")
+//                    .show();
 
         }
 
@@ -1142,6 +1173,11 @@ public class MainActivity extends AppCompatActivity
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
                         mGoogleMap.clear();
+                        if (timerSessionSchedule != null) {//remove timer
+                            timerSessionSchedule.cancel();
+                            timerSessionSchedule = null;
+                        }
+                        controllDraw = true;
 //                        controllonLocationChanged(CONTROLL_OFF);
                         scheduleActive = null;
                         fabCancel.setVisibility(View.INVISIBLE);
@@ -1177,6 +1213,11 @@ public class MainActivity extends AppCompatActivity
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
                         mGoogleMap.clear();
+                        if (timerSessionSchedule != null) {//remove timer
+                            timerSessionSchedule.cancel();
+                            timerSessionSchedule = null;
+                        }
+                        controllDraw = true;
                         scheduleActive = null;
                         trackgps.controllonLocationChanged(CONTROLL_OFF);
                         fabCancel.setVisibility(View.INVISIBLE);
@@ -1436,8 +1477,35 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        if (dialogRequestStartSchedule != null) {
+            dialogRequestStartSchedule.dismiss();
+        }
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
+
+        if (checkLocationPermission() && scheduleActive == null)
+            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
+//        if (checkLocationPermission() && scheduleActive == null)
+//            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
+
+
+//        Schedule scheduleSession = ApplicationController.getCurrentSchudle();
+//        if (checkLocationPermission())
+//            if(scheduleSession == null)
+//                getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
+//            else {
+//                scheduleActive = scheduleSession;
+//                Toast.makeText(MainActivity.this, "You are starting schedule id:" + scheduleActive.getScheduleId(), Toast.LENGTH_SHORT).show();
+//                startTimerforSheculeSession();
+//                fabCancel.setVisibility(View.VISIBLE);
+//                fabComplete.setVisibility(View.VISIBLE);
+//                addOnClickForButton();
+//            }
 //        if(scheduleActive == null)
 ////            showDialogStartJourney();
 //            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
@@ -1487,10 +1555,11 @@ public class MainActivity extends AppCompatActivity
                     trackgps.getCurrentLocation(new LocationCallback() {
                         @Override
                         public void onSuccess() {
-                            drawroadBetween2Location(new LatLng(mLocation.getLatitude(),
-                                            mLocation.getLongitude()),
-                                    new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
-                                            Double.parseDouble(scheduleActive.getLocationLongEnd())));
+                            if(controllDraw)
+                                drawroadBetween2Location(new LatLng(mLocation.getLatitude(),
+                                                mLocation.getLongitude()),
+                                        new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
+                                                Double.parseDouble(scheduleActive.getLocationLongEnd())));
                             if (timerSessionSchedule != null) {//remove timer
                                 timerSessionSchedule.cancel();
                                 timerSessionSchedule = null;

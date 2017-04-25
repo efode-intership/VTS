@@ -128,13 +128,13 @@ public class ApplicationController extends Application {
      * Get current user.
      * @return current user.
      */
-    public static Schedule getCurrentSchudle() {
-        String userJson = ApplicationController.sharedPreferences.getString(SCHEDULE_SESSION, null);
+    public static Schedule getCurrentSchudule() {
+        String scheduleJson = ApplicationController.sharedPreferences.getString(SCHEDULE_SESSION, null);
         Schedule schedule = null;
-        if (userJson != null) {
+        if (scheduleJson != null) {
             Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                     .setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-            schedule = gson.fromJson(userJson, Schedule.class);
+            schedule = gson.fromJson(scheduleJson, Schedule.class);
         }
         return schedule;
     }

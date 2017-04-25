@@ -24,6 +24,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -66,8 +67,8 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
     public void onConnected(@Nullable Bundle bundle) {
         Log.d("STttttt", "track");
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(5000); //50 seconds
-        mLocationRequest.setFastestInterval(3000); //30 seconds
+        mLocationRequest.setInterval(50000); //50 seconds
+        mLocationRequest.setFastestInterval(30000); //30 seconds
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
 
@@ -231,6 +232,11 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
                                     Request.Method.POST, params, new ServerCallback() {
                                         @Override
                                         public void onSuccess(JSONObject result) {
+                                            try {
+                                                Log.d("INSERT", result.getString("content"));
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
                                             Toast.makeText(mContext,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
                                         }
 

@@ -36,7 +36,7 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
 
     ListView lvSchedule, lvHistory;
     ArrayList<Schedule> listSchedule;
-    List<Schedule> notStartedList = new ArrayList<Schedule>(); //List Schedule not start
+    List<Schedule> notStartedList; //List Schedule not start
     List<Schedule> historyList = new ArrayList<Schedule>(); //List Schedule complete or cancel
     HashMap<String,String> schedulelist = new HashMap<String, String>();
     ScheduleAdapter scheduleAdapter;
@@ -53,6 +53,29 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
         lvHistory = (ListView) findViewById(R.id.lvHistory);
 
         addControls();
+        notStartedList = new ArrayList<Schedule>();
+
+    }
+
+
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent i = new Intent(this,MainActivity.class);
+                this.startActivity(i);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * get data from server
+     */
+    private void getDataFromServer(){
+
         ServiceHandler serviceHandler = new ServiceHandler();
         schedulelist.put("userId", String.valueOf(ApplicationController.getCurrentUser().getId()));
         ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/schedule/user/{userId}", Request.Method.GET, schedulelist, new ServerCallback() {
@@ -141,17 +164,6 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
 
     }
 
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                Intent i = new Intent(this,MainActivity.class);
-                this.startActivity(i);
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
     /**
      * Set Tabhost
@@ -172,6 +184,10 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getDataFromServer();
 
-
+    }
 }
