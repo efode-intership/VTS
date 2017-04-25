@@ -21,8 +21,6 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_main"
-        android:id="@+id/include_content"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_call"
@@ -33,6 +31,30 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/call" />
 
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:backgroundTint="#f1c40f"
+            android:layout_gravity="center_vertical|start"
+            android:visibility="invisible"
+            android:layout_margin="@dimen/fab_margin"
+            app:srcCompat="@drawable/cancel" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_complete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:backgroundTint="#f1c40f"
+            android:visibility="invisible"
+            android:layout_gravity="center_vertical|end"
+            android:layout_margin="@dimen/fab_margin"
+            app:srcCompat="@drawable/completed"
+            />
+
+
+
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_warning"
         android:layout_width="wrap_content"
@@ -42,14 +64,9 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/warning" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_controll_schedule"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:backgroundTint="#f1c40f"
-        android:layout_gravity="bottom|center"
-        android:layout_margin="@dimen/fab_margin"
-        android:visibility="invisible"/>
 
+    <include
+        android:id="@+id/include_content"
+        layout="@layout/content_main" />
 
 </android.support.design.widget.CoordinatorLayout>

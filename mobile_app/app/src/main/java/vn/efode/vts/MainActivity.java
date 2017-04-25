@@ -12,7 +12,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -77,7 +76,6 @@ import vn.efode.vts.utils.ReadTask;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
-import static android.os.Build.VERSION_CODES.M;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 import static vn.efode.vts.service.TrackGPS.mLocation;
 
@@ -93,21 +91,11 @@ public class MainActivity extends AppCompatActivity
 
     private static TrackGPS trackgps;
 
+    private static String scheduleJson;
 
-    LatLng latLng;//Current location
-    Marker currLocationMarker;//Current maker
-    /**
-     * Selected vehicle marker.
-     */
-    OtherVehiclesInformation selectedVehicleMarker;
 
-//    int demo = 0;//Demo controll fab button cancel/completed journey
-
-    boolean zoomOneTime = true;//Just zoom 1 time
-
-    boolean controllFabSchedule = false;//Boolean to controll fabButton Cancel/Completed Journey
-
-    FloatingActionButton fabControllSchedule;//Button Controll Schedule
+    FloatingActionButton fabCancel;//Button Controll Schedule
+    FloatingActionButton fabComplete;//Button Controll Schedule
 
     private static int CONTROLL_ON = 1;
     private static int CONTROLL_OFF = -1;
@@ -117,7 +105,7 @@ public class MainActivity extends AppCompatActivity
     PendingResult<LocationSettingsResult> result;
     final private static int REQ_PERMISSION = 20;// Value permission locaiton
     final private static int REQ_PERMISSION_CALL = 100;// Value permission call phone
-    private static int REQUEST_LOCATION = 10;
+    final private static int REQ_LOCATION = 10;
     private static String API_KEY_DIRECTION = "AIzaSyAJCQ6Wf-aQbUbF5wLRMs4XtgCS-vph6IE";
     private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
     private static Schedule scheduleLatest = null;//Lich trinh gan nhat cua user
@@ -151,6 +139,11 @@ public class MainActivity extends AppCompatActivity
     private int ID_KETXE = 1;
     private int ID_PIKACHU = 2;
     private int ID_HONGDUONG = 3;
+
+    /**
+     * Selected vehicle marker.
+     */
+    OtherVehiclesInformation selectedVehicleMarker;
 
     /**
      * Vehicle marker map.
@@ -209,7 +202,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        fabControllSchedule = (FloatingActionButton) findViewById(R.id.fab_controll_schedule);
+        fabComplete = (FloatingActionButton) findViewById(R.id.fab_complete);
+        fabCancel = (FloatingActionButton) findViewById(R.id.fab_cancel);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -264,7 +258,7 @@ public class MainActivity extends AppCompatActivity
 
 //
 //        String userId = "6";
-        if(checkPermisstion())
+        if (checkLocationPermission())
             getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 
     }
@@ -273,12 +267,11 @@ public class MainActivity extends AppCompatActivity
      * check permission to call phone
      * @return
      */
-    private boolean checkPermissionCallPhone(){
+    private boolean checkPermissionCallPhone() {
         if (ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.CALL_PHONE},REQ_PERMISSION_CALL);
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CALL_PHONE}, REQ_PERMISSION_CALL);
             return false;
-        }
-        else return true;
+        } else return true;
     }
 
     /**
@@ -289,7 +282,7 @@ public class MainActivity extends AppCompatActivity
         Intent intent = new Intent(Intent.ACTION_CALL);
         Uri uri = Uri.parse("tel:" + phone);
         intent.setData(uri);
-        if(checkPermissionCallPhone())
+        if (checkPermissionCallPhone())
             startActivity(intent);
 
     }
@@ -367,8 +360,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
-//        LatLng test = new LatLng(11.8719808, 106.790409);
-//        makeMaker(test,"Orther Location");
+        if(checkLocationPermission())
+            mGoogleMap.setMyLocationEnabled(true);
         trackgps = new TrackGPS(MainActivity.this);
         startTimerVehicles();
 //        if(trackgps.canGetLocation){
@@ -383,7 +376,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Check permission to using location
+     * Check permission to using location for setMyLocationEnable (Point blue in google map)
      * @return true - can
      */
     public boolean checkLocationPermission() {
@@ -391,22 +384,6 @@ public class MainActivity extends AppCompatActivity
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-
-                //Prompt the user once explanation has been shown
-                ActivityCompat.requestPermissions(this,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        REQ_PERMISSION);
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        REQ_PERMISSION);
-            }
             return false;
         } else {
             return true;
@@ -508,30 +485,32 @@ public class MainActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d("Permission", "onRequestPermissionsResult()");
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch ( requestCode ) {
+        switch (requestCode) {
             case REQ_PERMISSION: {
-                if ( grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED ){
+                Log.d("BUGAAAAA1", String.valueOf(grantResults.length));
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
                     if (ActivityCompat.checkSelfPermission(this,
                             android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         mGoogleMap.setMyLocationEnabled(true);
                         trackgps.controllonLocationChanged(CONTROLL_ON);
-                        Log.d("BUGAAAAA","REsult");
+                        Log.d("BUGAAAAA1", "REsult");
                         getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 //                        buildGoogleApiClient();
 
                     }
+
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "permission FINE denied", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
             case REQ_PERMISSION_CALL: {
-                if ( grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED ){
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
                     if (ActivityCompat.checkSelfPermission(this,
                             android.Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
@@ -540,6 +519,22 @@ public class MainActivity extends AppCompatActivity
                 }
                 return;
             }
+//            case REQ_LOCATION: {
+//                Log.d("BUGAAAAA2", String.valueOf(grantResults.length));
+//                if (grantResults.length > 0
+//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    // permission was granted, yay!
+//                    if (ActivityCompat.checkSelfPermission(this,
+//                            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+//                        mGoogleMap.setMyLocationEnabled(true);
+////                        buildGoogleApiClient();
+//                    }
+//                    else {
+//                        Toast.makeText(this, "permission COARSE denied", Toast.LENGTH_LONG).show();
+//                    }
+//                    return;
+//                }
+//            }
         }
 
     }
@@ -563,24 +558,6 @@ public class MainActivity extends AppCompatActivity
         registerReceiver(gpsReceiver, new IntentFilter("android.location.PROVIDERS_CHANGED"));//Register broadcast r
     }
 
-    /**
-     * check permission for app
-     */
-    private boolean checkPermisstion(){
-        boolean accessFine = false;
-        boolean accessCoarse = false;
-        if (Build.VERSION.SDK_INT >= M) {
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                accessFine = true;
-            }
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                accessCoarse = true;
-            }
-        }
-        return accessCoarse & accessFine;
-    }
 
 //    @Override
 //    public void onConnected(Bundle bundle) {
@@ -864,7 +841,10 @@ public class MainActivity extends AppCompatActivity
         timerTaskShowWarning = new TimerTask() {
             public void run() {
                 if (trackgps.mGoogleApiClient.isConnected()) {
-                    Log.d("STttttt", "main1");
+                    trackgps.getCurrentLocation(new LocationCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d("STttttt", "main1");
                             Log.d("Location_lat_long", String.valueOf(mLocation.getLatitude()));
                             Log.d("Location_lat_long", String.valueOf(mLocation.getLongitude()));
                             Log.d("start_warning_point", "start_warning_point");
@@ -934,7 +914,15 @@ public class MainActivity extends AppCompatActivity
                                 public void onError(VolleyError error) {
                                     Log.d("Resultsxxx", error.getMessage());
                                 }
+                            });
+                        }
+
+                        @Override
+                        public void onError() {
+                            Toast.makeText(MainActivity.this, "Can't get Location", Toast.LENGTH_SHORT).show();
+                        }
                     });
+
                 }
 
 
@@ -950,6 +938,8 @@ public class MainActivity extends AppCompatActivity
      */
     private void startJourney(final String scheduleId, String deviceId){
         HashMap<String, String> params = new HashMap<String,String>();
+        Log.d("startJourney",scheduleId);
+        Log.d("startJourney",deviceId);
         params.put("scheduleId",scheduleId);
         params.put("deviceId",deviceId);
 
@@ -961,6 +951,7 @@ public class MainActivity extends AppCompatActivity
                 try {
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
+                        ApplicationController.sharedPreferences.edit().putString(ApplicationController.SCHEDULE_SESSION,scheduleJson).commit();
                         LatLng locationDestination = new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
                                 Double.parseDouble(scheduleActive.getLocationLongEnd()));
                         makeMaker(locationDestination,scheduleActive.getEndPointAddress());
@@ -972,7 +963,12 @@ public class MainActivity extends AppCompatActivity
                                         new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
                                                 Double.parseDouble(scheduleActive.getLocationLongEnd())));
 
-                                ctrollFabButtonSchedule(CONTROLL_ON);
+
+                                fabCancel.setVisibility(View.VISIBLE);
+                                fabComplete.setVisibility(View.VISIBLE);
+                                addOnClickForButton();
+
+//                                ctrollFabButtonSchedule(CONTROLL_ON);
                             }
 
                             @Override
@@ -1012,10 +1008,9 @@ public class MainActivity extends AppCompatActivity
                 try {
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
-
-                        scheduleLatest = gson.fromJson(result.getString("content"), Schedule.class);//Gan schedule gan nhat
-                        if(scheduleLatest != null)
-                            showDialogStartJourney();
+                        scheduleJson = result.getString("content");
+                        scheduleLatest = gson.fromJson(scheduleJson, Schedule.class);//Gan schedule gan nhat
+                        showDialogStartJourney();
                     }
                 }catch (JSONException e) {
                     e.printStackTrace();
@@ -1044,6 +1039,8 @@ public class MainActivity extends AppCompatActivity
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             scheduleActive = scheduleLatest;//set schedule active = scheduleLatest
+                            Log.d("showDialogStartJourney", String.valueOf(scheduleActive.getScheduleId()));
+                            Log.d("showDialogStartJourney", String.valueOf(scheduleActive.getEndPointAddress()));
                             startJourney(String.valueOf(scheduleActive.getScheduleId()),ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null));
                         }
                     })
@@ -1082,35 +1079,35 @@ public class MainActivity extends AppCompatActivity
      * Invisible/Visible fab button Controll schedule
      * @param value on/off
      */
-    private void ctrollFabButtonSchedule(int value){
-        if(value == CONTROLL_ON){
-//            controllFabSchedule = true;
-            fabControllSchedule.setVisibility(View.VISIBLE);
-            if(!controllFabSchedule)
-                fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.cancel));
-            else fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.completed));
-            fabControllSchedule.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(controllFabSchedule) {//Completed Journey
-                        controllFabSchedule = false;
-                        completedJourney(String.valueOf(scheduleLatest.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-                        fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.cancel));
-
-                    } else {//Cancel journey
-                        controllFabSchedule = true;
-                        cancelJourney(String.valueOf(scheduleLatest.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-                        fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.completed));
-
-                    }
-                    scheduleActive = null;//don't active any schedule
-                    fabControllSchedule.setVisibility(View.INVISIBLE);
-
-                }
-            });
-        }
-
-    }
+//    private void ctrollFabButtonSchedule(int value){
+//        if(value == CONTROLL_ON){
+////            controllFabSchedule = true;
+//            fabControllSchedule.setVisibility(View.VISIBLE);
+//            if(!controllFabSchedule)
+//                fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.cancel));
+//            else fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.completed));
+//            fabControllSchedule.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    if(controllFabSchedule) {//Completed Journey
+//                        controllFabSchedule = false;
+//                        completedJourney(String.valueOf(scheduleLatest.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+//                        fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.cancel));
+//
+//                    } else {//Cancel journey
+//                        controllFabSchedule = true;
+//                        cancelJourney(String.valueOf(scheduleLatest.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+//                        fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.completed));
+//
+//                    }
+//                    scheduleActive = null;//don't active any schedule
+//                    fabControllSchedule.setVisibility(View.INVISIBLE);
+//
+//                }
+//            });
+//        }
+//
+//    }
     /**
      * Function to call API completed journey
      */
@@ -1129,6 +1126,9 @@ public class MainActivity extends AppCompatActivity
                     if (!error) {
                         mGoogleMap.clear();
 //                        controllonLocationChanged(CONTROLL_OFF);
+                        scheduleActive = null;
+                        fabCancel.setVisibility(View.INVISIBLE);
+                        fabComplete.setVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this, "Completed journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
                     }
                 }catch (JSONException e) {
@@ -1162,6 +1162,8 @@ public class MainActivity extends AppCompatActivity
                         mGoogleMap.clear();
                         scheduleActive = null;
                         trackgps.controllonLocationChanged(CONTROLL_OFF);
+                        fabCancel.setVisibility(View.INVISIBLE);
+                        fabComplete.setVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this, "Cancel journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
                     }
                 }catch (JSONException e) {
@@ -1294,85 +1296,86 @@ public class MainActivity extends AppCompatActivity
                     trackgps.getCurrentLocation(new LocationCallback() {
                         @Override
                         public void onSuccess() {
+                            HashMap<String,String> params = new HashMap<String, String>();
+
+                            params.put("locationLat", String.valueOf(mLocation.getLatitude()));
+                            params.put("locationLong", String.valueOf(mLocation.getLongitude()));
+                            params.put("distance", "1000");
+
+                            ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/vehicle/nearby/{locationLat}/{locationLong}/{distance}", Request.Method.GET, params, new ServerCallback() {
+                                @Override
+                                public void onSuccess(JSONObject result) {
+                                    Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+                                    try {
+                                        Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                                        if (!error)
+                                        {
+
+                                            listOrtherVehicles = new ArrayList<OtherVehiclesInformation>();
+                                            Type listType = new TypeToken<List<OtherVehiclesInformation>>() {}.getType();
+                                            listOrtherVehicles = gson.fromJson(result.getString("content"), listType );
+                                            Log.d("array",String.valueOf(listOrtherVehicles.size()));
+                                            for (Marker marker : vehicleMarkerMap.keySet()) {
+                                                marker.remove();
+                                            }
+                                            vehicleMarkerMap.clear();
+                                            for (final OtherVehiclesInformation object : listOrtherVehicles) {
+//                            makeMaker(new LatLng(Double.parseDouble(object.getLocationLat()),
+//                                    Double.parseDouble(object.getLocationLong())),"Driver name: " + object.getDriverName()+ "\n" + "Driver phone: " + object.getDriverPhone());
+                                                LatLng otherVehiclePosition = new LatLng(Double.parseDouble(object.getLocationLat()), Double.parseDouble(object.getLocationLong()));
+
+                                                BitmapDrawable bitmapDrawable;
+                                                Bitmap bitmap;
+                                                bitmapDrawable = (BitmapDrawable) getResources().getDrawable(R.drawable.vehicles);
+                                                bitmap = bitmapDrawable.getBitmap();
+                                                Bitmap vehicleMarker = Bitmap.createScaledBitmap(bitmap, 60, 90, false);
+
+                                                Marker show = mGoogleMap.addMarker(new MarkerOptions()
+                                                        .position(otherVehiclePosition)
+                                                        .title(object.getDriverName())
+                                                        .snippet(object.getDriverPhone())
+                                                        .icon(BitmapDescriptorFactory.fromBitmap(vehicleMarker))
+                                                        .visible(true));
+                                                vehicleMarkerMap.put(show, object);
+                                            }
+                                            mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                                                @Override
+                                                public boolean onMarkerClick(final Marker marker) {
+                                                    selectedVehicleMarker = vehicleMarkerMap.get(marker);
+                                                    Log.d("selectedVehicleMarker", String.valueOf(marker.getId()));
+                                                    if (selectedVehicleMarker != null) {
+                                                        txtDriverName.setText("Driver Name: " + selectedVehicleMarker.getDriverName());
+                                                        txtDriverPhone.setText("Driver Phone: " + selectedVehicleMarker.getDriverPhone());
+                                                        dialogCallOtherVehicles.show();
+                                                        return true;
+                                                    }
+                                                    return false;
+                                                }
+                                            });
+                                        }
+                                        else {
+
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+
+                                @Override
+                                public void onError(VolleyError error) {
+
+                                }
+                            });
                         }
 
                         @Override
                         public void onError() {
-
+                            Toast.makeText(MainActivity.this,"Can't get location",Toast.LENGTH_SHORT).show();
                         }
                     });
 
-                    HashMap<String,String> params = new HashMap<String, String>();
 
-                    params.put("locationLat", String.valueOf(mLocation.getLatitude()));
-                    params.put("locationLong", String.valueOf(mLocation.getLongitude()));
-                    params.put("distance", "1000");
-
-                    ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/vehicle/nearby/{locationLat}/{locationLong}/{distance}", Request.Method.GET, params, new ServerCallback() {
-                        @Override
-                        public void onSuccess(JSONObject result) {
-                            Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-                            try {
-                                Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
-                                if (!error)
-                                {
-
-                                    listOrtherVehicles = new ArrayList<OtherVehiclesInformation>();
-                                    Type listType = new TypeToken<List<OtherVehiclesInformation>>() {}.getType();
-                                    listOrtherVehicles = gson.fromJson(result.getString("content"), listType );
-                                    Log.d("array",String.valueOf(listOrtherVehicles.size()));
-                                    for (Marker marker : vehicleMarkerMap.keySet()) {
-                                        marker.remove();
-                                    }
-                                    vehicleMarkerMap.clear();
-                                    for (final OtherVehiclesInformation object : listOrtherVehicles) {
-//                            makeMaker(new LatLng(Double.parseDouble(object.getLocationLat()),
-//                                    Double.parseDouble(object.getLocationLong())),"Driver name: " + object.getDriverName()+ "\n" + "Driver phone: " + object.getDriverPhone());
-                                        LatLng otherVehiclePosition = new LatLng(Double.parseDouble(object.getLocationLat()), Double.parseDouble(object.getLocationLong()));
-
-                                        BitmapDrawable bitmapDrawable;
-                                        Bitmap bitmap;
-                                        bitmapDrawable = (BitmapDrawable) getResources().getDrawable(R.drawable.vehicles);
-                                        bitmap = bitmapDrawable.getBitmap();
-                                        Bitmap vehicleMarker = Bitmap.createScaledBitmap(bitmap, 60, 90, false);
-
-                                        Marker show = mGoogleMap.addMarker(new MarkerOptions()
-                                                .position(otherVehiclePosition)
-                                                .title(object.getDriverName())
-                                                .snippet(object.getDriverPhone())
-                                                .icon(BitmapDescriptorFactory.fromBitmap(vehicleMarker))
-                                                .visible(true));
-                                        vehicleMarkerMap.put(show, object);
-                                    }
-                                    mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                                        @Override
-                                        public boolean onMarkerClick(final Marker marker) {
-                                            selectedVehicleMarker = vehicleMarkerMap.get(marker);
-                                            Log.d("selectedVehicleMarker", String.valueOf(marker.getId()));
-                                            if (selectedVehicleMarker != null) {
-                                                txtDriverName.setText("Driver Name: " + selectedVehicleMarker.getDriverName());
-                                                txtDriverPhone.setText("Driver Phone: " + selectedVehicleMarker.getDriverPhone());
-                                                dialogCallOtherVehicles.show();
-                                                return true;
-                                            }
-                                            return false;
-                                        }
-                                    });
-                                }
-                                else {
-
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-
-                        @Override
-                        public void onError(VolleyError error) {
-
-                        }
-                    });
                 }
 
             }
@@ -1426,4 +1429,36 @@ public class MainActivity extends AppCompatActivity
     protected void onStop(){
         super.onStop();
     }
+
+
+    /**
+     * Add event onClick for button cancel / complete journey
+     */
+    private void addOnClickForButton(){
+        fabCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelJourney(String.valueOf(scheduleLatest.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                removeonClickForButton();
+            }
+        });
+        fabComplete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                completedJourney(String.valueOf(scheduleLatest.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                removeonClickForButton();
+            }
+        });
+    }
+
+    /**
+     * Remove onClick for button cancel / complete journey
+     */
+    private void removeonClickForButton(){
+        fabCancel.setOnClickListener(null);
+        fabComplete.setOnClickListener(null);
+        ApplicationController.sharedPreferences.edit().remove(ApplicationController.SCHEDULE_SESSION).commit();
+    }
+
+
 }

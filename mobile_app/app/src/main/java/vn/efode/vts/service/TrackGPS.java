@@ -54,7 +54,8 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
     private static int CONTROLL_ON = 1;
     private static int CONTROLL_OFF = -1;
 
-    final private static int REQ_PERMISSION = 20;// Value permission locaiton
+    final private static int REQ_PERMISSION = 20;// Value permission locaiton FINE
+    final private static int REQ_LOCATION = 10;// Value permission locaiton COARSE
 
     public TrackGPS(Context context){
         mContext = context;
@@ -122,24 +123,6 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
      */
     public boolean checkLocationPermission() {
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
-//                    != PackageManager.PERMISSION_GRANTED) {
-//
-//                ActivityCompat.requestPermissions((MainActivity) mContext,new String[]{
-//                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-//                        android.Manifest.permission.INTERNET
-//                }, REQ_PERMISSION);
-//            }
-//            if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-//                    != PackageManager.PERMISSION_GRANTED) {
-//                ActivityCompat.requestPermissions((MainActivity) mContext, new String[]{
-//                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
-//                        android.Manifest.permission.INTERNET
-//                }, REQ_PERMISSION);
-//            }
-//            return false;
-//        }
         if (ActivityCompat.checkSelfPermission(mContext,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -180,25 +163,35 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
     }
 
     /**
-     * get Current Location
-     * @return location
+     * Check permission to using location for setMyLocationEnable (Point blue in google map)
+     * @return true - can
      */
+    public boolean checkPermission() {
+        if (ActivityCompat.checkSelfPermission(mContext,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     /**
      * get Current Location
      * @param callback callback when user can get location
      * @return location
      */
     public void getCurrentLocation(LocationCallback callback){
-        if(checkLocationPermission()){
+        if(checkPermission()){
             mLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
-                if(mLocation != null)
+            if(mLocation != null)
                     callback.onSuccess();
             //        Log.d("CurrentLocation",mLastLocation.getLatitude() + " | " + mLastLocation.getLongitude());
-                else callback.onError();
+            else callback.onError();
 
         }
-
     }
 
     /**

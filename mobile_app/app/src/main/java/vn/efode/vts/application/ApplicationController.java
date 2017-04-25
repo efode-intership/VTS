@@ -12,6 +12,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import vn.efode.vts.model.Schedule;
 import vn.efode.vts.model.User;
 
 /**
@@ -27,6 +28,11 @@ public class ApplicationController extends Application {
      * Shared preference user session key's name.
      */
     public static String USER_SESSION = "user_session";
+
+    /**
+     * Shared preference schedule session key's name.
+     */
+    public static String SCHEDULE_SESSION = "schedule_session";
 
     /**
      * Common shared preference.
@@ -116,5 +122,20 @@ public class ApplicationController extends Application {
             user = gson.fromJson(userJson, User.class);
         }
         return user;
+    }
+
+    /**
+     * Get current user.
+     * @return current user.
+     */
+    public static Schedule getCurrentSchudle() {
+        String userJson = ApplicationController.sharedPreferences.getString(SCHEDULE_SESSION, null);
+        Schedule schedule = null;
+        if (userJson != null) {
+            Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                    .setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+            schedule = gson.fromJson(userJson, Schedule.class);
+        }
+        return schedule;
     }
 }

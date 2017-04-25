@@ -45,7 +45,17 @@ public class SignInActivity extends AppCompatActivity {
         txtPassWord = (EditText) findViewById(R.id.txtPassWord);
         txtForgotPassword = (TextView)findViewById(R.id.textview_signin_forgotpassword);
 
-        if(ApplicationController.getCurrentUser() != null) {
+        User user = ApplicationController.getCurrentUser();
+        // mapping device token with user
+        String deviceToken = ApplicationController.sharedPreferences.getString(DeviceTokenService.DEVICE_TOKEN, null);
+        if( user != null) {
+            if (deviceToken != null ) {
+                String saveTokenUrl = "/api/v1/token/save";
+                HashMap<String, String> saveTokenParams = new HashMap<String, String>();
+                saveTokenParams.put("deviceId", deviceToken);
+                saveTokenParams.put("userId", String.valueOf(user.getId()));
+                ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN +saveTokenUrl, Request.Method.POST, saveTokenParams, null);
+            }
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }
