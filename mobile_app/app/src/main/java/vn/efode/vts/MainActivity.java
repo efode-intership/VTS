@@ -126,6 +126,8 @@ public class MainActivity extends AppCompatActivity
     private TimerTask timerTaskShowWarning;
     private Timer timerShowOtherVehicles;
     private TimerTask timerTaskShowOtherVehicles;
+    private Timer timerSessionSchedule;
+    private TimerTask timerTaskSessionSchedule;
 
     private Button btnConfirmCallServer;
     private Button btnCancelCallServer;
@@ -258,8 +260,8 @@ public class MainActivity extends AppCompatActivity
 
 //
 //        String userId = "6";
-        if (checkLocationPermission())
-            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
+//        if (checkLocationPermission())
+//            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 
     }
 
@@ -362,7 +364,22 @@ public class MainActivity extends AppCompatActivity
         mGoogleMap = googleMap;
         if(checkLocationPermission())
             mGoogleMap.setMyLocationEnabled(true);
+
+
         trackgps = new TrackGPS(MainActivity.this);
+
+        Schedule scheduleSession = ApplicationController.getCurrentSchudle();
+        if (checkLocationPermission())
+            if(scheduleSession == null)
+                getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
+            else {
+                scheduleActive = scheduleSession;
+                Toast.makeText(MainActivity.this, "You are starting schedule id:" + scheduleActive.getScheduleId(), Toast.LENGTH_SHORT).show();
+                startTimerforSheculeSession();
+                fabCancel.setVisibility(View.VISIBLE);
+                fabComplete.setVisibility(View.VISIBLE);
+                addOnClickForButton();
+            }
         startTimerVehicles();
 //        if(trackgps.canGetLocation){
 //            showDialogStartJourney();
@@ -1438,14 +1455,14 @@ public class MainActivity extends AppCompatActivity
         fabCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                cancelJourney(String.valueOf(scheduleLatest.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                cancelJourney(String.valueOf(scheduleActive.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
                 removeonClickForButton();
             }
         });
         fabComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                completedJourney(String.valueOf(scheduleLatest.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                completedJourney(String.valueOf(scheduleActive.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
                 removeonClickForButton();
             }
         });
@@ -1458,7 +1475,47 @@ public class MainActivity extends AppCompatActivity
         fabCancel.setOnClickListener(null);
         fabComplete.setOnClickListener(null);
         ApplicationController.sharedPreferences.edit().remove(ApplicationController.SCHEDULE_SESSION).commit();
+
     }
 
+
+    private void timerSaveScheduleSession(){
+        timerTaskSessionSchedule = new TimerTask() {
+            @Override
+            public void run() {
+                if (trackgps.mGoogleApiClient.isConnected()) {
+                    trackgps.getCurrentLocation(new LocationCallback() {
+                        @Override
+                        public void onSuccess() {
+                            drawroadBetween2Location(new LatLng(mLocation.getLatitude(),
+                                            mLocation.getLongitude()),
+                                    new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
+                                            Double.parseDouble(scheduleActive.getLocationLongEnd())));
+                            if (timerSessionSchedule != null) {//remove timer
+                                timerSessionSchedule.cancel();
+                                timerSessionSchedule = null;
+                            }
+                        }
+
+                        @Override
+                        public void onError() {
+
+                        }
+                    });
+                }
+            }
+        };
+    }
+
+    private void startTimerforSheculeSession(){
+        //set a new Timer
+        timerSessionSchedule = new Timer();
+
+        //initialize the TimerTask's job
+        timerSaveScheduleSession();
+
+        //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
+        timerSessionSchedule.schedule(timerTaskSessionSchedule, 5000, 30000);
+    }
 
 }
