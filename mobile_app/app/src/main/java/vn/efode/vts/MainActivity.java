@@ -147,6 +147,7 @@ public class MainActivity extends AppCompatActivity
     private Button btnConfirmCallOtherVehicles;
     private ArrayList<OtherVehiclesInformation> listOrtherVehicles;
     private Dialog dialogCallOtherVehicles;
+
     private int ID_KETXE = 1;
     private int ID_PIKACHU = 2;
     private int ID_HONGDUONG = 3;
@@ -1329,17 +1330,17 @@ public class MainActivity extends AppCompatActivity
 //                                    Double.parseDouble(object.getLocationLong())),"Driver name: " + object.getDriverName()+ "\n" + "Driver phone: " + object.getDriverPhone());
                                         LatLng otherVehiclePosition = new LatLng(Double.parseDouble(object.getLocationLat()), Double.parseDouble(object.getLocationLong()));
 
-//                                        BitmapDrawable bitmapDrawable;
-//                                        Bitmap bitmap;
-//                                        bitmapDrawable = (BitmapDrawable) getResources().getDrawable(R.drawable.vehicles);
-//                                        bitmap = bitmapDrawable.getBitmap();
-//                                        Bitmap vehicleMarker = Bitmap.createScaledBitmap(bitmap, 100, 130, false);
+                                        BitmapDrawable bitmapDrawable;
+                                        Bitmap bitmap;
+                                        bitmapDrawable = (BitmapDrawable) getResources().getDrawable(R.drawable.vehicles);
+                                        bitmap = bitmapDrawable.getBitmap();
+                                        Bitmap vehicleMarker = Bitmap.createScaledBitmap(bitmap, 60, 90, false);
 
                                         Marker show = mGoogleMap.addMarker(new MarkerOptions()
                                                 .position(otherVehiclePosition)
                                                 .title(object.getDriverName())
                                                 .snippet(object.getDriverPhone())
-//                                                .icon(BitmapDescriptorFactory.fromBitmap(vehicleMarker))
+                                                .icon(BitmapDescriptorFactory.fromBitmap(vehicleMarker))
                                                 .visible(true));
                                         vehicleMarkerMap.put(show, object);
                                     }
@@ -1380,7 +1381,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Setup show vehicle info dialog.
+     * Setup show vehicle info dialog and call vehicles.
      */
     private void setupVehicleDialog() {
         dialogCallOtherVehicles = new Dialog(MainActivity.this);

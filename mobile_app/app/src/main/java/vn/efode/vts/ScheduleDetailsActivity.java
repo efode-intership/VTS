@@ -9,17 +9,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import vn.efode.vts.model.Schedule;
 
 public class ScheduleDetailsActivity extends AppCompatActivity implements View.OnClickListener{
 
     TextView txtScheduleId, txtDriverId, txtVehicleId, txtStartPointAddress, txtEndPointAddress, txtIntendStartTime, txtIntendEndTime, txtScheduleStatusTypeId;
-    Intent intentSchedule, intentHistory;
-    ArrayList<Schedule> schedulesDetails;
+    Intent intentSchedule;
     Button btnStartSchedule;
-    Schedule schedule, history;
+    Schedule schedule;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,38 +34,11 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
 
         setContentSchedule();
 
-//        setContentHistory();
-
     }
 
     /**
      * set content details about schedule
      */
-//    private void setContentHistory() {
-//        txtScheduleId.setText("Schedule ID: " + history.getScheduleId());
-//        txtIntendStartTime.setText("Intend Start Time: " + history.getIntendStartTime());
-//        txtIntendEndTime.setText("Intend End Time: " + history.getIntendEndTime());
-//        txtDriverId.setText("Driver Id: " + history.getDriverId());
-//        txtVehicleId.setText("Vehicle Id: " + history.getVehicleId());
-//        txtStartPointAddress.setText("Start Point Address: " + history.getStartPointAddress());
-//        txtEndPointAddress.setText("End Point Address: " + history.getEndPointAddress());
-//
-//        if(history.getScheduleStatusTypeId() == 1) {
-//            btnStartSchedule.setVisibility(View.VISIBLE);
-//            txtScheduleStatusTypeId.setText("Schedule Status Type: CHUA CHAY");
-//        }
-//        else btnStartSchedule.setVisibility(View.INVISIBLE);
-//
-//        if (history.getScheduleStatusTypeId() == 2)
-//            txtScheduleStatusTypeId.setText("Schedule Status Type: DA HOAN THANH");
-//        else
-//            if (history.getScheduleStatusTypeId() == 3)
-//                txtScheduleStatusTypeId.setText("Schedule Status Type: DANG CHAY");
-//            else
-//                if (history.getScheduleStatusTypeId() == 4)
-//                    txtScheduleStatusTypeId.setText("Schedule Status Type: DA HUY");
-//
-//    }
 
     private void setContentSchedule() {
         txtScheduleId.setText("Schedule ID: " + schedule.getScheduleId());
