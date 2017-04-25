@@ -21,6 +21,34 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_warning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:backgroundTint="#c0392b"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@drawable/warning" />
+
+    <ImageView
+        android:id="@+id/divider2"
+        android:layout_width="1dp"
+        android:layout_height="40dp"
+        app:layout_anchor="@id/fab_warning"
+        app:layout_anchorGravity="start" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:backgroundTint="#f1c40f"
+        app:layout_anchor="@id/divider2"
+        app:layout_anchorGravity="left|start"
+        android:layout_gravity="start"
+        android:visibility="invisible"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@drawable/cancel" />
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_call"
@@ -30,39 +58,27 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/call" />
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:backgroundTint="#f1c40f"
-            android:layout_gravity="center_vertical|start"
-            android:visibility="invisible"
-            android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@drawable/cancel" />
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_complete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:backgroundTint="#f1c40f"
-            android:visibility="invisible"
-            android:layout_gravity="center_vertical|end"
-            android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@drawable/completed"
-            />
-
-
-
+    <ImageView
+        android:id="@+id/divider1"
+        android:layout_width="1dp"
+        android:layout_height="40dp"
+        app:layout_anchor="@id/fab_call"
+        app:layout_anchorGravity="end" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_warning"
+        android:id="@+id/fab_complete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:backgroundTint="#c0392b"
-        android:layout_gravity="bottom|start"
+        app:backgroundTint="#f1c40f"
+        android:visibility="invisible"
+        android:layout_gravity="end"
+        app:layout_anchor="@id/divider1"
+        app:layout_anchorGravity="right|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/warning" />
+        app:srcCompat="@drawable/completed"
+        />
+
+
 
 
     <include
