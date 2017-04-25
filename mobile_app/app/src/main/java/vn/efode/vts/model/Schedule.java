@@ -22,12 +22,14 @@ public class Schedule implements Serializable{
     private String realStartTime;
     private String realEndTime;
     private String deviceId;
+    private String scheduleStatusName;
+    private String scheduleStatusDescription;
 
     public Schedule() {
     }
 
 
-    public Schedule(int scheduleId, int driverId, int vehicleId, String startPointAddress, String endPointAddress, String intendStartTime, String intendEndTime, int scheduleStatusTypeId, String locationLatStart, String locationLongStart, String locationLatEnd, String locationLongEnd, String realStartTime, String realEndTime, String deviceId) {
+    public Schedule(int scheduleId, int driverId, int vehicleId, String startPointAddress, String endPointAddress, String intendStartTime, String intendEndTime, int scheduleStatusTypeId, String locationLatStart, String locationLongStart, String locationLatEnd, String locationLongEnd, String realStartTime, String realEndTime, String deviceId, String scheduleStatusName, String scheduleStatusDescription) {
         this.scheduleId = scheduleId;
         this.driverId = driverId;
         this.vehicleId = vehicleId;
@@ -43,6 +45,8 @@ public class Schedule implements Serializable{
         this.realStartTime = realStartTime;
         this.realEndTime = realEndTime;
         this.deviceId = deviceId;
+        this.scheduleStatusName = scheduleStatusName;
+        this.scheduleStatusDescription = scheduleStatusDescription;
     }
 
 //    public Schedule(String locationLatStart) {
@@ -167,5 +171,21 @@ public class Schedule implements Serializable{
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
+    }
+
+    public String getScheduleStatusName() {
+        return scheduleStatusName;
+    }
+
+    public void setScheduleStatusName(String scheduleStatusName) {
+        this.scheduleStatusName = scheduleStatusName;
+    }
+
+    public String getScheduleStatusDescription() {
+        return scheduleStatusDescription;
+    }
+
+    public void setScheduleStatusDescription(String scheduleStatusDescription) {
+        this.scheduleStatusDescription = scheduleStatusDescription;
     }
 }

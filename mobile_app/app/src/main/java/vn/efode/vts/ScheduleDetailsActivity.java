@@ -7,6 +7,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import vn.efode.vts.model.Schedule;
@@ -17,6 +18,7 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
     Intent intentSchedule;
     Button btnStartSchedule;
     Schedule schedule;
+    ImageView imgScheduleStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,19 +53,28 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
 
         if(schedule.getScheduleStatusTypeId() == 1) {
             btnStartSchedule.setVisibility(View.VISIBLE);
-            txtScheduleStatusTypeId.setText("Schedule Status Type: NOT START!!!");
+            txtScheduleStatusTypeId.setText("Schedule Status: " + schedule.getScheduleStatusName() + "!!!");
+            imgScheduleStatus.setImageResource(R.drawable.notstart);
         }
         else btnStartSchedule.setVisibility(View.INVISIBLE);
 
         if (schedule.getScheduleStatusTypeId() == 2)
-            txtScheduleStatusTypeId.setText("Schedule Status Type: COMPLETE!!!");
+        {
+            txtScheduleStatusTypeId.setText("Schedule Status: " + schedule.getScheduleStatusName() + "!!!");
+            imgScheduleStatus.setImageResource(R.drawable.complete);
+        }
         else
         if (schedule.getScheduleStatusTypeId() == 3)
-            txtScheduleStatusTypeId.setText("Schedule Status Type: ACTIVE!!!");
+        {
+            txtScheduleStatusTypeId.setText("Schedule Status: " + schedule.getScheduleStatusName() + "!!!");
+            imgScheduleStatus.setImageResource(R.drawable.inprogress);
+        }
         else
         if (schedule.getScheduleStatusTypeId() == 4)
-            txtScheduleStatusTypeId.setText("Schedule Status Type: CANCEL!!!");
-
+        {
+            txtScheduleStatusTypeId.setText("Schedule Status: " + schedule.getScheduleStatusName() + "!!!");
+            imgScheduleStatus.setImageResource(R.drawable.cancelschedule);
+        }
     }
 
     private void addEvents() {
@@ -80,6 +91,7 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
         txtIntendStartTime = (TextView) findViewById(R.id.txtIntendStartTime);
         txtIntendEndTime = (TextView) findViewById(R.id.txtIntendEndTime);
         txtScheduleStatusTypeId = (TextView) findViewById(R.id.txtScheduleStatusTypeId);
+        imgScheduleStatus = (ImageView) findViewById(R.id.imgScheduleStatus);
 
     }
 
