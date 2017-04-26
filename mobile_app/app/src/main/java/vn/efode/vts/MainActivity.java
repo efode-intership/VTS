@@ -888,7 +888,7 @@ public class MainActivity extends AppCompatActivity
 
 
                                                 if (arrWarningPoint.get(i).getWarningTypeId() == ID_KETXE) {
-                                                    bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.pikachumarker);
+                                                    bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.ketxemarker);
                                                     b = bitmapdraw.getBitmap();
                                                 } else if (arrWarningPoint.get(i).getWarningTypeId() == ID_PIKACHU) {
                                                     bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.pikachumarker);
