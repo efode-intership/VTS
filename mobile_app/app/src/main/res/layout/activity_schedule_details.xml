@@ -24,7 +24,9 @@
             android:textAlignment="center"
             android:textColor="@android:color/holo_red_light"
             android:textSize="23sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="0dp" />
 
         <TextView
             android:id="@+id/txtScheduleId"
@@ -138,8 +140,10 @@
             android:id="@+id/btn_start_schedule"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/cast_intro_overlay_button_background_color"
             android:padding="10dp"
-            android:text="START JOURNEY" />
+            android:text="START JOURNEY"
+            android:textSize="18sp" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

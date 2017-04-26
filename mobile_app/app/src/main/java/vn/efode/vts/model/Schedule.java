@@ -188,4 +188,17 @@ public class Schedule implements Serializable{
     public void setScheduleStatusDescription(String scheduleStatusDescription) {
         this.scheduleStatusDescription = scheduleStatusDescription;
     }
+
+    @Override
+    public int hashCode() {
+        return scheduleId;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this.scheduleId == ((Schedule) obj).scheduleId) {
+            return true;
+        }
+        return false;
+    }
 }

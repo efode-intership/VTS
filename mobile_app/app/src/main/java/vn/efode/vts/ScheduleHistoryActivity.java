@@ -36,8 +36,8 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
 
     ListView lvSchedule, lvHistory;
     ArrayList<Schedule> listSchedule;
-    List<Schedule> notStartedList; //List Schedule not start
-    List<Schedule> historyList = new ArrayList<Schedule>(); //List Schedule complete or cancel
+    public static List<Schedule> notStartedList  = new ArrayList<Schedule>();; //List Schedule not start
+    public static List<Schedule> historyList = new ArrayList<Schedule>(); //List Schedule complete or cancel
     HashMap<String,String> schedulelist = new HashMap<String, String>();
     ScheduleAdapter scheduleAdapter;
 
@@ -53,7 +53,8 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
         lvHistory = (ListView) findViewById(R.id.lvHistory);
 
         addControls();
-        notStartedList = new ArrayList<Schedule>();
+        getDataFromServer();
+
 
     }
 
@@ -90,6 +91,8 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
                     {
 
                         listSchedule = new ArrayList<Schedule>();
+                        notStartedList = new ArrayList<Schedule>();
+                        historyList = new ArrayList<Schedule>();
                         Type listType = new TypeToken<List<Schedule>>() {}.getType();
                         listSchedule = gson.fromJson(result.getString("content"), listType );
                         Log.d("array",String.valueOf(listSchedule.size()));
@@ -185,9 +188,9 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         getDataFromServer();
-
     }
+
 }

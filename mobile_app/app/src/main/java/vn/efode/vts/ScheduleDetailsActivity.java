@@ -28,6 +28,7 @@ import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
 import static vn.efode.vts.MainActivity.scheduleActive;
+import static vn.efode.vts.ScheduleHistoryActivity.notStartedList;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 
 public class ScheduleDetailsActivity extends AppCompatActivity implements View.OnClickListener{
@@ -173,6 +174,9 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
                         swtichActivity();
+                        Schedule removedSchedule = new Schedule();
+                        removedSchedule.setScheduleId(Integer.parseInt(scheduleId));
+                        notStartedList.remove(removedSchedule);
 
                     }
                 }catch (JSONException e) {
