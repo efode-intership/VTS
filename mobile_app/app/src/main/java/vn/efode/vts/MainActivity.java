@@ -1506,7 +1506,7 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
-        if (checkLocationPermission() && scheduleActive == null)
+        if (checkLocationPermission())
             getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 //        if (checkLocationPermission() && scheduleActive == null)
 //            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
