@@ -25,15 +25,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import vn.efode.vts.R;
-import vn.efode.vts.application.ApplicationController;
-import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.utils.ServerCallback;
+import vn.efode.vts.utils.ServiceHandler;
 
 public class VerificationActivity extends AppCompatActivity {
     private EditText edtNumber;
     private Button btnDone;
     private TextView txtDescription;
     private String checkResetCodeUrl = ServiceHandler.DOMAIN + "/api/v1/user/checkResetCode";
+    private String emailForgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,15 +43,15 @@ public class VerificationActivity extends AppCompatActivity {
         edtNumber = (EditText)findViewById(R.id.edittext_verifi_number);
         btnDone = (Button)findViewById(R.id.button_verifi_done);
         txtDescription = (TextView)findViewById(R.id.textview_verifi_description);
-
+        Log.d("Email_get_intent", getIntent().getStringExtra("EMAIL_FORGOT_PASSWORD"));
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 final Intent intent = new Intent(VerificationActivity.this, ChangePasswordActivity.class);
-
+                emailForgotPassword = getIntent().getStringExtra("EMAIL_FORGOT_PASSWORD");
                 HashMap<String,String> params = new HashMap<String,String>();
-                params.put("email", ApplicationController.getCurrentUser().getEmail());
+                params.put("email", emailForgotPassword);
                 params.put("confirmCode", edtNumber.getText().toString());
 
                 ServiceHandler serviceHandler = new ServiceHandler();
@@ -65,12 +65,13 @@ public class VerificationActivity extends AppCompatActivity {
                                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                                     if (!error) {
                                         Type type = new TypeToken<Map<String, String>>(){}.getType();
-                                        HashMap<String,String> outputMap = gson.fromJson(result.getString("content"), type);
+                                        Map<String,String> outputMap = gson.fromJson(result.getString("content"), type);
                                         String passwordResetToken = outputMap.get("reset_password_token");
 
                                         Log.d("asds",String.valueOf(result.getString("content")));
                                         Log.d("asds", String.valueOf(passwordResetToken));
                                         intent.putExtra("RESET_PASSWORD_TOKEN", String.valueOf(passwordResetToken));
+                                        intent.putExtra("EMAIL_FORGOT_PASSWORD", emailForgotPassword);
                                         startActivity(intent);
                                     }
                                     else {

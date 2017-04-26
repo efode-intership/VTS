@@ -59,6 +59,7 @@ public class EnterPhoneActivity extends AppCompatActivity {
                                 try {
                                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                                     if (!error) {
+                                        intent.putExtra("EMAIL_FORGOT_PASSWORD", String.valueOf(edtEmail.getText()));
                                         startActivity(intent);
 
                                     }

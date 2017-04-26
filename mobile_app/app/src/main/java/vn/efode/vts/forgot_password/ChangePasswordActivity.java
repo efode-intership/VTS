@@ -22,10 +22,9 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 import vn.efode.vts.R;
-import vn.efode.vts.application.ApplicationController;
-import vn.efode.vts.utils.ServiceHandler;
 import vn.efode.vts.SignInActivity;
 import vn.efode.vts.utils.ServerCallback;
+import vn.efode.vts.utils.ServiceHandler;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
@@ -34,6 +33,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private EditText edtConfirm;
     private Button btnDone;
     private String changePasswordUrl = ServiceHandler.DOMAIN + "/api/v1/user/newPassword";
+    private String emailForgotPassword;
+    private String resetPasswordToken;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,19 +44,20 @@ public class ChangePasswordActivity extends AppCompatActivity {
         edtNewpass = (EditText)findViewById(R.id.edittext_changepass_newpass);
         edtConfirm = (EditText)findViewById(R.id.edittext_changepass_confirm);
         btnDone = (Button)findViewById(R.id.button_changepass_done);
-
+        //Log.d("Email_get_intent", getIntent().getStringExtra("EMAIL_FORGOT_PASSWORD"));
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d("intensss",getIntent().getStringExtra("RESET_PASSWORD_TOKEN"));
-
+                emailForgotPassword = getIntent().getStringExtra("EMAIL_FORGOT_PASSWORD");
+                resetPasswordToken = getIntent().getStringExtra("RESET_PASSWORD_TOKEN");
                 if (edtNewpass.getText().toString().equals(edtConfirm.getText().toString()) && !edtNewpass.getText().toString().equals("")) {
                     final Intent intent = new Intent(ChangePasswordActivity.this, SignInActivity.class);
 
                     HashMap<String, String> params = new HashMap<String, String>();
-                    params.put("email", ApplicationController.getCurrentUser().getEmail());
+                    params.put("email", emailForgotPassword);
                     params.put("newPassword", edtNewpass.getText().toString());
-                    params.put("resetPasswordToken", getIntent().getStringExtra("RESET_PASSWORD_TOKEN"));
+                    params.put("resetPasswordToken", resetPasswordToken);
 
                     ServiceHandler serviceHandler = new ServiceHandler();
                     serviceHandler.makeServiceCall(changePasswordUrl, Request.Method.POST,
@@ -69,7 +71,10 @@ public class ChangePasswordActivity extends AppCompatActivity {
                                         if (!error) {
 
                                             Toast.makeText(ChangePasswordActivity.this, "Đổi thành công", Toast.LENGTH_SHORT).show();
+                                            //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                             startActivity(intent);
+                                            finishAffinity();
+
                                         } else {
 
                                         }
