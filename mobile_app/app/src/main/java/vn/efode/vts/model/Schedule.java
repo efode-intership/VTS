@@ -23,13 +23,13 @@ public class Schedule implements Serializable{
     private String realEndTime;
     private String deviceId;
     private String scheduleStatusName;
-    private String scheduleStatusDescription;
+    private String description;
 
     public Schedule() {
     }
 
 
-    public Schedule(int scheduleId, int driverId, int vehicleId, String startPointAddress, String endPointAddress, String intendStartTime, String intendEndTime, int scheduleStatusTypeId, String locationLatStart, String locationLongStart, String locationLatEnd, String locationLongEnd, String realStartTime, String realEndTime, String deviceId, String scheduleStatusName, String scheduleStatusDescription) {
+    public Schedule(int scheduleId, int driverId, int vehicleId, String startPointAddress, String endPointAddress, String intendStartTime, String intendEndTime, int scheduleStatusTypeId, String locationLatStart, String locationLongStart, String locationLatEnd, String locationLongEnd, String realStartTime, String realEndTime, String deviceId, String scheduleStatusName, String description) {
         this.scheduleId = scheduleId;
         this.driverId = driverId;
         this.vehicleId = vehicleId;
@@ -46,7 +46,7 @@ public class Schedule implements Serializable{
         this.realEndTime = realEndTime;
         this.deviceId = deviceId;
         this.scheduleStatusName = scheduleStatusName;
-        this.scheduleStatusDescription = scheduleStatusDescription;
+        this.description = description;
     }
 
 //    public Schedule(String locationLatStart) {
@@ -181,12 +181,12 @@ public class Schedule implements Serializable{
         this.scheduleStatusName = scheduleStatusName;
     }
 
-    public String getScheduleStatusDescription() {
-        return scheduleStatusDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setScheduleStatusDescription(String scheduleStatusDescription) {
-        this.scheduleStatusDescription = scheduleStatusDescription;
+    public void setDescription(String scheduleStatusDescription) {
+        this.description = description;
     }
 
     @Override

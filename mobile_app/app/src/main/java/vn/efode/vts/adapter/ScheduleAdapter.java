@@ -45,7 +45,7 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule>{
         TextView txtEndPointAddress = (TextView) row.findViewById(R.id.txtEndPointAddress);
         TextView txtIntendStartTime = (TextView) row.findViewById(R.id.txtIntendStartTime);
         TextView txtIntendEndTime = (TextView) row.findViewById(R.id.txtIntendEndTime);
-        TextView txtDetails = (TextView) row.findViewById(R.id.txtDetails);
+        TextView txtDescription = (TextView) row.findViewById(R.id.txtDescription);
 
         final Schedule schedule = this.objects.get(position);
         txtScheduleId.setText("Schedule Id: " + schedule.getScheduleId());
@@ -55,6 +55,7 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule>{
         txtEndPointAddress.setText("End Point Address: " + schedule.getEndPointAddress());
         txtIntendStartTime.setText("Intend Start Time: " + schedule.getIntendStartTime());
         txtIntendEndTime.setText("Intend End Time: " + schedule.getIntendEndTime());
+        txtDescription.setText("Description: " + schedule.getDescription());
 
 
         return row;
