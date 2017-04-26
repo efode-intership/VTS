@@ -48,6 +48,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -89,6 +90,8 @@ public class MainActivity extends AppCompatActivity
     LocationRequest mLocationRequest;
 //    GoogleApiClient mGoogleApiClient;
 
+    public static Polyline polyline = null;//Instance
+
     private static TrackGPS trackgps;
 
     private static String scheduleJson;
@@ -100,7 +103,8 @@ public class MainActivity extends AppCompatActivity
     private static int CONTROLL_ON = 1;
     private static int CONTROLL_OFF = -1;
 
-    private static AlertDialog dialogRequestStartSchedule;
+    private static AlertDialog dialogRequestStartSchedule;// Dialog request user start journey or not
+    private static AlertDialog dialogConfirm;//Dialog confirm cancel/complete journey
 
     private static Location previousLocation = null;
 
@@ -1172,7 +1176,8 @@ public class MainActivity extends AppCompatActivity
                 try {
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
-                        mGoogleMap.clear();
+//                        mGoogleMap.clear();
+                        removePolyline();//Remove direction in google map
                         if (timerSessionSchedule != null) {//remove timer
                             timerSessionSchedule.cancel();
                             timerSessionSchedule = null;
@@ -1212,7 +1217,8 @@ public class MainActivity extends AppCompatActivity
                 try {
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
-                        mGoogleMap.clear();
+//                        mGoogleMap.clear();
+                        removePolyline();//Remove direction in google map
                         if (timerSessionSchedule != null) {//remove timer
                             timerSessionSchedule.cancel();
                             timerSessionSchedule = null;
@@ -1234,6 +1240,15 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+    }
+
+    /**
+     * Remove road with source Location + dest Location in google map
+     */
+    private void removePolyline() {
+        if (polyline != null)
+            polyline.remove();
+        polyline = null;
     }
 
 //    /**
@@ -1482,6 +1497,9 @@ public class MainActivity extends AppCompatActivity
         if (dialogRequestStartSchedule != null) {
             dialogRequestStartSchedule.dismiss();
         }
+        if(dialogConfirm != null){
+            dialogConfirm.dismiss();
+        }
     }
 
     @Override
@@ -1523,15 +1541,55 @@ public class MainActivity extends AppCompatActivity
         fabCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                cancelJourney(String.valueOf(scheduleActive.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-                removeonClickForButton();
+                dialogConfirm = new AlertDialog.Builder(MainActivity.this).create();
+                dialogConfirm.setTitle("Cancel Journey!");
+                dialogConfirm.setMessage("Do you want cancel journey now?");
+                dialogConfirm.setButton(Dialog.BUTTON_POSITIVE,"Yes",new DialogInterface.OnClickListener(){
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        cancelJourney(String.valueOf(scheduleActive.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                        removeonClickForButton();
+                    }
+                });
+
+                dialogConfirm.setButton(Dialog.BUTTON_NEGATIVE,"NO,Thanks!",new DialogInterface.OnClickListener(){
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //do nothing
+                    }
+                });
+                dialogConfirm.setIcon(android.R.drawable.ic_dialog_alert);
+                dialogConfirm.show();
+
+
             }
         });
         fabComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                completedJourney(String.valueOf(scheduleActive.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-                removeonClickForButton();
+                dialogConfirm = new AlertDialog.Builder(MainActivity.this).create();
+                dialogConfirm.setTitle("Complete Journey!");
+                dialogConfirm.setMessage("Please, Confirm complete journey.");
+                dialogConfirm.setButton(Dialog.BUTTON_POSITIVE,"Yes",new DialogInterface.OnClickListener(){
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        completedJourney(String.valueOf(scheduleActive.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                        removeonClickForButton();
+                    }
+                });
+
+                dialogConfirm.setButton(Dialog.BUTTON_NEGATIVE,"NO,Thanks!",new DialogInterface.OnClickListener(){
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //do nothing
+                    }
+                });
+                dialogConfirm.setIcon(android.R.drawable.ic_dialog_alert);
+                dialogConfirm.show();
             }
         });
     }

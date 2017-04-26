@@ -12,7 +12,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import vn.efode.vts.MainActivity;
+
 import static vn.efode.vts.MainActivity.mGoogleMap;
+import static vn.efode.vts.MainActivity.scheduleActive;
 
 /**
  * Created by Tuan on 10/04/2017.
@@ -66,8 +69,9 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
             polyLineOptions.width(4);
             polyLineOptions.color(Color.BLUE);
         }
-        if (polyLineOptions != null) {
-            mGoogleMap.addPolyline(polyLineOptions);
+        if (polyLineOptions != null && scheduleActive != null) {
+            MainActivity.polyline = mGoogleMap.addPolyline(polyLineOptions);
+
         }
 
     }

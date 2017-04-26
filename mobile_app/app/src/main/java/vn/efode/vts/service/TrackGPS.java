@@ -154,7 +154,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
     }
 
     public synchronized void buildGoogleApiClient() {
-        Toast.makeText(mContext, "buildGoogleApiClient", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(mContext, "buildGoogleApiClient", Toast.LENGTH_SHORT).show();
         mGoogleApiClient = new GoogleApiClient.Builder(mContext)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
