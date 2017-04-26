@@ -38,24 +38,18 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule>{
 
         LayoutInflater inflater = this.context.getLayoutInflater();
         View row = inflater.inflate(this.resource, null);
-        TextView txtScheduleId = (TextView) row.findViewById(R.id.txtScheduleId);
-        TextView txtDriverId = (TextView) row.findViewById(R.id.txtDriverId);
-        TextView txtVehicleId = (TextView) row.findViewById(R.id.txtVehicleId);
         TextView txtStartPointAddress = (TextView) row.findViewById(R.id.txtStartPointAddress);
-        TextView txtEndPointAddress = (TextView) row.findViewById(R.id.txtEndPointAddress);
+       // TextView txtEndPointAddress = (TextView) row.findViewById(R.id.txtEndPointAddress);
         TextView txtIntendStartTime = (TextView) row.findViewById(R.id.txtIntendStartTime);
-        TextView txtIntendEndTime = (TextView) row.findViewById(R.id.txtIntendEndTime);
+       // TextView txtIntendEndTime = (TextView) row.findViewById(R.id.txtIntendEndTime);
         TextView txtDescription = (TextView) row.findViewById(R.id.txtDescription);
 
-        final Schedule schedule = this.objects.get(position);
-        txtScheduleId.setText("Schedule Id: " + schedule.getScheduleId());
-        txtDriverId.setText("Driver Id: " + schedule.getDriverId());
-        txtVehicleId.setText("Vehicle Id: " + schedule.getVehicleId());
-        txtStartPointAddress.setText("Start Point Address: " + schedule.getStartPointAddress());
-        txtEndPointAddress.setText("End Point Address: " + schedule.getEndPointAddress());
-        txtIntendStartTime.setText("Intend Start Time: " + schedule.getIntendStartTime());
-        txtIntendEndTime.setText("Intend End Time: " + schedule.getIntendEndTime());
-        txtDescription.setText("Description: " + schedule.getDescription());
+        final Schedule schedule = this.objects.get(position);;
+        txtStartPointAddress.setText(schedule.getStartPointAddress());
+//        txtEndPointAddress.setText("End Point Address: " + schedule.getEndPointAddress());
+        txtIntendStartTime.setText(schedule.getIntendStartTime());
+ //       txtIntendEndTime.setText("Intend End Time: " + schedule.getIntendEndTime());
+        txtDescription.setText(schedule.getDescription());
 
 
         return row;

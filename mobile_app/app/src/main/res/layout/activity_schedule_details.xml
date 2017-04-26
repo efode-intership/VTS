@@ -11,130 +11,129 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp">
+        tools:layout_editor_absoluteY="16dp">
 
-
-        <TextView
-            android:id="@+id/textView"
+        <TableLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/cast_intro_overlay_button_background_color"
-            android:padding="15dp"
-            android:text="Schedule Details"
-            android:textAlignment="center"
-            android:textColor="@android:color/holo_red_light"
-            android:textSize="23sp"
-            android:textStyle="bold"
-            tools:layout_editor_absoluteX="8dp"
-            tools:layout_editor_absoluteY="0dp" />
+            android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/txtDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/border"
+                    android:paddingTop="30dp"
+                    android:paddingBottom="20dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/cast_expanded_controller_background_color"
+                    android:textSize="25dp"
+                    android:layout_weight="10"
+                    android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/txtScheduleId"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/border"
-            android:padding="10dp"
-            android:text="Schedule ID: "
-            android:textAlignment="viewStart"
-            android:textColor="@color/cast_expanded_controller_background_color"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/txtDriverId"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/border"
-            android:padding="10dp"
-            android:text="Driver Id: "
-            android:textColor="@color/cast_expanded_controller_background_color"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/txtVehicleId"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/border"
-            android:padding="10dp"
-            android:text="Vehicle Id: "
-            android:textColor="@color/cast_expanded_controller_background_color"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/txtStartPointAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/border"
-            android:padding="10dp"
-            android:text="Start Point Address: "
-            android:textAlignment="viewStart"
-            android:textColor="@color/cast_expanded_controller_background_color"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/txtEndPointAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/border"
-            android:padding="10dp"
-            android:text="End Point Address: "
-            android:textAlignment="viewStart"
-            android:textColor="@color/cast_expanded_controller_background_color"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/txtIntendStartTime"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/border"
-            android:padding="10dp"
-            android:text="Intend Start Time: "
-            android:textAlignment="viewStart"
-            android:textColor="@color/cast_expanded_controller_background_color"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/txtIntendEndTime"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/border"
-            android:padding="10dp"
-            android:text="Intend End Time: "
-            android:textAlignment="viewStart"
-            android:textColor="@color/cast_expanded_controller_background_color"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/border"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/txtScheduleStatusTypeId"
+            <TableRow
+                android:background="@drawable/border">
+                <TextView
+                    android:id="@+id/textview_schedule_details_startpoint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="15dp"
+                    android:text="Nơi lấy hàng"
+                    android:textSize="18dp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/txtStartPointAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/cast_expanded_controller_background_color"
+                    android:textSize="18sp"
+                    android:layout_weight="10"/>
+            </TableRow>
+            <TableRow
+                android:background="@drawable/border">
+                <TextView
+                    android:id="@+id/textview_schedule_details_endpoint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="15dp"
+                    android:text="Nơi giao hàng"
+                    android:textSize="18dp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/txtEndPointAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/cast_expanded_controller_background_color"
+                    android:textSize="18sp"
+                    android:layout_weight="10"/>
+            </TableRow>
+            <TableRow
+                android:background="@drawable/border">
+                <TextView
+                    android:id="@+id/textview_schedule_details_starttime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="15dp"
+                    android:text="Bắt đầu lúc"
+                    android:textSize="18dp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/txtIntendStartTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/cast_expanded_controller_background_color"
+                    android:textSize="18sp"
+                    android:layout_weight="10"/>
+            </TableRow>
+            <TableRow
+                android:background="@drawable/border">
+                <TextView
+                    android:id="@+id/textview_schedule_details_endtime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="15dp"
+                    android:text="Kết thúc lúc"
+                    android:textSize="18dp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/txtIntendEndTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/cast_expanded_controller_background_color"
+                    android:textSize="18sp"
+                    android:layout_weight="10"/>
+            </TableRow>
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:padding="10dp"
-                android:text="Schedule Status: "
-                android:textAlignment="viewStart"
-                android:textColor="@android:color/holo_red_light"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_height="match_parent"
+                android:background="@drawable/border"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/txtScheduleStatusTypeId"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:padding="10dp"
+                    android:text="Trạng thái hành trình: "
+                    android:textAlignment="viewStart"
+                    android:textColor="@android:color/holo_red_light"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/imgScheduleStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.5"
-                app:srcCompat="@drawable/border" />
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/imgScheduleStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.5"
+                    app:srcCompat="@drawable/border" />
+            </LinearLayout>
+        </TableLayout>
 
         <Button
             android:id="@+id/btn_start_schedule"
@@ -142,7 +141,7 @@
             android:layout_height="wrap_content"
             android:background="@color/cast_intro_overlay_button_background_color"
             android:padding="10dp"
-            android:text="START JOURNEY"
+            android:text="Bắt đầu hành trình"
             android:textSize="18sp" />
     </LinearLayout>
 

@@ -176,12 +176,12 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
         tabHost.setup();
 
         TabHost.TabSpec tabSchedule = tabHost.newTabSpec("tabSchedule");
-        tabSchedule.setIndicator("Schedule");
+        tabSchedule.setIndicator("Lịch trình");
         tabSchedule.setContent(R.id.tabSchedule);
         tabHost.addTab(tabSchedule);
 
         TabHost.TabSpec tabHistory = tabHost.newTabSpec("tabHistory");
-        tabHistory.setIndicator("History");
+        tabHistory.setIndicator("Lịch sử");
         tabHistory.setContent(R.id.tabHistory);
         tabHost.addTab(tabHistory);
 

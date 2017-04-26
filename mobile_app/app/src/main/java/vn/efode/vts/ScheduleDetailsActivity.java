@@ -33,11 +33,20 @@ import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 
 public class ScheduleDetailsActivity extends AppCompatActivity implements View.OnClickListener{
 
-    TextView txtScheduleId, txtDriverId, txtVehicleId, txtStartPointAddress, txtEndPointAddress, txtIntendStartTime, txtIntendEndTime, txtScheduleStatusTypeId;
-    Intent intentSchedule;
-    Button btnStartSchedule;
-    Schedule schedule;
-    ImageView imgScheduleStatus;
+    private TextView txtScheduleId;
+    private TextView txtDriverId;
+    private TextView txtVehicleId;
+    private TextView txtStartPointAddress;
+    private TextView txtEndPointAddress;
+    private TextView txtIntendStartTime;
+    private TextView txtIntendEndTime;
+    private TextView txtScheduleStatusTypeId;
+    private TextView txtDescription;
+    public Intent intentSchedule;
+    private Button btnStartSchedule;
+    private Schedule schedule;
+    private ImageView imgScheduleStatus;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,14 +71,11 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
      */
 
     private void setContentSchedule() {
-        txtScheduleId.setText("Schedule ID: " + schedule.getScheduleId());
-        txtIntendStartTime.setText("Intend Start Time: " + schedule.getIntendStartTime());
-        txtIntendEndTime.setText("Intend End Time: " + schedule.getIntendEndTime());
-        txtDriverId.setText("Driver Id: " + schedule.getDriverId());
-        txtVehicleId.setText("Vehicle Id: " + schedule.getVehicleId());
-        txtStartPointAddress.setText("Start Point Address: " + schedule.getStartPointAddress());
-        txtEndPointAddress.setText("End Point Address: " + schedule.getEndPointAddress());
-
+        txtIntendStartTime.setText(schedule.getIntendStartTime());
+        txtIntendEndTime.setText(schedule.getIntendEndTime());
+        txtStartPointAddress.setText(schedule.getStartPointAddress());
+        txtEndPointAddress.setText(schedule.getEndPointAddress());
+        txtDescription.setText(schedule.getDescription());
         if(schedule.getScheduleStatusTypeId() == 1) {
             btnStartSchedule.setVisibility(View.VISIBLE);
             txtScheduleStatusTypeId.setText("Schedule Status: " + schedule.getScheduleStatusName() + "!!!");
@@ -102,16 +108,13 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
 
     private void addControlls() {
         btnStartSchedule = (Button) findViewById(R.id.btn_start_schedule);
-        txtScheduleId = (TextView) findViewById(R.id.txtScheduleId);
-        txtDriverId = (TextView) findViewById(R.id.txtDriverId);
-        txtVehicleId = (TextView) findViewById(R.id.txtVehicleId);
         txtStartPointAddress = (TextView) findViewById(R.id.txtStartPointAddress);
         txtEndPointAddress = (TextView) findViewById(R.id.txtEndPointAddress);
         txtIntendStartTime = (TextView) findViewById(R.id.txtIntendStartTime);
         txtIntendEndTime = (TextView) findViewById(R.id.txtIntendEndTime);
         txtScheduleStatusTypeId = (TextView) findViewById(R.id.txtScheduleStatusTypeId);
         imgScheduleStatus = (ImageView) findViewById(R.id.imgScheduleStatus);
-
+        txtDescription = (TextView)findViewById(R.id.txtDescription);
     }
 
     @Override
