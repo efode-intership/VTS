@@ -174,14 +174,15 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
     private void addControls() {
         TabHost tabHost = (TabHost) findViewById(R.id.tabHost);
         tabHost.setup();
-
         TabHost.TabSpec tabSchedule = tabHost.newTabSpec("tabSchedule");
         tabSchedule.setIndicator("Lịch trình");
+        //tabSchedule.setIndicator("Lịch trình", ScheduleHistoryActivity.this.getResources().getDrawable(R.drawable.calendar));
         tabSchedule.setContent(R.id.tabSchedule);
         tabHost.addTab(tabSchedule);
 
         TabHost.TabSpec tabHistory = tabHost.newTabSpec("tabHistory");
         tabHistory.setIndicator("Lịch sử");
+        //tabHistory.setIndicator("Lịch sử", ScheduleHistoryActivity.this.getResources().getDrawable(R.drawable.trucking));
         tabHistory.setContent(R.id.tabHistory);
         tabHost.addTab(tabHistory);
 

@@ -62,6 +62,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,6 +74,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import vn.efode.vts.adapter.WarningAdapter;
 import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.model.OtherVehiclesInformation;
@@ -162,6 +164,9 @@ public class MainActivity extends AppCompatActivity
     private int ID_HONGDUONG = 3;
 
     NavigationView navigationView;
+    private TextView txtUser;
+    private TextView txtSchedule;
+    private CircleImageView imgProfile;
 
     /**
      * Selected vehicle marker.
@@ -285,6 +290,7 @@ public class MainActivity extends AppCompatActivity
 
         addControls();
         addEvents();
+        profileNavigation();
 
 //
 //        String userId = "6";
@@ -373,7 +379,6 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_profile) {
             Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_home) {
 
         } else if (id == R.id.nav_schedule) {
             Intent intent = new Intent(MainActivity.this, ScheduleHistoryActivity.class);
@@ -1860,5 +1865,30 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onRoutingCancelled() {
 
+    }
+
+    public void profileNavigation(){
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setItemIconTintList(null);
+        View headerView =  navigationView.getHeaderView(0);
+        txtUser = (TextView) headerView.findViewById(R.id.textview_header_name);
+       // txtSchedule = (TextView) headerView.findViewById(R.id.textview_header_schedule);
+        imgProfile = (CircleImageView) headerView.findViewById(R.id.img_user);
+        if(ApplicationController.getCurrentUser().getImage() !=null){
+            String urlImage = ApplicationController.getCurrentUser().getImage();
+            Picasso.with(MainActivity.this).load(urlImage).fit().into(imgProfile);
+        }else{
+            imgProfile.setImageDrawable(getResources().getDrawable(R.drawable.avatar));
+        }
+
+
+        txtUser.setText("Chào, " + ApplicationController.getCurrentUser().getName() + "!");
+        imgProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,ProfileActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }
