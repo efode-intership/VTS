@@ -556,6 +556,7 @@ public class MainActivity extends AppCompatActivity
                         mGoogleMap.setMyLocationEnabled(true);
                         trackgps.controllonLocationChanged(CONTROLL_ON);
                         Log.d("BUGAAAAA1", "REsult");
+                        Log.d("bug_dialog","permissionResult");
                         if(isLocationEnabled())
                             getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 //                        buildGoogleApiClient();
@@ -691,6 +692,7 @@ public class MainActivity extends AppCompatActivity
             }
             if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
                 Log.d("log_gps_network","enable");
+                Log.d("bug_dialog","broadcast");
                 if(isNetworkAvailable()) getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
                 if(checkLocationPermission())
                     mGoogleMap.setMyLocationEnabled(true);
@@ -1155,13 +1157,15 @@ public class MainActivity extends AppCompatActivity
     public void showDialogStartJourney(){
         scheduleActive = null;
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
+
         if(scheduleLatest != null ){
             int statusSchedule = scheduleLatest.getScheduleStatusTypeId();
             if(statusSchedule == 1){
                 dialogRequestStartSchedule = new AlertDialog.Builder(this).create();
                 dialogRequestStartSchedule.setTitle("Bắt đầu hành trình?");
                 dialogRequestStartSchedule.setMessage("Địa chỉ: " + scheduleLatest.getEndPointAddress()
-                + "\nThời gian: " + scheduleLatest.getEndPointAddress());
+                + "\nThời gian bắt đầu: " + scheduleLatest.getIntendStartTime()
+                + "\nThời gian kết thúc dự kiến: " + scheduleLatest.getIntendStartTime());
                 dialogRequestStartSchedule.setButton(Dialog.BUTTON_POSITIVE,"Đồng ý",new DialogInterface.OnClickListener(){
 
                     @Override
@@ -1655,9 +1659,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-
-        if (checkLocationPermission() && isLocationEnabled() && isNetworkAvailable())
-            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
+        Log.d("bug_dialog","onStart");
+//        if (checkLocationPermission() && isLocationEnabled() && isNetworkAvailable())
+//            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 //        if (checkLocationPermission() && scheduleActive == null)
 //            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 
