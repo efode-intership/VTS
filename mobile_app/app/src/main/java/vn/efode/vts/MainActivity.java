@@ -145,10 +145,13 @@ public class MainActivity extends AppCompatActivity
     private Button btnConfirmCallOtherVehicles;
     private ArrayList<OtherVehiclesInformation> listOrtherVehicles;
     private Dialog dialogCallOtherVehicles;
+    private Dialog dialogCallServer;
 
     private int ID_KETXE = 1;
     private int ID_PIKACHU = 2;
     private int ID_HONGDUONG = 3;
+
+    NavigationView navigationView;
 
     /**
      * Selected vehicle marker.
@@ -158,10 +161,17 @@ public class MainActivity extends AppCompatActivity
     /**
      * Vehicle marker map.
      */
-    final HashMap<Marker, OtherVehiclesInformation> vehicleMarkerMap = new HashMap<Marker, OtherVehiclesInformation>();
+    static final HashMap<String, Marker> vehicleMarkerMap = new HashMap<String, Marker>();
+
+    static final HashMap<String, OtherVehiclesInformation> vehicleMarkerInfo = new HashMap<String, OtherVehiclesInformation>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        vehicleMarkerMap.clear();
+        if (mGoogleMap != null) {
+            mGoogleMap.clear();
+        }
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         super.onCreate(savedInstanceState);
         setupVehicleDialog();
         setContentView(R.layout.activity_main);
@@ -177,7 +187,7 @@ public class MainActivity extends AppCompatActivity
         fab_call.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final Dialog dialogCallServer = new Dialog(MainActivity.this);
+                dialogCallServer = new Dialog(MainActivity.this);
                 dialogCallServer.setContentView(R.layout.dialog_confirm_call_server);
                 dialogCallServer.setTitle("Call Server");
 
@@ -220,7 +230,7 @@ public class MainActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -278,6 +288,7 @@ public class MainActivity extends AppCompatActivity
      * @return
      */
     private boolean checkPermissionCallPhone() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         if (ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CALL_PHONE}, REQ_PERMISSION_CALL);
             return false;
@@ -288,6 +299,7 @@ public class MainActivity extends AppCompatActivity
      * call server
      */
     private void callServer() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         String phone = getString(R.string.phone);
         Intent intent = new Intent(Intent.ACTION_CALL);
         Uri uri = Uri.parse("tel:" + phone);
@@ -308,6 +320,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -318,6 +331,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
@@ -325,6 +339,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -341,6 +356,7 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -369,6 +385,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         mGoogleMap = googleMap;
         if(checkLocationPermission())
             mGoogleMap.setMyLocationEnabled(true);
@@ -393,6 +410,7 @@ public class MainActivity extends AppCompatActivity
      * @return true - can
      */
     public boolean checkLocationPermission() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -418,6 +436,7 @@ public class MainActivity extends AppCompatActivity
      * Draw road between 2 location in google map
      */
     private void drawroadBetween2Location(LatLng latLng1, LatLng latLng2) {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         ArrayList<LatLng> temp = new ArrayList<LatLng>();
         temp.add(new LatLng(10.8719808, 106.790409));
         String url = getMapsApiDirectionsUrl(latLng1, latLng2, temp);
@@ -443,6 +462,7 @@ public class MainActivity extends AppCompatActivity
      * @param title title maker
      */
     private void makeMaker(LatLng location, String title) {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         Log.d("Log12/4", "9");
         LatLng maker = new LatLng(location.latitude, location.longitude);
         mGoogleMap.addMarker(new MarkerOptions().title(title).position(maker));
@@ -456,6 +476,7 @@ public class MainActivity extends AppCompatActivity
      * @return
      */
     private String getMapsApiDirectionsUrl(LatLng origin, LatLng dest, ArrayList<LatLng> waypoints) {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         // Origin of route
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
 
@@ -497,6 +518,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         Log.d("Permission", "onRequestPermissionsResult()");
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
@@ -556,14 +578,31 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         super.onDestroy();
         //Unregister receiver on destroy
         if (gpsReceiver != null)
             unregisterReceiver(gpsReceiver);
+        if (dialogCallOtherVehicles != null) {
+            dialogCallOtherVehicles.dismiss();
+        }
+        stopShowWarningTimerTask();
+        stopShowOtherVehicleTimerTask();
+        if (dialogRequestStartSchedule != null) {
+            dialogRequestStartSchedule.dismiss();
+        }
+        if (dialogConfirm != null) {
+            dialogConfirm.dismiss();
+        }
+        if (dialogCallServer != null)
+        {
+            dialogCallServer.dismiss();
+        }
     }
 
     @Override
     protected void onResume() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         super.onResume();
         Log.d("onResume","AAAAAAAAAAAAAA");
         if(scheduleActive != null){
@@ -606,6 +645,7 @@ public class MainActivity extends AppCompatActivity
     private BroadcastReceiver gpsReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
             if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 //Do your stuff on GPS status change
@@ -669,6 +709,7 @@ public class MainActivity extends AppCompatActivity
      * Timer send request get warning point and show to the map
      */
     public void startShowWarningTimer() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         //set a new Timer
         timerShowWarning = new Timer();
 
@@ -683,24 +724,38 @@ public class MainActivity extends AppCompatActivity
      * Timer Other Vehicles
      */
     public void startTimerVehicles() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         //set a new Timer
         timerShowOtherVehicles = new Timer();
 
         //initialize the TimerTask's job
         showOrtherVehicles();
 
-        //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
+        //schedule the timer, after the first 5000ms the TimerTask will run every 30000ms
         timerShowOtherVehicles.schedule(timerTaskShowOtherVehicles, 5000, 30000);
     }
 
     /**
-     * stop the ShowWarning timer, if it's not already null
-     * @param v
+     * Stop the ShowWarning timer, if it's not already null
+     *
      */
-    public void stopShowWarningTimerTask(View v) {
+    public void stopShowWarningTimerTask() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         if (timerShowWarning != null) {
             timerShowWarning.cancel();
             timerShowWarning = null;
+        }
+    }
+
+    /**
+     * Stop the Show other vehicle timer, if it's not already null
+     *
+     */
+    public void stopShowOtherVehicleTimerTask() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
+        if (timerShowOtherVehicles != null) {
+            timerShowOtherVehicles.cancel();
+            timerShowOtherVehicles = null;
         }
     }
 
@@ -709,6 +764,7 @@ public class MainActivity extends AppCompatActivity
      * show list warning when driver click button warning
      */
     public void showWarning() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         // custom dialog
         final Dialog dialogShowWarning = new Dialog(this);
         dialogShowWarning.setContentView(R.layout.dialog_add_warning);
@@ -771,8 +827,9 @@ public class MainActivity extends AppCompatActivity
      * add warning(locationLat,Long,Type,Description) to the database
      */
     public void addWarning(){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
 
-        final Dialog dialogConfirmWarning = new Dialog(MainActivity.this);
+        final Dialog dialogConfirmWarning = new Dialog(this);
         dialogConfirmWarning.setContentView(R.layout.dialog_confirm_warning);
         dialogConfirmWarning.setTitle("Xác nhận");
 
@@ -851,6 +908,7 @@ public class MainActivity extends AppCompatActivity
      * Show warning point on Map
      */
     public void showWarningPoint(){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
 
         timerTaskShowWarning = new TimerTask() {
             public void run() {
@@ -951,6 +1009,7 @@ public class MainActivity extends AppCompatActivity
      * @param deviceId Token ID device
      */
     public void startJourney(final String scheduleId, String deviceId){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         HashMap<String, String> params = new HashMap<String,String>();
         Log.d("startJourney",scheduleId);
         Log.d("startJourney",deviceId);
@@ -1006,6 +1065,7 @@ public class MainActivity extends AppCompatActivity
      * @param userId userId
      */
     private void getScheduleLatest(String userId){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
 
         HashMap<String, String> params = new HashMap<String,String>();
         params.put("userId",userId);
@@ -1042,6 +1102,7 @@ public class MainActivity extends AppCompatActivity
      * No -> call API cancel journey
      */
     public void showDialogStartJourney(){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         if(scheduleLatest != null ){
             int statusSchedule = scheduleLatest.getScheduleStatusTypeId();
             if(statusSchedule == 1){
@@ -1164,6 +1225,7 @@ public class MainActivity extends AppCompatActivity
      * Function to call API completed journey
      */
     private void completedJourney(final String scheduleId, String deviceId){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         HashMap<String, String> params = new HashMap<String,String>();
         params.put("scheduleId",scheduleId);
         params.put("deviceId",deviceId);
@@ -1205,6 +1267,7 @@ public class MainActivity extends AppCompatActivity
      * Function to call API cancel journey
      */
     private void cancelJourney(final String scheduleId, String deviceId){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         HashMap<String, String> params = new HashMap<String,String>();
         params.put("scheduleId",scheduleId);
         params.put("deviceId",deviceId);
@@ -1246,6 +1309,7 @@ public class MainActivity extends AppCompatActivity
      * Remove road with source Location + dest Location in google map
      */
     private void removePolyline() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         if (polyline != null)
             polyline.remove();
         polyline = null;
@@ -1271,6 +1335,7 @@ public class MainActivity extends AppCompatActivity
      * @return string url
      */
     private String getURLDistance(Location origin, Location dest){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         String output = "json";
 
         // Origin of route
@@ -1333,6 +1398,7 @@ public class MainActivity extends AppCompatActivity
      * @return speed(double)
      */
     private Double getSpeed(Location origin, Location dest){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         final Double[] speed = {0.0};
         if(previousLocation != null){
             ServiceHandler.makeServiceCall(getURLDistance(origin,dest),
@@ -1357,8 +1423,8 @@ public class MainActivity extends AppCompatActivity
      * Show Other Vehicles Infomation
      */
 
-    private void showOrtherVehicles()
-    {
+    private void showOrtherVehicles() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         timerTaskShowOtherVehicles = new TimerTask() {
             @Override
             public void run() {
@@ -1388,10 +1454,12 @@ public class MainActivity extends AppCompatActivity
                                             Type listType = new TypeToken<List<OtherVehiclesInformation>>() {}.getType();
                                             listOrtherVehicles = gson.fromJson(result.getString("content"), listType );
                                             Log.d("array",String.valueOf(listOrtherVehicles.size()));
-                                            for (Marker marker : vehicleMarkerMap.keySet()) {
-                                                marker.remove();
+                                            for (String marker : vehicleMarkerMap.keySet()) {
+                                                vehicleMarkerMap.get(marker).remove();
                                             }
+                                            vehicleMarkerInfo.clear();
                                             vehicleMarkerMap.clear();
+                                            Log.d("start_show_other_vehicles", "vehicleMarkerMap.clear()");
                                             for (final OtherVehiclesInformation object : listOrtherVehicles) {
 //                            makeMaker(new LatLng(Double.parseDouble(object.getLocationLat()),
 //                                    Double.parseDouble(object.getLocationLong())),"Driver name: " + object.getDriverName()+ "\n" + "Driver phone: " + object.getDriverPhone());
@@ -1405,21 +1473,46 @@ public class MainActivity extends AppCompatActivity
 
                                                 Marker show = mGoogleMap.addMarker(new MarkerOptions()
                                                         .position(otherVehiclePosition)
-                                                        .title(object.getDriverName())
-                                                        .snippet(object.getDriverPhone())
+                                                        .title(String.valueOf(object.getScheduleId()))
+//                                                        .title(object.getDriverName())
+//                                                        .snippet(object.getDriverPhone())
                                                         .icon(BitmapDescriptorFactory.fromBitmap(vehicleMarker))
                                                         .visible(true));
-                                                vehicleMarkerMap.put(show, object);
+                                                vehicleMarkerMap.put(String.valueOf(object.getScheduleId()), show);
+                                                vehicleMarkerInfo.put(String.valueOf(object.getScheduleId()), object);
                                             }
+                                            Log.d("start_show_other_vehicles", "Added");
                                             mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                                                 @Override
                                                 public boolean onMarkerClick(final Marker marker) {
-                                                    selectedVehicleMarker = vehicleMarkerMap.get(marker);
+                                                    selectedVehicleMarker = vehicleMarkerInfo.get(marker.getTitle());
+                                                    Log.d("selectedVehicleMarker", marker.getTitle());
                                                     Log.d("selectedVehicleMarker", String.valueOf(marker.getId()));
+                                                    Log.d("selectedVehicleMarker", String.valueOf(selectedVehicleMarker));
                                                     if (selectedVehicleMarker != null) {
                                                         txtDriverName.setText("Driver Name: " + selectedVehicleMarker.getDriverName());
                                                         txtDriverPhone.setText("Driver Phone: " + selectedVehicleMarker.getDriverPhone());
-                                                        dialogCallOtherVehicles.show();
+                                                        Log.d("selectedVehicleMarker", "Not Null");
+                                                        runOnUiThread(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                if (!MainActivity.this.isFinishing()) {
+                                                                    dialogCallOtherVehicles.show();
+                                                                }
+                                                            }
+                                                        });
+//                                                        if(!MainActivity.this.isFinishing())
+//                                                        {
+//                                                            Log.d("selectedVehicleMarker", "not finished");
+//                                                            try {
+//                                                                dialogCallOtherVehicles.show();
+//                                                            } catch (WindowManager.BadTokenException e) {
+//                                                                Log.d("MainActiviy", e.getMessage());
+//                                                            }
+//
+//                                                        }
+
+
                                                         return true;
                                                     }
                                                     return false;
@@ -1460,6 +1553,7 @@ public class MainActivity extends AppCompatActivity
      * Setup show vehicle info dialog and call vehicles.
      */
     private void setupVehicleDialog() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         dialogCallOtherVehicles = new Dialog(MainActivity.this);
         dialogCallOtherVehicles.setContentView(R.layout.dialog_confirm_call_other_vehicles);
         dialogCallOtherVehicles.setTitle("Call Other Vehicles");
@@ -1493,6 +1587,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onPause() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         super.onPause();
         if (dialogRequestStartSchedule != null) {
             dialogRequestStartSchedule.dismiss();
@@ -1504,6 +1599,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         super.onStart();
 
         if (checkLocationPermission())
@@ -1530,6 +1626,7 @@ public class MainActivity extends AppCompatActivity
 
     }
     protected void onStop(){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         super.onStop();
     }
 
@@ -1538,6 +1635,7 @@ public class MainActivity extends AppCompatActivity
      * Add event onClick for button cancel / complete journey
      */
     private void addOnClickForButton(){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         fabCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1598,6 +1696,7 @@ public class MainActivity extends AppCompatActivity
      * Remove onClick for button cancel / complete journey
      */
     private void removeonClickForButton(){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         fabCancel.setOnClickListener(null);
         fabComplete.setOnClickListener(null);
         ApplicationController.sharedPreferences.edit().remove(ApplicationController.SCHEDULE_SESSION).commit();
@@ -1606,6 +1705,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void timerSaveScheduleSession(){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         timerTaskSessionSchedule = new TimerTask() {
             @Override
             public void run() {
@@ -1635,6 +1735,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void startTimerforSheculeSession(){
+        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         //set a new Timer
         timerSessionSchedule = new Timer();
 
