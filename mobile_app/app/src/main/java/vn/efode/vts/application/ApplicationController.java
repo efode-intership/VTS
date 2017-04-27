@@ -128,7 +128,7 @@ public class ApplicationController extends Application {
      * Get current user.
      * @return current user.
      */
-    public static Schedule getCurrentSchudule() {
+    public static Schedule getActiveSchudule() {
         String scheduleJson = ApplicationController.sharedPreferences.getString(SCHEDULE_SESSION, null);
         Schedule schedule = null;
         if (scheduleJson != null) {

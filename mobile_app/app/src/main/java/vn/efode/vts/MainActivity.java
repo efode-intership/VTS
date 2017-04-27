@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationManager;
@@ -37,6 +38,10 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsResult;
@@ -49,6 +54,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -73,15 +79,15 @@ import vn.efode.vts.model.WarningTypes;
 import vn.efode.vts.service.TrackGPS;
 import vn.efode.vts.utils.LocationCallback;
 import vn.efode.vts.utils.PathJSONParser;
-import vn.efode.vts.utils.ReadTask;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
+import static vn.efode.vts.R.id.map;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 import static vn.efode.vts.service.TrackGPS.mLocation;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, RoutingListener {
 
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
@@ -105,6 +111,7 @@ public class MainActivity extends AppCompatActivity
 
     private static AlertDialog dialogRequestStartSchedule;// Dialog request user start journey or not
     private static AlertDialog dialogConfirm;//Dialog confirm cancel/complete journey
+    private static final int[] COLORS = new int[]{R.color.colorPrimaryDark,R.color.colorAccent,R.color.colorPrimary,R.color.colorBtent,R.color.primary_dark_material_light};
 
     private static Location previousLocation = null;
 
@@ -234,7 +241,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+                .findFragmentById(map);
         mapFragment.getMapAsync(this);
         Log.d("onCreate", "AAAAAAAAAAAAAA");
 
@@ -436,16 +443,22 @@ public class MainActivity extends AppCompatActivity
      * Draw road between 2 location in google map
      */
     private void drawroadBetween2Location(LatLng latLng1, LatLng latLng2) {
-        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
-        ArrayList<LatLng> temp = new ArrayList<LatLng>();
-        temp.add(new LatLng(10.8719808, 106.790409));
-        String url = getMapsApiDirectionsUrl(latLng1, latLng2, temp);
 
-        Log.d("onMapClick", url.toString());
-        ReadTask downloadTask = new ReadTask();
-        // Start downloading json data from Google Directions API
-        downloadTask.execute(url);
-        Log.d("Log12/4", "12");
+//        ArrayList<LatLng> temp = new ArrayList<LatLng>();
+//        temp.add(new LatLng(10.8719808, 106.790409));
+//        String url = getMapsApiDirectionsUrl(latLng1, latLng2, temp);
+//
+//        Log.d("onMapClick", url.toString());
+//        ReadTask downloadTask = new ReadTask();
+//        // Start downloading json data from Google Directions API
+//        downloadTask.execute(url);
+//        Log.d("Log12/4", "12");
+        Routing routing = new Routing.Builder()
+                .travelMode(Routing.TravelMode.DRIVING)
+                .withListener(this)
+                .waypoints(latLng1, latLng2)
+                .build();
+        routing.execute();
         controllDraw = false;
 
         //To calculate distance between points
@@ -488,14 +501,17 @@ public class MainActivity extends AppCompatActivity
         String sensor = "sensor=false";
 
         //Waypoints
-        String str_waypoints = "waypoints=";
-        boolean firts = false;
-        for (LatLng latlng : waypoints) {
-            if (!firts) {
-                str_waypoints += "via:" + latlng.latitude + "," + latlng.longitude;
-                firts = true;
-            } else {
-                str_waypoints += "|via:" + latlng.latitude + "," + latlng.longitude;
+        String str_waypoints = "";
+        if(waypoints != null){
+            str_waypoints = "waypoints=";
+            boolean firts = false;
+            for (LatLng latlng : waypoints) {
+                if (!firts) {
+                    str_waypoints += "via:" + latlng.latitude + "," + latlng.longitude;
+                    firts = true;
+                } else {
+                    str_waypoints += "|via:" + latlng.latitude + "," + latlng.longitude;
+                }
             }
         }
 
@@ -1024,7 +1040,7 @@ public class MainActivity extends AppCompatActivity
                 try {
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
-//                        ApplicationController.sharedPreferences.edit().putString(ApplicationController.SCHEDULE_SESSION,scheduleJson).commit();
+                        ApplicationController.sharedPreferences.edit().putString(ApplicationController.SCHEDULE_SESSION,scheduleJson).commit();
                         LatLng locationDestination = new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
                                 Double.parseDouble(scheduleActive.getLocationLongEnd()));
                         makeMaker(locationDestination,scheduleActive.getEndPointAddress());
@@ -1486,7 +1502,6 @@ public class MainActivity extends AppCompatActivity
                                                 @Override
                                                 public boolean onMarkerClick(final Marker marker) {
                                                     selectedVehicleMarker = vehicleMarkerInfo.get(marker.getTitle());
-                                                    Log.d("selectedVehicleMarker", marker.getTitle());
                                                     Log.d("selectedVehicleMarker", String.valueOf(marker.getId()));
                                                     Log.d("selectedVehicleMarker", String.valueOf(selectedVehicleMarker));
                                                     if (selectedVehicleMarker != null) {
@@ -1599,7 +1614,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
-        Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         super.onStart();
 
         if (checkLocationPermission())
@@ -1746,4 +1760,44 @@ public class MainActivity extends AppCompatActivity
         timerSessionSchedule.schedule(timerTaskSessionSchedule, 5000, 30000);
     }
 
+    @Override
+    public void onRoutingFailure(RouteException e) {
+
+    }
+
+    @Override
+    public void onRoutingStart() {
+
+    }
+
+    @Override
+    public void onRoutingSuccess(ArrayList<Route> arrayList, int shortestRouteIndex) {
+        try {
+            if(polyline != null) polyline.remove();
+            PolylineOptions polyoptions = new PolylineOptions();
+            polyoptions.color(Color.BLUE);
+            polyoptions.width(10);
+            for (int i = 0; i <arrayList.size(); i++) {
+
+                //In case of more than 5 alternative routes
+                int colorIndex = i % COLORS.length;
+
+                PolylineOptions polyOptions = new PolylineOptions();
+                polyOptions.color(getResources().getColor(COLORS[colorIndex]));
+                polyOptions.width(10 + i * 3);
+                polyOptions.addAll(arrayList.get(i).getPoints());
+                polyline = mGoogleMap.addPolyline(polyOptions);
+
+                Toast.makeText(getApplicationContext(),"Route "+ (i+1) +": distance - "+ arrayList.get(i).getDistanceValue()+": duration - "+ arrayList.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
+            }
+
+        }catch (Exception e){
+
+        }
+    }
+
+    @Override
+    public void onRoutingCancelled() {
+
+    }
 }

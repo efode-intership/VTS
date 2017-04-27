@@ -51,7 +51,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
     private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
     public static Location mLocation = null;
     public static boolean canGetLocation = false;
-    boolean zoomOneTime = true;//Just zoom 1 time
+    boolean zoomOneTime = true;//Just zoom 1
     private static int CONTROLL_ON = 1;
     private static int CONTROLL_OFF = -1;
 
@@ -67,9 +67,9 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
     public void onConnected(@Nullable Bundle bundle) {
         Log.d("STttttt", "track");
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(50000); //50 seconds
-        mLocationRequest.setFastestInterval(30000); //30 seconds
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mLocationRequest.setInterval(5000); //5 seconds
+//        mLocationRequest.setFastestInterval(30000); //30 seconds
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
 
         getCurrentLocation(new LocationCallback() {
@@ -108,7 +108,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
         }
         Log.d("ONLOCATIONCHANGE","AAAAAAAAAAAAA");
 
-        if(scheduleActive != null)
+        if(ApplicationController.getActiveSchudule() != null)
             sendLocationDataToServer(location);//Send data to server
     }
 
