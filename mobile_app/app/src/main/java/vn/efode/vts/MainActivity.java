@@ -1,5 +1,6 @@
 package vn.efode.vts;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -419,7 +420,7 @@ public class MainActivity extends AppCompatActivity
     public boolean checkLocationPermission() {
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         if (ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
             return false;
@@ -544,11 +545,12 @@ public class MainActivity extends AppCompatActivity
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
                     if (ActivityCompat.checkSelfPermission(this,
-                            android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         mGoogleMap.setMyLocationEnabled(true);
                         trackgps.controllonLocationChanged(CONTROLL_ON);
                         Log.d("BUGAAAAA1", "REsult");
-                        getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
+                        if(isLocationEnabled())
+                            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 //                        buildGoogleApiClient();
 
                     }
@@ -658,17 +660,23 @@ public class MainActivity extends AppCompatActivity
 ////        showWarningPoint();
 //    }
 
+    /**
+     * Handler service location is enable/disable
+     */
     private BroadcastReceiver gpsReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                Log.d("log_gps","enable");
+                getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
                 //Do your stuff on GPS status change
-                Toast.makeText(MainActivity.this,"GPS enable!",Toast.LENGTH_LONG).show();
+//                Toast.makeText(MainActivity.this,"GPS enable!",Toast.LENGTH_LONG).show();
             }
             else  {
-                Toast.makeText(MainActivity.this,"GPS disable!",Toast.LENGTH_LONG).show();
+                Log.d("log_gps","disable");
+                Toast.makeText(MainActivity.this,"Location service disable!",Toast.LENGTH_LONG).show();
             }
         }
     };
@@ -1007,7 +1015,8 @@ public class MainActivity extends AppCompatActivity
 
                         @Override
                         public void onError() {
-                            Toast.makeText(MainActivity.this, "Can't get Location", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(MainActivity.this, "Can't get Location", Toast.LENGTH_SHORT).show();
+                            Log.d("error_location","can't get location");
                         }
                     });
 
@@ -1123,10 +1132,10 @@ public class MainActivity extends AppCompatActivity
             int statusSchedule = scheduleLatest.getScheduleStatusTypeId();
             if(statusSchedule == 1){
                 dialogRequestStartSchedule = new AlertDialog.Builder(this).create();
-                dialogRequestStartSchedule.setTitle("You have journey go to "+ scheduleLatest.getEndPointAddress() + " with "
-                               + scheduleLatest.getIntendStartTime() + " [id:"+scheduleLatest.getScheduleId()+ "]");
-                dialogRequestStartSchedule.setMessage("Do you want start journey now?");
-                dialogRequestStartSchedule.setButton(Dialog.BUTTON_POSITIVE,"Yes",new DialogInterface.OnClickListener(){
+                dialogRequestStartSchedule.setTitle("Bắt đầu hành trình?");
+                dialogRequestStartSchedule.setMessage("Địa chỉ: " + scheduleLatest.getEndPointAddress()
+                + "\nThời gian: " + scheduleLatest.getEndPointAddress());
+                dialogRequestStartSchedule.setButton(Dialog.BUTTON_POSITIVE,"Đồng ý",new DialogInterface.OnClickListener(){
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1137,7 +1146,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
-                dialogRequestStartSchedule.setButton(Dialog.BUTTON_NEGATIVE,"NO,Thanks!",new DialogInterface.OnClickListener(){
+                dialogRequestStartSchedule.setButton(Dialog.BUTTON_NEGATIVE,"Không, cảm ơn!",new DialogInterface.OnClickListener(){
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1173,14 +1182,15 @@ public class MainActivity extends AppCompatActivity
                 fabCancel.setVisibility(View.VISIBLE);
                 fabComplete.setVisibility(View.VISIBLE);
                 addOnClickForButton();
-                Toast.makeText(MainActivity.this,"Schedule active id: "+ scheduleActive.getScheduleId(),Toast.LENGTH_SHORT).show();
+                Log.d("log_gps","active");
+//                Toast.makeText(MainActivity.this,"Schedule active id: "+ scheduleActive.getScheduleId(),Toast.LENGTH_SHORT).show();
             }
 
         }
         else {
             dialogRequestStartSchedule = new AlertDialog.Builder(this).create();
-            dialogRequestStartSchedule.setTitle("Have fun tonight");
-            dialogRequestStartSchedule.setMessage("You don't have any schedule!");
+            dialogRequestStartSchedule.setTitle("Quẩy thôi!");
+            dialogRequestStartSchedule.setMessage("Bạn không có bất kỳ hành trình nào");
             dialogRequestStartSchedule.show();
 //            new AlertDialog.Builder(MainActivity.this)
 //                    .setTitle("Have fun tonight")
@@ -1552,7 +1562,8 @@ public class MainActivity extends AppCompatActivity
 
                         @Override
                         public void onError() {
-                            Toast.makeText(MainActivity.this,"Can't get location",Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(MainActivity.this,"Can't get location",Toast.LENGTH_SHORT).show();
+                            Log.d("error_location","can't get locaiton");
                         }
                     });
 
@@ -1616,7 +1627,7 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
-        if (checkLocationPermission())
+        if (checkLocationPermission() && isLocationEnabled())
             getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 //        if (checkLocationPermission() && scheduleActive == null)
 //            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
@@ -1727,7 +1738,7 @@ public class MainActivity extends AppCompatActivity
                     trackgps.getCurrentLocation(new LocationCallback() {
                         @Override
                         public void onSuccess() {
-                            if(controllDraw)
+                            if(controllDraw && scheduleActive != null)
                                 drawroadBetween2Location(new LatLng(mLocation.getLatitude(),
                                                 mLocation.getLongitude()),
                                         new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
@@ -1759,6 +1770,21 @@ public class MainActivity extends AppCompatActivity
         //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
         timerSessionSchedule.schedule(timerTaskSessionSchedule, 5000, 30000);
     }
+
+    /**
+     * Check Location service is enable/disable
+     * @return true if provider GPS or NETWORK is enable
+     */
+    private boolean isLocationEnabled(){
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if(lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+            return true;
+        else {
+            Toast.makeText(MainActivity.this,"Bật Vị trí, Please!!!",Toast.LENGTH_LONG).show();
+            return false;
+        }
+    }
+
 
     @Override
     public void onRoutingFailure(RouteException e) {

@@ -1,5 +1,6 @@
 package vn.efode.vts.service;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
@@ -13,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
@@ -55,8 +55,8 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
     private static int CONTROLL_ON = 1;
     private static int CONTROLL_OFF = -1;
 
-    final private static int REQ_PERMISSION = 20;// Value permission locaiton FINE
-    final private static int REQ_LOCATION = 10;// Value permission locaiton COARSE
+    final private static int REQ_PERMISSION = 20;// Value permission locaiton COARSE
+    final private static int REQ_LOCATION = 10;// Value permission locaiton
 
     public TrackGPS(Context context){
         mContext = context;
@@ -125,23 +125,23 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
     public boolean checkLocationPermission() {
 
         if (ActivityCompat.checkSelfPermission(mContext,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale((MainActivity) mContext,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
 
 
                 //Prompt the user once explanation has been shown
                 ActivityCompat.requestPermissions((MainActivity) mContext,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
                         REQ_PERMISSION);
 
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions((Activity) mContext,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
                         REQ_PERMISSION);
             }
             canGetLocation = false;
@@ -169,7 +169,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
      */
     public boolean checkPermission() {
         if (ActivityCompat.checkSelfPermission(mContext,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                android.Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
             return false;
@@ -237,12 +237,13 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
-                                            Toast.makeText(mContext,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
+//                                            Toast.makeText(mContext,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
                                         }
 
                                         @Override
                                         public void onError(VolleyError error) {
-                                            Toast.makeText(mContext,error.getMessage(),Toast.LENGTH_SHORT).show();
+//                                            Toast.makeText(mContext,error.getMessage(),Toast.LENGTH_SHORT).show();
+                                            Log.d("INSERT", "error");
                                         }
                                     });
                         }
