@@ -19,7 +19,7 @@
                 app:srcCompat="@drawable/trucking" />
 
             <TextView
-                android:id="@+id/txtDescription"
+                android:id="@+id/textview_schedulelistlayout_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="25dp"
@@ -40,7 +40,7 @@
                 android:paddingLeft="10dp"/>
 
             <TextView
-                android:id="@+id/txtStartPointAddress"
+                android:id="@+id/textview_schedulelistlayout_startpointaddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -59,7 +59,7 @@
                 android:paddingLeft="10dp"/>
 
             <TextView
-                android:id="@+id/txtIntendStartTime"
+                android:id="@+id/textview_schedulelistlayout_intendstarttime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -72,7 +72,7 @@
 
 
     <TextView
-            android:id="@+id/txtDetails"
+            android:id="@+id/textview_schedulelistlayout_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"

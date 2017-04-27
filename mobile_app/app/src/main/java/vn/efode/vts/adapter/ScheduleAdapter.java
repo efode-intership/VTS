@@ -38,11 +38,11 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule>{
 
         LayoutInflater inflater = this.context.getLayoutInflater();
         View row = inflater.inflate(this.resource, null);
-        TextView txtStartPointAddress = (TextView) row.findViewById(R.id.txtStartPointAddress);
+        TextView txtStartPointAddress = (TextView) row.findViewById(R.id.textview_schedulelistlayout_startpointaddress);
        // TextView txtEndPointAddress = (TextView) row.findViewById(R.id.txtEndPointAddress);
-        TextView txtIntendStartTime = (TextView) row.findViewById(R.id.txtIntendStartTime);
+        TextView txtIntendStartTime = (TextView) row.findViewById(R.id.textview_schedulelistlayout_intendstarttime);
        // TextView txtIntendEndTime = (TextView) row.findViewById(R.id.txtIntendEndTime);
-        TextView txtDescription = (TextView) row.findViewById(R.id.txtDescription);
+        TextView txtDescription = (TextView) row.findViewById(R.id.textview_schedulelistlayout_description);
 
         final Schedule schedule = this.objects.get(position);;
         txtStartPointAddress.setText(schedule.getStartPointAddress());

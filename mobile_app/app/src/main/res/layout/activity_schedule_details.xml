@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
                 <TextView
-                    android:id="@+id/txtDescription"
+                    android:id="@+id/textview_scheduledetails_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/border"
@@ -40,7 +40,7 @@
                     android:textSize="18dp"
                     android:textStyle="bold"/>
                 <TextView
-                    android:id="@+id/txtStartPointAddress"
+                    android:id="@+id/textview_scheduledetails_startpointaddress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
@@ -60,7 +60,7 @@
                     android:textSize="18dp"
                     android:textStyle="bold"/>
                 <TextView
-                    android:id="@+id/txtEndPointAddress"
+                    android:id="@+id/textview_scheduledetails_endpointaddress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
@@ -80,7 +80,7 @@
                     android:textSize="18dp"
                     android:textStyle="bold"/>
                 <TextView
-                    android:id="@+id/txtIntendStartTime"
+                    android:id="@+id/textview_scheduledetails_intendstarttime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
@@ -100,7 +100,7 @@
                     android:textSize="18dp"
                     android:textStyle="bold"/>
                 <TextView
-                    android:id="@+id/txtIntendEndTime"
+                    android:id="@+id/textview_scheduledetails_intendendtime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
@@ -115,7 +115,7 @@
                 android:background="@drawable/border"
                 android:orientation="horizontal">
                 <TextView
-                    android:id="@+id/txtScheduleStatusTypeId"
+                    android:id="@+id/textview_scheduledetails_schedulestatustypeid"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.5"
@@ -127,7 +127,7 @@
                     android:textStyle="bold" />
 
                 <ImageView
-                    android:id="@+id/imgScheduleStatus"
+                    android:id="@+id/image_scheduledetails_schedulestatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1.5"

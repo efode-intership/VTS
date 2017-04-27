@@ -34,12 +34,12 @@ import vn.efode.vts.utils.ServiceHandler;
 
 public class ScheduleHistoryActivity extends AppCompatActivity {
 
-    ListView lvSchedule, lvHistory;
-    ArrayList<Schedule> listSchedule;
+    private ListView lvSchedule, lvHistory;
+    private ArrayList<Schedule> listSchedule;
     public static List<Schedule> notStartedList  = new ArrayList<Schedule>();; //List Schedule not start
     public static List<Schedule> historyList = new ArrayList<Schedule>(); //List Schedule complete or cancel
-    HashMap<String,String> schedulelist = new HashMap<String, String>();
-    ScheduleAdapter scheduleAdapter;
+    private HashMap<String,String> schedulelist = new HashMap<String, String>();
+    private ScheduleAdapter scheduleAdapter;
 
 
 
@@ -49,8 +49,8 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_schedule_history);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        lvSchedule = (ListView) findViewById(R.id.lvSchedule);
-        lvHistory = (ListView) findViewById(R.id.lvHistory);
+        lvSchedule = (ListView) findViewById(R.id.listview_schedulehistory_schedule);
+        lvHistory = (ListView) findViewById(R.id.listview_schedulehistory_history);
 
         addControls();
         getDataFromServer();

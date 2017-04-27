@@ -108,13 +108,13 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
 
     private void addControlls() {
         btnStartSchedule = (Button) findViewById(R.id.btn_start_schedule);
-        txtStartPointAddress = (TextView) findViewById(R.id.txtStartPointAddress);
-        txtEndPointAddress = (TextView) findViewById(R.id.txtEndPointAddress);
-        txtIntendStartTime = (TextView) findViewById(R.id.txtIntendStartTime);
-        txtIntendEndTime = (TextView) findViewById(R.id.txtIntendEndTime);
-        txtScheduleStatusTypeId = (TextView) findViewById(R.id.txtScheduleStatusTypeId);
-        imgScheduleStatus = (ImageView) findViewById(R.id.imgScheduleStatus);
-        txtDescription = (TextView)findViewById(R.id.txtDescription);
+        txtStartPointAddress = (TextView) findViewById(R.id.textview_scheduledetails_startpointaddress);
+        txtEndPointAddress = (TextView) findViewById(R.id.textview_scheduledetails_endpointaddress);
+        txtIntendStartTime = (TextView) findViewById(R.id.textview_scheduledetails_intendstarttime);
+        txtIntendEndTime = (TextView) findViewById(R.id.textview_scheduledetails_intendendtime);
+        txtScheduleStatusTypeId = (TextView) findViewById(R.id.textview_scheduledetails_schedulestatustypeid);
+        imgScheduleStatus = (ImageView) findViewById(R.id.image_scheduledetails_schedulestatus);
+        txtDescription = (TextView)findViewById(R.id.textview_scheduledetails_description);
     }
 
     @Override

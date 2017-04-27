@@ -40,9 +40,9 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        btnLogin = (Button) findViewById(R.id.btnLogin);
-        txtUserName = (EditText) findViewById(R.id.txtUserName);
-        txtPassWord = (EditText) findViewById(R.id.txtPassWord);
+        btnLogin = (Button) findViewById(R.id.btn_signin_login);
+        txtUserName = (EditText) findViewById(R.id.edittext_signin_username);
+        txtPassWord = (EditText) findViewById(R.id.edittext_signin_password);
         txtForgotPassword = (TextView)findViewById(R.id.textview_signin_forgotpassword);
 
         User user = ApplicationController.getCurrentUser();
@@ -60,7 +60,7 @@ public class SignInActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
-        txtUserName.setText("tuan@gmail.com");
+        txtUserName.setText("vu@gmail.com");
         txtPassWord.setText("123123");
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
