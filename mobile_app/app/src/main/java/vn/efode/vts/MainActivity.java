@@ -13,6 +13,8 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -395,7 +397,7 @@ public class MainActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         mGoogleMap = googleMap;
-        if(checkLocationPermission())
+        if(checkLocationPermission() )
             mGoogleMap.setMyLocationEnabled(true);
 
 
@@ -599,8 +601,8 @@ public class MainActivity extends AppCompatActivity
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         super.onDestroy();
         //Unregister receiver on destroy
-        if (gpsReceiver != null)
-            unregisterReceiver(gpsReceiver);
+        if (mReceiver != null)
+            unregisterReceiver(mReceiver);
         if (dialogCallOtherVehicles != null) {
             dialogCallOtherVehicles.dismiss();
         }
@@ -626,7 +628,11 @@ public class MainActivity extends AppCompatActivity
         if(scheduleActive != null){
             Log.d("AAAAAAAAAAAAAA", String.valueOf(scheduleActive.getScheduleId()));
         }
-        registerReceiver(gpsReceiver, new IntentFilter("android.location.PROVIDERS_CHANGED"));//Register broadcast r
+        //Register broadcast reciver Location/Network state
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        filter.addAction("android.location.PROVIDERS_CHANGED");
+        registerReceiver(mReceiver, filter);
     }
 
 
@@ -663,20 +669,34 @@ public class MainActivity extends AppCompatActivity
     /**
      * Handler service location is enable/disable
      */
-    private BroadcastReceiver gpsReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+            if(scheduleActive != null) {
+                if(isNetworkAvailable()){
+                    fabCancel.setVisibility(View.VISIBLE);
+                    fabComplete.setVisibility(View.VISIBLE);
+                } else {
+                    fabCancel.setVisibility(View.INVISIBLE);
+                    fabComplete.setVisibility(View.INVISIBLE);
+                }
+
+            }
             if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                Log.d("log_gps","enable");
-                getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
+                Log.d("log_gps_network","enable");
+                if(isNetworkAvailable()) getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
+                if(checkLocationPermission())
+                    mGoogleMap.setMyLocationEnabled(true);
                 //Do your stuff on GPS status change
 //                Toast.makeText(MainActivity.this,"GPS enable!",Toast.LENGTH_LONG).show();
             }
             else  {
-                Log.d("log_gps","disable");
-                Toast.makeText(MainActivity.this,"Location service disable!",Toast.LENGTH_LONG).show();
+                Log.d("log_gps_network","disable");
+                if(checkLocationPermission())
+                    mGoogleMap.setMyLocationEnabled(false);
+//                Toast.makeText(MainActivity.this,"Location service disable!",Toast.LENGTH_LONG).show();
             }
         }
     };
@@ -1090,6 +1110,7 @@ public class MainActivity extends AppCompatActivity
      * @param userId userId
      */
     private void getScheduleLatest(String userId){
+        scheduleLatest = null;
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
 
         HashMap<String, String> params = new HashMap<String,String>();
@@ -1127,6 +1148,7 @@ public class MainActivity extends AppCompatActivity
      * No -> call API cancel journey
      */
     public void showDialogStartJourney(){
+        scheduleActive = null;
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         if(scheduleLatest != null ){
             int statusSchedule = scheduleLatest.getScheduleStatusTypeId();
@@ -1192,6 +1214,8 @@ public class MainActivity extends AppCompatActivity
             dialogRequestStartSchedule.setTitle("Quẩy thôi!");
             dialogRequestStartSchedule.setMessage("Bạn không có bất kỳ hành trình nào");
             dialogRequestStartSchedule.show();
+            fabCancel.setVisibility(View.INVISIBLE);
+            fabComplete.setVisibility(View.INVISIBLE);
 //            new AlertDialog.Builder(MainActivity.this)
 //                    .setTitle("Have fun tonight")
 //                    .setMessage("You don't have any schedule!")
@@ -1627,7 +1651,7 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
-        if (checkLocationPermission() && isLocationEnabled())
+        if (checkLocationPermission() && isLocationEnabled() && isNetworkAvailable())
             getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 //        if (checkLocationPermission() && scheduleActive == null)
 //            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
@@ -1783,6 +1807,17 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(MainActivity.this,"Bật Vị trí, Please!!!",Toast.LENGTH_LONG).show();
             return false;
         }
+    }
+
+    /**
+     * Check internet is enable
+     * @return true - enable
+     */
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 

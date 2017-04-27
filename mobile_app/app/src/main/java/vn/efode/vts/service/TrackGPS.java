@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import vn.efode.vts.MainActivity;
@@ -37,6 +38,7 @@ import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
 import static vn.efode.vts.MainActivity.mGoogleMap;
+import static vn.efode.vts.MainActivity.polyline;
 import static vn.efode.vts.MainActivity.scheduleActive;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 
@@ -108,8 +110,26 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
         }
         Log.d("ONLOCATIONCHANGE","AAAAAAAAAAAAA");
 
-        if(ApplicationController.getActiveSchudule() != null)
+        if(ApplicationController.getActiveSchudule() != null){
+            handleNewLocation(location);
             sendLocationDataToServer(location);//Send data to server
+        }
+
+    }
+
+    private void handleNewLocation(Location location) {
+        ArrayList<LatLng> points = (ArrayList<LatLng>) polyline.getPoints(); // getPoints() gives you a COPY of the points
+        //points = new ArrayList<LatLng>();
+        double currentLatitude = location.getLatitude();
+        double currentLongitude = location.getLongitude();
+        LatLng latLng = new LatLng(currentLatitude, currentLongitude);
+        //mMap.clear();
+        points.add(latLng);
+        //rectOptions.addAll(points);
+        //mMap.addPolyline(rectOptions);
+        polyline.setPoints(points);
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 25));
     }
 
     @Nullable
@@ -221,31 +241,36 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
                     public void run() {
                         //Do something after 2s
                         if(scheduleActive != null){
-                            Double speed = getSpeed(origin,mLocation);
-                            HashMap<String,String> params = new HashMap<String, String>();
-                            params.put("scheduleId", String.valueOf(scheduleActive.getScheduleId()));
-                            params.put("locationLat", String.valueOf(mLocation.getLatitude()));
-                            params.put("locationLong", String.valueOf(mLocation.getLongitude()));
-                            params.put("speed", String.valueOf(speed));
-                            params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-                            ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
-                                    Request.Method.POST, params, new ServerCallback() {
-                                        @Override
-                                        public void onSuccess(JSONObject result) {
-                                            try {
-                                                Log.d("INSERT", result.getString("content"));
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
+                            try {
+                                Double speed = getSpeed(origin,mLocation);
+                                HashMap<String,String> params = new HashMap<String, String>();
+                                params.put("scheduleId", String.valueOf(scheduleActive.getScheduleId()));
+                                params.put("locationLat", String.valueOf(mLocation.getLatitude()));
+                                params.put("locationLong", String.valueOf(mLocation.getLongitude()));
+                                params.put("speed", String.valueOf(speed));
+                                params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                                ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
+                                        Request.Method.POST, params, new ServerCallback() {
+                                            @Override
+                                            public void onSuccess(JSONObject result) {
+                                                try {
+                                                    Log.d("INSERT", result.getString("content"));
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
 //                                            Toast.makeText(mContext,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
-                                        }
+                                            }
 
-                                        @Override
-                                        public void onError(VolleyError error) {
+                                            @Override
+                                            public void onError(VolleyError error) {
 //                                            Toast.makeText(mContext,error.getMessage(),Toast.LENGTH_SHORT).show();
-                                            Log.d("INSERT", "error");
-                                        }
-                                    });
+                                                Log.d("INSERT", "error");
+                                            }
+                                        });
+                            } catch (Exception e){
+                                Log.d("error_location",e.getMessage());
+                            }
+
                         }
 
                     }
@@ -269,13 +294,15 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
      */
     private Double getSpeed(Location origin, Location dest){
         final Double[] speed = {0.0};
-            ServiceHandler.makeServiceCall(getURLDistance(origin,dest),
+        String url = getURLDistance(origin,dest);
+        if(url != null)
+            ServiceHandler.makeServiceCall(url,
                     Request.Method.GET, null, new ServerCallback() {
                         @Override
                         public void onSuccess(JSONObject result) {
                             Double distance = PathJSONParser.pareDistance(result);
 
-                            speed[0] = distance * 60 * 60;
+                            speed[0] = distance * 60 * 60;//km/h
                         }
 
                         @Override
@@ -293,23 +320,29 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
      * @return string url
      */
     private String getURLDistance(Location origin, Location dest){
-        String output = "json";
+        String url = null;
+        try {
+            String output = "json";
 
-        // Origin of route
-        String str_origin = "origin=" + origin.getLatitude() + "," + origin.getLongitude();
+            // Origin of route
+            String str_origin = "origin=" + origin.getLatitude() + "," + origin.getLongitude();
 
-        // Destination of route
-        String str_dest = "destination=" + dest.getLatitude() + "," + dest.getLongitude();
+            // Destination of route
+            String str_dest = "destination=" + dest.getLatitude() + "," + dest.getLongitude();
 
-        //key
-        String keyDistance = "key=" + API_KEY_MATRIX;
+            //key
+            String keyDistance = "key=" + API_KEY_MATRIX;
 
-        // Building the parameters to the web service
+            // Building the parameters to the web service
 //        String parameters = str_origin+"&"+str_dest+"&"+sensor;
-        String parameters = "?units=imperial&"+ str_origin + "&" + str_dest + "&" + keyDistance;
+            String parameters = "?units=imperial&"+ str_origin + "&" + str_dest + "&" + keyDistance;
 
-        String url = "https://maps.googleapis.com/maps/api/distancematrix/" + output + parameters;
-        Log.d("AAAAAAAAAAAAAa",url);
+            url = "https://maps.googleapis.com/maps/api/distancematrix/" + output + parameters;
+            Log.d("AAAAAAAAAAAAAa",url);
+        } catch (Exception e){
+            Log.e("error_location",e.getMessage());
+        }
+
         return url;
     }
 
