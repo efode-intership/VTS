@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Schedule;
 use App\ScheduleActive;
 
+use DB;
+
 
 class ScheduleController extends Controller
 {
@@ -27,9 +29,23 @@ class ScheduleController extends Controller
      */
     public function getScheduleByUserId($userId)
     {
+      $result = DB::table('schedule')
+            ->join('schedule_status', 'schedule.schedule_status_type_id', '=', 'schedule_status.schedule_status_type_id')
+            ->select('schedule.*', 'schedule_status.name as schedule_status_name', 'schedule_status.description as schedule_status_description')
+            ->where('schedule.driver_id',$userId)
+            ->orderBy('schedule.intend_start_time')
+            ->get();
       return response()->json(array(
                 'error' => false,
-                'content' => Schedule::where('driver_id',$userId)->orderBy('intend_start_time')->get(),
+                'content' => $result,
+                'status_code' => 200
+            ));
+    }
+
+    public function getIncomingScheduleSixtyMinutes() {
+      return response()->json(array(
+                'error' => false,
+                'content' => Schedule::where('schedule_status_type_id','1')->where('schedule_status_type_id','3')->orderBy('intend_start_time')->first(),
                 'status_code' => 200
             ));
     }
@@ -55,9 +71,20 @@ class ScheduleController extends Controller
      */
     public function getIncomingSchedule($userId)
     {
+      $results = DB::select( DB::raw("SELECT
+                                        *
+                                      FROM schedule
+                                      WHERE driver_id = :userId
+                                      AND (schedule_status_type_id = 1 OR schedule_status_type_id = 3)
+                                      ORDER BY intend_start_time LIMIT 1"),
+                                      array('userId' => $userId));
+      $result = null;
+      if (sizeof($results) > 0) {
+        $result = $results[0];
+      }
       return response()->json(array(
                 'error' => false,
-                'content' => Schedule::where('driver_id',$userId)->where('schedule_status_type_id','1')->orderBy('intend_start_time')->first(),
+                'content' => $result ,
                 'status_code' => 200
             ));
     }
