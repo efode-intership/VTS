@@ -111,7 +111,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
         Log.d("ONLOCATIONCHANGE","AAAAAAAAAAAAA");
 
         if(ApplicationController.getActiveSchudule() != null){
-            handleNewLocation(location);
+//            handleNewLocation(location);
             sendLocationDataToServer(location);//Send data to server
         }
 

@@ -557,7 +557,7 @@ public class MainActivity extends AppCompatActivity
                         trackgps.controllonLocationChanged(CONTROLL_ON);
                         Log.d("BUGAAAAA1", "REsult");
                         Log.d("bug_dialog","permissionResult");
-                        if(isLocationEnabled())
+                        if(isLocationEnabled() && isNetworkAvailable())
                             getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 //                        buildGoogleApiClient();
 
@@ -693,9 +693,14 @@ public class MainActivity extends AppCompatActivity
             if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
                 Log.d("log_gps_network","enable");
                 Log.d("bug_dialog","broadcast");
-                if(isNetworkAvailable()) getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
-                if(checkLocationPermission())
-                    mGoogleMap.setMyLocationEnabled(true);
+                if(isNetworkAvailable()) {
+                    if(checkLocationPermission()){
+                        mGoogleMap.setMyLocationEnabled(true);
+                        getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
+                    }
+
+                }
+
                 //Do your stuff on GPS status change
 //                Toast.makeText(MainActivity.this,"GPS enable!",Toast.LENGTH_LONG).show();
             }
@@ -1158,6 +1163,8 @@ public class MainActivity extends AppCompatActivity
         scheduleActive = null;
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
 
+        if(dialogRequestStartSchedule != null)
+            if(dialogRequestStartSchedule.isShowing()) dialogRequestStartSchedule.dismiss();
         if(scheduleLatest != null ){
             int statusSchedule = scheduleLatest.getScheduleStatusTypeId();
             if(statusSchedule == 1){
@@ -1165,7 +1172,7 @@ public class MainActivity extends AppCompatActivity
                 dialogRequestStartSchedule.setTitle("Bắt đầu hành trình?");
                 dialogRequestStartSchedule.setMessage("Địa chỉ: " + scheduleLatest.getEndPointAddress()
                 + "\nThời gian bắt đầu: " + scheduleLatest.getIntendStartTime()
-                + "\nThời gian kết thúc dự kiến: " + scheduleLatest.getIntendStartTime());
+                + "\nThời gian kết thúc dự kiến: " + scheduleLatest.getIntendEndTime());
                 dialogRequestStartSchedule.setButton(Dialog.BUTTON_POSITIVE,"Đồng ý",new DialogInterface.OnClickListener(){
 
                     @Override
@@ -1219,16 +1226,15 @@ public class MainActivity extends AppCompatActivity
 
         }
         else {
+            if(ApplicationController.getActiveSchudule() != null)
+                ApplicationController.sharedPreferences.edit().remove(ApplicationController.SCHEDULE_SESSION).commit();
             dialogRequestStartSchedule = new AlertDialog.Builder(this).create();
             dialogRequestStartSchedule.setTitle("Quẩy thôi!");
             dialogRequestStartSchedule.setMessage("Bạn không có bất kỳ hành trình nào");
             dialogRequestStartSchedule.show();
             fabCancel.setVisibility(View.INVISIBLE);
             fabComplete.setVisibility(View.INVISIBLE);
-//            new AlertDialog.Builder(MainActivity.this)
-//                    .setTitle("Have fun tonight")
-//                    .setMessage("You don't have any schedule!")
-//                    .show();
+
 
         }
 
