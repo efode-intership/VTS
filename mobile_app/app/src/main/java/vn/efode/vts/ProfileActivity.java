@@ -132,7 +132,7 @@ public class ProfileActivity extends AppCompatActivity {
                                         }
                                         else {
                                             Toast.makeText(ProfileActivity.this, "Mật khẩu không chính xác", Toast.LENGTH_SHORT).show();
-                                            dialog.setTitle("Mật khẩu không chính xác");
+                                            //dialog.setTitle("Mật khẩu không chính xác");
                                             edtPassword.setText("");
                                             edtNewPass.setText("");
                                             edtConfirm.setText("");
@@ -154,7 +154,7 @@ public class ProfileActivity extends AppCompatActivity {
                             });
 
                 }else {
-                    //Toast.makeText(ProfileActivity.this, "Không hợp lệ, vui lòng nhập lại", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProfileActivity.this, "Không hợp lệ, vui lòng nhập lại", Toast.LENGTH_SHORT).show();
                     dialog.setTitle("Không hợp lệ, vui lòng nhập lại");
                     edtPassword.setText("");
                     edtNewPass.setText("");

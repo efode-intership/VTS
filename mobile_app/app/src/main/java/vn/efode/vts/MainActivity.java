@@ -1615,7 +1615,6 @@ public class MainActivity extends AppCompatActivity
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         dialogCallOtherVehicles = new Dialog(MainActivity.this);
         dialogCallOtherVehicles.setContentView(R.layout.dialog_confirm_call_other_vehicles);
-        dialogCallOtherVehicles.setTitle("Call Other Vehicles");
 
         btnConfirmCallOtherVehicles = (Button) dialogCallOtherVehicles.findViewById(R.id.btnConfirmCallOtherVehicles);
         btnCancelCallOthervehicles = (Button) dialogCallOtherVehicles.findViewById(R.id.btnCancelCallOthervehicles);

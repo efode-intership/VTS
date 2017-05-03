@@ -1,6 +1,9 @@
 package vn.efode.vts;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -22,9 +25,9 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 import vn.efode.vts.application.ApplicationController;
+import vn.efode.vts.forgot_password.EnterPhoneActivity;
 import vn.efode.vts.model.User;
 import vn.efode.vts.service.DeviceTokenService;
-import vn.efode.vts.forgot_password.EnterPhoneActivity;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
@@ -66,64 +69,69 @@ public class SignInActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (txtUserName.getText().toString().equals("") || txtPassWord.getText().toString().equals(""))
+                if(checkNetworkAvailable())
                 {
-                    Toast.makeText(SignInActivity.this, "Không được để trống UserName hoặc PassWord!!!", Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
-                    HashMap<String, String> params = new HashMap<String, String>();
+                    if (txtUserName.getText().toString().equals("") || txtPassWord.getText().toString().equals(""))
+                    {
+                        Toast.makeText(SignInActivity.this, "Không được để trống UserName hoặc PassWord!!!", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        HashMap<String, String> params = new HashMap<String, String>();
 
-                    params.put("email", txtUserName.getText().toString());
-                    params.put("password", txtPassWord.getText().toString());
+                        params.put("email", txtUserName.getText().toString());
+                        params.put("password", txtPassWord.getText().toString());
 
-                    ServiceHandler serviceHandler = new ServiceHandler();
-                    serviceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/user/validate", Request.Method.POST, params, new ServerCallback() {
-                        @Override
-                        public void onSuccess(JSONObject result) {
-                            Log.d("Result", result.toString());
+                        ServiceHandler serviceHandler = new ServiceHandler();
+                        serviceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/user/validate", Request.Method.POST, params, new ServerCallback() {
+                            @Override
+                            public void onSuccess(JSONObject result) {
+                                Log.d("Result", result.toString());
 
-                            Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-                            try {
-                                Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
-                                String userJson = result.getString("content");
-                                // save user into session
-                                ApplicationController.sharedPreferences.edit().putString(ApplicationController.USER_SESSION,userJson).commit();
-                                User user = ApplicationController.getCurrentUser();
-                                if (!error) {
-                                    // mapping device token with user
-                                    String deviceToken = ApplicationController.sharedPreferences.getString(DeviceTokenService.DEVICE_TOKEN, null);
-                                    if (deviceToken != null && user != null) {
-                                        String saveTokenUrl = "/api/v1/token/save";
-                                        HashMap<String, String> saveTokenParams = new HashMap<String, String>();
-                                        saveTokenParams.put("deviceId", deviceToken);
-                                        saveTokenParams.put("userId", String.valueOf(user.getId()));
-                                        ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN +saveTokenUrl, Request.Method.POST, saveTokenParams, null);
+                                Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+                                try {
+                                    Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
+                                    String userJson = result.getString("content");
+                                    // save user into session
+                                    ApplicationController.sharedPreferences.edit().putString(ApplicationController.USER_SESSION,userJson).commit();
+                                    User user = ApplicationController.getCurrentUser();
+                                    if (!error) {
+                                        // mapping device token with user
+                                        String deviceToken = ApplicationController.sharedPreferences.getString(DeviceTokenService.DEVICE_TOKEN, null);
+                                        if (deviceToken != null && user != null) {
+                                            String saveTokenUrl = "/api/v1/token/save";
+                                            HashMap<String, String> saveTokenParams = new HashMap<String, String>();
+                                            saveTokenParams.put("deviceId", deviceToken);
+                                            saveTokenParams.put("userId", String.valueOf(user.getId()));
+                                            ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN +saveTokenUrl, Request.Method.POST, saveTokenParams, null);
+                                        }
+
+                                        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                                        startActivity(intent);
+
+                                    }
+                                    else {
+                                        Toast.makeText(SignInActivity.this, "Vui lòng kiểm tra lại UserName hoặc PassWord!!!", Toast.LENGTH_SHORT).show();
                                     }
 
-                                    Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-                                    startActivity(intent);
 
-                                }
-                                else {
-                                    Toast.makeText(SignInActivity.this, "Vui lòng kiểm tra lại UserName hoặc PassWord!!!", Toast.LENGTH_SHORT).show();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
 
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
 
-                        }
+                            @Override
+                            public void onError(VolleyError error) {
+                                Log.d("Result", error.getMessage());
+                            }
 
-                        @Override
-                        public void onError(VolleyError error) {
-                            Log.d("Result", error.getMessage());
-                        }
-
-                    });
+                        });
+                    }
                 }
-
+                else {
+                    Toast.makeText(SignInActivity.this, "Vui lòng kiểm tra lại đường truyền mạng!!!", Toast.LENGTH_SHORT).show();
+                }
 
             }
 
@@ -136,5 +144,16 @@ public class SignInActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    /**
+     * Check internet is enable
+     * @return true - enable
+     */
+    private boolean checkNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
