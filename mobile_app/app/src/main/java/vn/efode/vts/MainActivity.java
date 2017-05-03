@@ -110,6 +110,10 @@ public class MainActivity extends AppCompatActivity
 
     FloatingActionButton fabCancel;//Button Controll Schedule
     FloatingActionButton fabComplete;//Button Controll Schedule
+    FloatingActionButton fabCancel1;//Button Controll Schedule
+    FloatingActionButton fabComplete1;//Button Controll Schedule
+    FloatingActionButton fabMenu;
+    Boolean clickShowMenu = false;
 
     private static int CONTROLL_ON = 1;
     private static int CONTROLL_OFF = -1;
@@ -237,8 +241,25 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+
         fabComplete = (FloatingActionButton) findViewById(R.id.fab_complete);
         fabCancel = (FloatingActionButton) findViewById(R.id.fab_cancel);
+        fabMenu = (FloatingActionButton)findViewById(R.id.fab_menu);
+        fabMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("onClickShowMenu", clickShowMenu.toString());
+                if(clickShowMenu.equals(false)){
+                    fabComplete.show();
+                    fabCancel.show();
+                    clickShowMenu = true;
+                }else{
+                    fabComplete.hide();
+                    fabCancel.hide();
+                    clickShowMenu =false;
+                }
+            }
+        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -682,11 +703,14 @@ public class MainActivity extends AppCompatActivity
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
             if(scheduleActive != null) {
                 if(isNetworkAvailable()){
-                    fabCancel.setVisibility(View.VISIBLE);
-                    fabComplete.setVisibility(View.VISIBLE);
+                    //fabCancel.setVisibility(View.VISIBLE);
+                    //fabComplete.setVisibility(View.VISIBLE);
+                    fabMenu.setVisibility(View.VISIBLE);
                 } else {
                     fabCancel.setVisibility(View.INVISIBLE);
                     fabComplete.setVisibility(View.INVISIBLE);
+                    fabMenu.setVisibility(View.INVISIBLE);
+                    clickShowMenu =false;
                 }
 
             }
@@ -1090,8 +1114,9 @@ public class MainActivity extends AppCompatActivity
                             public void onSuccess() {
                                 startTimerforSheculeSession();
 
-                                fabCancel.setVisibility(View.VISIBLE);
-                                fabComplete.setVisibility(View.VISIBLE);
+                                //fabCancel.setVisibility(View.VISIBLE);
+                                //fabComplete.setVisibility(View.VISIBLE);
+                                fabMenu.setVisibility(View.VISIBLE);
                                 addOnClickForButton();
 
 //                                ctrollFabButtonSchedule(CONTROLL_ON);
@@ -1217,8 +1242,9 @@ public class MainActivity extends AppCompatActivity
             else if(statusSchedule == 3){
                 scheduleActive = scheduleLatest;
                 startTimerforSheculeSession();
-                fabCancel.setVisibility(View.VISIBLE);
-                fabComplete.setVisibility(View.VISIBLE);
+                //fabCancel.setVisibility(View.VISIBLE);
+                //fabComplete.setVisibility(View.VISIBLE);
+                fabMenu.setVisibility(View.VISIBLE);
                 addOnClickForButton();
                 Log.d("log_gps","active");
 //                Toast.makeText(MainActivity.this,"Schedule active id: "+ scheduleActive.getScheduleId(),Toast.LENGTH_SHORT).show();
@@ -1234,6 +1260,12 @@ public class MainActivity extends AppCompatActivity
             dialogRequestStartSchedule.show();
             fabCancel.setVisibility(View.INVISIBLE);
             fabComplete.setVisibility(View.INVISIBLE);
+            fabMenu.setVisibility(View.INVISIBLE);
+            clickShowMenu =false;
+//            new AlertDialog.Builder(MainActivity.this)
+//                    .setTitle("Have fun tonight")
+//                    .setMessage("You don't have any schedule!")
+//                    .show();
 
 
         }
@@ -1314,6 +1346,8 @@ public class MainActivity extends AppCompatActivity
                         scheduleActive = null;
                         fabCancel.setVisibility(View.INVISIBLE);
                         fabComplete.setVisibility(View.INVISIBLE);
+                        fabMenu.setVisibility(View.INVISIBLE);
+                        clickShowMenu =false;
                         Toast.makeText(MainActivity.this, "Completed journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
                     }
                 }catch (JSONException e) {
@@ -1356,6 +1390,8 @@ public class MainActivity extends AppCompatActivity
                         trackgps.controllonLocationChanged(CONTROLL_OFF);
                         fabCancel.setVisibility(View.INVISIBLE);
                         fabComplete.setVisibility(View.INVISIBLE);
+                        fabMenu.setVisibility(View.INVISIBLE);
+                        clickShowMenu =false;
                         Toast.makeText(MainActivity.this, "Cancel journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
                     }
                 }catch (JSONException e) {
