@@ -1,7 +1,9 @@
 package vn.efode.vts.application;
 
-import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
 import com.android.volley.Request;
@@ -19,7 +21,14 @@ import vn.efode.vts.model.User;
  * Created by Tuan on 04/04/2017.
  */
 
-public class ApplicationController extends Application {
+public class ApplicationController extends MultiDexApplication {
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
+    }
+
     public static final String TAG = "VolleyPatterns";//Log or request TAG
     private RequestQueue mRequestQueue;//Global request queue for Volley
     private static ApplicationController sInstance;//A singleton instance of the application class for easy access in other places
