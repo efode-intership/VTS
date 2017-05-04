@@ -244,6 +244,9 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Add events for handle onclick
+     */
     private void addEvents() {
         fabWarning.setOnClickListener(this);
         fabCallServer.setOnClickListener(this);
@@ -251,7 +254,9 @@ public class MainActivity extends AppCompatActivity
         fabFindWay.setOnClickListener(this);
     }
 
-
+    /**
+     * Look for a child view with the given id.
+     */
     private void addControls() {
         fabWarning = (FloatingActionButton) findViewById(fab_warning);
         fabCallServer = (FloatingActionButton) findViewById(R.id.fab_call);
@@ -339,12 +344,12 @@ public class MainActivity extends AppCompatActivity
 
         startShowWarningTimer();
 
-        bringToFontFabButton();
+        bringToFontFabButton();//Change the view's z order in the tree, so it's on top of other sibling views.
 
     }
 
     /**
-     *
+     * Change the view's z order in the tree, so it's on top of other sibling views.
      */
     private void bringToFontFabButton() {
         fabCallServer.bringToFront();
@@ -547,7 +552,7 @@ public class MainActivity extends AppCompatActivity
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
             if(scheduleActive != null) {
                 if(isNetworkAvailable()){
-                    fabMenu.setVisibility(View.VISIBLE);
+//                    fabMenu.setVisibility(View.VISIBLE);
                 } else {
                     fabCancel.setVisibility(View.INVISIBLE);
                     fabComplete.setVisibility(View.INVISIBLE);
@@ -906,8 +911,6 @@ public class MainActivity extends AppCompatActivity
                             @Override
                             public void onSuccess() {
                                 startTimerforSheculeSession();
-                                fabMenu.setVisibility(View.VISIBLE);
-                                addOnClickForButton();
 
                             }
 
@@ -1012,8 +1015,6 @@ public class MainActivity extends AppCompatActivity
             else if(statusSchedule == 3){
                 scheduleActive = scheduleLatest;
                 startTimerforSheculeSession();
-                fabMenu.setVisibility(View.VISIBLE);
-                addOnClickForButton();
                 Log.d("log_gps","active");
             }
 
@@ -1535,6 +1536,10 @@ public class MainActivity extends AppCompatActivity
         try {
 
             if(polyline != null) polyline.remove();
+            if(fabMenu.getVisibility() == View.INVISIBLE){
+                fabMenu.setVisibility(View.VISIBLE);
+                addOnClickForButton();
+            }
             PolylineOptions polyoptions = new PolylineOptions();
             polyoptions.color(Color.BLUE);
             polyoptions.width(10);
