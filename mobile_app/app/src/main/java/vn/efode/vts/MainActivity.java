@@ -89,6 +89,7 @@ import vn.efode.vts.utils.ServiceHandler;
 
 import static vn.efode.vts.R.id.fab_warning;
 import static vn.efode.vts.R.id.map;
+import static vn.efode.vts.application.ApplicationController.SCHEDULE_SESSION;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 import static vn.efode.vts.service.TrackGPS.mLocation;
 
@@ -903,7 +904,7 @@ public class MainActivity extends AppCompatActivity
                 try {
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
-                        ApplicationController.sharedPreferences.edit().putString(ApplicationController.SCHEDULE_SESSION,scheduleJson).commit();
+                        ApplicationController.sharedPreferences.edit().putString(SCHEDULE_SESSION,scheduleJson).commit();
                         LatLng locationDestination = new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
                                 Double.parseDouble(scheduleActive.getLocationLongEnd()));
                         makeMaker(locationDestination,scheduleActive.getEndPointAddress());
@@ -979,14 +980,13 @@ public class MainActivity extends AppCompatActivity
     public void showDialogStartJourney(){
         scheduleActive = null;
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
-
         if(dialogRequestStartSchedule != null)
             if(dialogRequestStartSchedule.isShowing()) dialogRequestStartSchedule.dismiss();
         if(scheduleLatest != null ){
             int statusSchedule = scheduleLatest.getScheduleStatusTypeId();
             if(statusSchedule == 1){
                 dialogRequestStartSchedule = new AlertDialog.Builder(this).create();
-                dialogRequestStartSchedule.setTitle("Bắt đầu hành trình?");
+                dialogRequestStartSchedule.setTitle(scheduleLatest.getDescription());
                 dialogRequestStartSchedule.setMessage("Địa chỉ: " + scheduleLatest.getEndPointAddress()
                 + "\nThời gian bắt đầu: " + scheduleLatest.getIntendStartTime()
                 + "\nThời gian kết thúc dự kiến: " + scheduleLatest.getIntendEndTime());
@@ -1025,6 +1025,7 @@ public class MainActivity extends AppCompatActivity
             dialogRequestStartSchedule = new AlertDialog.Builder(this).create();
             dialogRequestStartSchedule.setTitle("Quẩy thôi!");
             dialogRequestStartSchedule.setMessage("Bạn không có bất kỳ hành trình nào");
+            MainActivity.this.setTitle("Không có hành trình nào");
             dialogRequestStartSchedule.show();
             fabCancel.setVisibility(View.INVISIBLE);
             fabComplete.setVisibility(View.INVISIBLE);
@@ -1384,6 +1385,7 @@ public class MainActivity extends AppCompatActivity
                     public void onClick(DialogInterface dialog, int which) {
                         cancelJourney(String.valueOf(scheduleActive.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
                         removeonClickForButton();
+                        MainActivity.this.setTitle("Có hành trình đang chờ bạn");
                     }
                 });
 
@@ -1412,6 +1414,11 @@ public class MainActivity extends AppCompatActivity
                     public void onClick(DialogInterface dialog, int which) {
                         completedJourney(String.valueOf(scheduleActive.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
                         removeonClickForButton();
+                        getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid
+                        if(scheduleLatest!=null){
+                            MainActivity.this.setTitle("Có hành trình đang chờ bạn");
+                        }else
+                            MainActivity.this.setTitle("Không có hành trình nào");
                     }
                 });
 
@@ -1556,7 +1563,7 @@ public class MainActivity extends AppCompatActivity
 
                 Toast.makeText(getApplicationContext(),"Route "+ (i+1) +": distance - "+ arrayList.get(i).getDistanceValue()+": duration - "+ arrayList.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
             }
-
+            MainActivity.this.setTitle(scheduleActive.getDescription());
         }catch (Exception e){
 
         }
@@ -1564,7 +1571,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onRoutingCancelled() {
-
     }
 
     public void profileNavigation(){
