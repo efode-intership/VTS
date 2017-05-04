@@ -63,7 +63,7 @@
         android:layout_gravity="bottom|center"
         android:layout_margin="16dp"
         android:visibility="invisible"
-        app:backgroundTint="#16a085"/>
+        app:backgroundTint="#16a085" />
 
 
         <android.support.design.widget.FloatingActionButton

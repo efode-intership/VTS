@@ -87,12 +87,13 @@ import vn.efode.vts.utils.PathJSONParser;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
+import static vn.efode.vts.R.id.fab_warning;
 import static vn.efode.vts.R.id.map;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 import static vn.efode.vts.service.TrackGPS.mLocation;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, RoutingListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, RoutingListener, View.OnClickListener {
 
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
@@ -108,11 +109,11 @@ public class MainActivity extends AppCompatActivity
     private static String scheduleJson;
 
 
-    FloatingActionButton fabCancel;//Button Controll Schedule
-    FloatingActionButton fabComplete;//Button Controll Schedule
-    FloatingActionButton fabCancel1;//Button Controll Schedule
-    FloatingActionButton fabComplete1;//Button Controll Schedule
-    FloatingActionButton fabMenu;
+    FloatingActionButton fabCancel;//fab action button to cancel Schedule
+    FloatingActionButton fabComplete;//fab action button to complete Schedule
+    FloatingActionButton fabCallServer;//fab action button to call server
+    FloatingActionButton fabWarning;//fab action button to add warning on map
+    FloatingActionButton fabMenu;// to show fabCancel + fabComplete
     Boolean clickShowMenu = false;
 
     private static int CONTROLL_ON = 1;
@@ -139,8 +140,6 @@ public class MainActivity extends AppCompatActivity
     private Button btnOk;
     private Button btnCancel;
     private TextView txtConfirmWarning;
-    double longitude;
-    double latitude;
     private String showWarningUrl = ServiceHandler.DOMAIN + "/api/v1/warningTypes";
     private String addWarningUrl = ServiceHandler.DOMAIN + "/api/v1/warning/create";
     private WarningTypes warningTypes;
@@ -199,68 +198,6 @@ public class MainActivity extends AppCompatActivity
 
         MapsInitializer.initialize(this);
 
-        /**
-         * setOnClick button call server
-         */
-        FloatingActionButton fab_call = (FloatingActionButton) findViewById(R.id.fab_call);
-        fab_call.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialogCallServer = new Dialog(MainActivity.this);
-                dialogCallServer.setContentView(R.layout.dialog_confirm_call_server);
-                dialogCallServer.setTitle("Call Server");
-
-                btnConfirmCallServer = (Button) dialogCallServer.findViewById(R.id.btnConfirmCallServer);
-                btnCancelCallServer = (Button) dialogCallServer.findViewById(R.id.btnCancelCallServer);
-
-                btnConfirmCallServer.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        callServer();
-                        dialogCallServer.dismiss();
-                    }
-                });
-
-                btnCancelCallServer.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialogCallServer.dismiss();
-                    }
-                });
-
-                dialogCallServer.show();
-
-            }
-        });
-
-        FloatingActionButton fab_warning = (FloatingActionButton) findViewById(R.id.fab_warning);
-        fab_warning.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showWarning();
-            }
-        });
-
-
-        fabComplete = (FloatingActionButton) findViewById(R.id.fab_complete);
-        fabCancel = (FloatingActionButton) findViewById(R.id.fab_cancel);
-        fabMenu = (FloatingActionButton)findViewById(R.id.fab_menu);
-        fabMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("onClickShowMenu", clickShowMenu.toString());
-                if(clickShowMenu.equals(false)){
-                    fabComplete.show();
-                    fabCancel.show();
-                    clickShowMenu = true;
-                }else{
-                    fabComplete.hide();
-                    fabCancel.hide();
-                    clickShowMenu =false;
-                }
-            }
-        });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -272,51 +209,11 @@ public class MainActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(map);
         mapFragment.getMapAsync(this);
-        Log.d("onCreate", "AAAAAAAAAAAAAA");
 
-
-//        HashMap<String,String> params = new HashMap<String,String>();
-//        params.put("email","tuan@gmail.com");
-//        params.put("password","123123");
-//
-//        ServiceHandler serviceHandler = new ServiceHandler();
-//        serviceHandler.makeServiceCall("http://192.168.1.16/web_app/public/api/v1/user/validate", Request.Method.POST,
-//                params, new ServerCallback() {
-//            @Override
-//            public void onSuccess(JSONObject result) {
-//                Log.d("Result",result.toString());
-//            }
-//
-//            @Override
-//            public void onError(VolleyError error){
-//                Log.d("Result",error.getMessage());
-//            }
-//
-//        });
-//
-//        HashMap<String,String> params2 = new HashMap<String,String>();
-//        params2.put("userId", "6");
-//        String url = "http://192.168.1.16/web_app/public/api/v1/user/{userId}";
-//
-//        serviceHandler.makeServiceCall(url, Request.Method.GET, params2, new ServerCallback() {
-//            @Override
-//            public void onSuccess(JSONObject result) {
-//                Log.d("Result", result.toString());
-//            }
-//            @Overrid
-//            public void onError(VolleyError error){
-//                Log.d("Result",error.getMessage());
-//            }
-//        });
 
         addControls();
         addEvents();
         profileNavigation();
-
-//
-//        String userId = "6";
-//        if (checkLocationPermission())
-//            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 
     }
 
@@ -347,12 +244,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void addEvents() {
-
+        fabWarning.setOnClickListener(this);
+        fabCallServer.setOnClickListener(this);
+        fabMenu.setOnClickListener(this);
     }
 
 
     private void addControls() {
-
+        fabWarning = (FloatingActionButton) findViewById(fab_warning);
+        fabCallServer = (FloatingActionButton) findViewById(R.id.fab_call);
+        fabComplete = (FloatingActionButton) findViewById(R.id.fab_complete);
+        fabCancel = (FloatingActionButton) findViewById(R.id.fab_cancel);
+        fabMenu = (FloatingActionButton)findViewById(R.id.fab_menu);
     }
 
     @Override
@@ -439,6 +342,20 @@ public class MainActivity extends AppCompatActivity
 //            buildGoogleApiClient();//setting GoogleAPIclient
 //        }
         startShowWarningTimer();
+
+        bringToFontFabButton();
+
+    }
+
+    /**
+     *
+     */
+    private void bringToFontFabButton() {
+        fabCallServer.bringToFront();
+        fabWarning.bringToFront();
+        fabMenu.bringToFront();
+        fabComplete.bringToFront();
+        fabCancel.bringToFront();
     }
 
     /**
@@ -703,8 +620,6 @@ public class MainActivity extends AppCompatActivity
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
             if(scheduleActive != null) {
                 if(isNetworkAvailable()){
-                    //fabCancel.setVisibility(View.VISIBLE);
-                    //fabComplete.setVisibility(View.VISIBLE);
                     fabMenu.setVisibility(View.VISIBLE);
                 } else {
                     fabCancel.setVisibility(View.INVISIBLE);
@@ -1113,13 +1028,9 @@ public class MainActivity extends AppCompatActivity
                             @Override
                             public void onSuccess() {
                                 startTimerforSheculeSession();
-
-                                //fabCancel.setVisibility(View.VISIBLE);
-                                //fabComplete.setVisibility(View.VISIBLE);
                                 fabMenu.setVisibility(View.VISIBLE);
                                 addOnClickForButton();
 
-//                                ctrollFabButtonSchedule(CONTROLL_ON);
                             }
 
                             @Override
@@ -1242,12 +1153,9 @@ public class MainActivity extends AppCompatActivity
             else if(statusSchedule == 3){
                 scheduleActive = scheduleLatest;
                 startTimerforSheculeSession();
-                //fabCancel.setVisibility(View.VISIBLE);
-                //fabComplete.setVisibility(View.VISIBLE);
                 fabMenu.setVisibility(View.VISIBLE);
                 addOnClickForButton();
                 Log.d("log_gps","active");
-//                Toast.makeText(MainActivity.this,"Schedule active id: "+ scheduleActive.getScheduleId(),Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -1701,27 +1609,6 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         Log.d("bug_dialog","onStart");
-//        if (checkLocationPermission() && isLocationEnabled() && isNetworkAvailable())
-//            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
-//        if (checkLocationPermission() && scheduleActive == null)
-//            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
-
-
-//        Schedule scheduleSession = ApplicationController.getCurrentSchudle();
-//        if (checkLocationPermission())
-//            if(scheduleSession == null)
-//                getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
-//            else {
-//                scheduleActive = scheduleSession;
-//                Toast.makeText(MainActivity.this, "You are starting schedule id:" + scheduleActive.getScheduleId(), Toast.LENGTH_SHORT).show();
-//                startTimerforSheculeSession();
-//                fabCancel.setVisibility(View.VISIBLE);
-//                fabComplete.setVisibility(View.VISIBLE);
-//                addOnClickForButton();
-//            }
-//        if(scheduleActive == null)
-////            showDialogStartJourney();
-//            getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
 
     }
     protected void onStop(){
@@ -1884,6 +1771,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onRoutingSuccess(ArrayList<Route> arrayList, int shortestRouteIndex) {
         try {
+
             if(polyline != null) polyline.remove();
             PolylineOptions polyoptions = new PolylineOptions();
             polyoptions.color(Color.BLUE);
@@ -1935,5 +1823,56 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.fab_warning: {//action button add warning
+                showWarning();
+                break;
+            }
+
+            case R.id.fab_call: {//action button add call server
+                dialogCallServer = new Dialog(MainActivity.this);
+                dialogCallServer.setContentView(R.layout.dialog_confirm_call_server);
+                dialogCallServer.setTitle("Call Server");
+
+                btnConfirmCallServer = (Button) dialogCallServer.findViewById(R.id.btnConfirmCallServer);
+                btnCancelCallServer = (Button) dialogCallServer.findViewById(R.id.btnCancelCallServer);
+
+                btnConfirmCallServer.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        callServer();
+                        dialogCallServer.dismiss();
+                    }
+                });
+
+                btnCancelCallServer.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialogCallServer.dismiss();
+                    }
+                });
+
+                dialogCallServer.show();
+                break;
+            }
+            case R.id.fab_menu: {
+                Log.d("onClickShowMenu", clickShowMenu.toString());
+                if(clickShowMenu.equals(false)){
+                    fabComplete.show();
+                    fabCancel.show();
+                    clickShowMenu = true;
+                }else{
+                    fabComplete.hide();
+                    fabCancel.hide();
+                    clickShowMenu =false;
+                }
+                break;
+            }
+
+        }
     }
 }
