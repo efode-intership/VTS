@@ -109,11 +109,12 @@ public class MainActivity extends AppCompatActivity
     private static String scheduleJson;
 
 
-    FloatingActionButton fabCancel;//fab action button to cancel Schedule
-    FloatingActionButton fabComplete;//fab action button to complete Schedule
-    FloatingActionButton fabCallServer;//fab action button to call server
-    FloatingActionButton fabWarning;//fab action button to add warning on map
-    FloatingActionButton fabMenu;// to show fabCancel + fabComplete
+    FloatingActionButton fabCancel;//Button Controll Schedule
+    FloatingActionButton fabComplete;//Button Controll Schedule
+    FloatingActionButton fabFindWay;//Button Controll Schedule
+    FloatingActionButton fabMenu;//Button Controll Schedule
+    FloatingActionButton fabCallServer;//fab button to call server
+    FloatingActionButton fabWarning;//fab button to add warning on map
     Boolean clickShowMenu = false;
 
     private static int CONTROLL_ON = 1;
@@ -137,8 +138,8 @@ public class MainActivity extends AppCompatActivity
     private boolean controllDraw = true;
     private ListView listView;
     private EditText edtDescription;
-    private Button btnOk;
-    private Button btnCancel;
+    private Button btnConfirmWarning;
+    private Button btnCancelAddWarning;
     private TextView txtConfirmWarning;
     private String showWarningUrl = ServiceHandler.DOMAIN + "/api/v1/warningTypes";
     private String addWarningUrl = ServiceHandler.DOMAIN + "/api/v1/warning/create";
@@ -247,6 +248,7 @@ public class MainActivity extends AppCompatActivity
         fabWarning.setOnClickListener(this);
         fabCallServer.setOnClickListener(this);
         fabMenu.setOnClickListener(this);
+        fabFindWay.setOnClickListener(this);
     }
 
 
@@ -255,6 +257,7 @@ public class MainActivity extends AppCompatActivity
         fabCallServer = (FloatingActionButton) findViewById(R.id.fab_call);
         fabComplete = (FloatingActionButton) findViewById(R.id.fab_complete);
         fabCancel = (FloatingActionButton) findViewById(R.id.fab_cancel);
+        fabFindWay = (FloatingActionButton) findViewById(R.id.fab_findway);
         fabMenu = (FloatingActionButton)findViewById(R.id.fab_menu);
     }
 
@@ -333,14 +336,7 @@ public class MainActivity extends AppCompatActivity
         trackgps = new TrackGPS(MainActivity.this);
 
         startTimerVehicles();
-//        if(trackgps.canGetLocation){
-//            showDialogStartJourney();
-//        }
 
-//        if(checkLocationPermission()){
-//
-//            buildGoogleApiClient();//setting GoogleAPIclient
-//        }
         startShowWarningTimer();
 
         bringToFontFabButton();
@@ -356,6 +352,7 @@ public class MainActivity extends AppCompatActivity
         fabMenu.bringToFront();
         fabComplete.bringToFront();
         fabCancel.bringToFront();
+        fabFindWay.bringToFront();
     }
 
     /**
@@ -375,30 +372,10 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-//    protected synchronized void buildGoogleApiClient() {
-//        Toast.makeText(this, "buildGoogleApiClient", Toast.LENGTH_SHORT).show();
-//        mGoogleApiClient = new GoogleApiClient.Builder(this)
-//                .addConnectionCallbacks(this)
-//                .addOnConnectionFailedListener(this)
-//                .addApi(LocationServices.API)
-//                .build();
-//        mGoogleApiClient.connect();
-//    }
-
     /**
      * Draw road between 2 location in google map
      */
     private void drawroadBetween2Location(LatLng latLng1, LatLng latLng2) {
-
-//        ArrayList<LatLng> temp = new ArrayList<LatLng>();
-//        temp.add(new LatLng(10.8719808, 106.790409));
-//        String url = getMapsApiDirectionsUrl(latLng1, latLng2, temp);
-//
-//        Log.d("onMapClick", url.toString());
-//        ReadTask downloadTask = new ReadTask();
-//        // Start downloading json data from Google Directions API
-//        downloadTask.execute(url);
-//        Log.d("Log12/4", "12");
         Routing routing = new Routing.Builder()
                 .travelMode(Routing.TravelMode.DRIVING)
                 .withListener(this)
@@ -406,13 +383,6 @@ public class MainActivity extends AppCompatActivity
                 .build();
         routing.execute();
         controllDraw = false;
-
-        //To calculate distance between points
-//        float[] results = new float[1];
-//        Location.distanceBetween(latitude, longitude,
-//                10.882323, 106.782625,
-//                results);
-//        Log.d("onMapClick",String.valueOf(results));
     }
 
     /**
@@ -465,7 +435,7 @@ public class MainActivity extends AppCompatActivity
         String keyDirection = "key=" + API_KEY_DIRECTION;
 
         // Building the parameters to the web service
-//        String parameters = str_origin+"&"+str_dest+"&"+sensor;
+        // String parameters = str_origin+"&"+str_dest+"&"+sensor;
         String parameters = str_origin + "&" + str_dest + "&" + str_waypoints + "&" + keyDirection;
 
         // Output format
@@ -519,22 +489,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 return;
             }
-//            case REQ_LOCATION: {
-//                Log.d("BUGAAAAA2", String.valueOf(grantResults.length));
-//                if (grantResults.length > 0
-//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    // permission was granted, yay!
-//                    if (ActivityCompat.checkSelfPermission(this,
-//                            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//                        mGoogleMap.setMyLocationEnabled(true);
-////                        buildGoogleApiClient();
-//                    }
-//                    else {
-//                        Toast.makeText(this, "permission COARSE denied", Toast.LENGTH_LONG).show();
-//                    }
-//                    return;
-//                }
-//            }
+
         }
 
     }
@@ -580,35 +535,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-//    @Override
-//    public void onConnected(Bundle bundle) {
-//        Toast.makeText(this, "onConnected", Toast.LENGTH_SHORT).show();
-////        checkLocationPermission();
-//        Location mLastLocation = getCurrentLocation();
-//        Log.d("onConnected",String.valueOf(mLastLocation));
-//        if (mLastLocation != null) {
-////            place marker at current position
-////            mGoogleMap.clear();
-//            latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-////            MarkerOptions markerOptions = new MarkerOptions();
-////            markerOptions.position(latLng);
-////            markerOptions.title("Current Position");
-////            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-////            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-////            currLocationMarker = mGoogleMap.addMarker(markerOptions);
-//            showDialogStartJourney();
-//        }
-//
-//        mLocationRequest = new LocationRequest();
-//        mLocationRequest.setInterval(50000); //50 seconds
-//        mLocationRequest.setFastestInterval(30000); //30 seconds
-//        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-//        mLocationRequest.setSmallestDisplacement(5); //5 meter
-//        controllonLocationChanged(CONTROLL_ON);//Enable event onLocationChanged
-//
-////        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-////        showWarningPoint();
-//    }
+
 
     /**
      * Handler service location is enable/disable
@@ -625,6 +552,7 @@ public class MainActivity extends AppCompatActivity
                     fabCancel.setVisibility(View.INVISIBLE);
                     fabComplete.setVisibility(View.INVISIBLE);
                     fabMenu.setVisibility(View.INVISIBLE);
+                    fabFindWay.setVisibility(View.INVISIBLE);
                     clickShowMenu =false;
                 }
 
@@ -641,63 +569,14 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 //Do your stuff on GPS status change
-//                Toast.makeText(MainActivity.this,"GPS enable!",Toast.LENGTH_LONG).show();
             }
             else  {
                 Log.d("log_gps_network","disable");
                 if(checkLocationPermission())
                     mGoogleMap.setMyLocationEnabled(false);
-//                Toast.makeText(MainActivity.this,"Location service disable!",Toast.LENGTH_LONG).show();
             }
         }
     };
-
-//    @Override
-//    public void onConnectionSuspended(int i) {
-//        Toast.makeText(this,"onConnectionSuspended",Toast.LENGTH_SHORT).show();
-//    }
-//
-//    @Override
-//    public void onConnectionFailed(ConnectionResult connectionResult) {
-//        Toast.makeText(this,"onConnectionFailed",Toast.LENGTH_SHORT).show();
-//    }
-//
-//
-//
-//    @Override
-//    public void onLocationChanged(Location location) {
-//        startTimer();
-//        //place marker at current position
-//        //mGoogleMap.clear();
-////        demo++;
-////        if(demo == 2) {//Changed fabbutton cancel journey to complete journey
-////            controllFabSchedule = true;
-////            fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.completed));
-////        }
-//        if (currLocationMarker != null) {
-//            currLocationMarker.remove();
-//        }
-//        latLng = new LatLng(location.getLatitude(), location.getLongitude());
-//        if(scheduleActive != null)
-//            sendLocationDataToServer(location);//Send data to server
-////        MarkerOptions markerOptions = new MarkerOptions();
-////        markerOptions.position(latLng);
-////        markerOptions.title("Current Position");
-////        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-////        currLocationMarker = mGoogleMap.addMarker(markerOptions);
-////
-//        Toast.makeText(this,"Location Changed",Toast.LENGTH_SHORT).show();
-//
-////        //zoom to current position:
-//        if(zoomOneTime){//Just zoom 1 time
-//            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
-//            zoomOneTime =false;
-//        }
-//
-//
-//        //If you only need one location, unregister the listener
-//        //LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-//    }
 
 
     /**
@@ -829,12 +708,12 @@ public class MainActivity extends AppCompatActivity
         dialogConfirmWarning.setTitle("Xác nhận");
 
 
-        btnOk = (Button) dialogConfirmWarning.findViewById(R.id.button_confirmwarning_done);
-        btnCancel = (Button) dialogConfirmWarning.findViewById(R.id.button_confirmwarning_cancel);
+        btnConfirmWarning = (Button) dialogConfirmWarning.findViewById(R.id.button_confirmwarning_done);
+        btnCancelAddWarning = (Button) dialogConfirmWarning.findViewById(R.id.button_confirmwarning_cancel);
         txtConfirmWarning = (TextView) dialogConfirmWarning.findViewById(R.id.textview_confirmwarning_confirm);
         edtDescription = (EditText) dialogConfirmWarning.findViewById(R.id.edittext_confirmwarning_description);
         txtConfirmWarning.setText("Xác nhận cảnh báo " + warningTypes.getType() + "?");
-        btnOk.setOnClickListener(new View.OnClickListener() {
+        btnConfirmWarning.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -889,7 +768,7 @@ public class MainActivity extends AppCompatActivity
         });
 
 
-        btnCancel.setOnClickListener(new View.OnClickListener() {
+        btnCancelAddWarning.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dialogConfirmWarning.dismiss();
@@ -986,7 +865,6 @@ public class MainActivity extends AppCompatActivity
 
                         @Override
                         public void onError() {
-//                            Toast.makeText(MainActivity.this, "Can't get Location", Toast.LENGTH_SHORT).show();
                             Log.d("error_location","can't get location");
                         }
                     });
@@ -1130,25 +1008,6 @@ public class MainActivity extends AppCompatActivity
                 dialogRequestStartSchedule.setIcon(android.R.drawable.ic_dialog_alert);
                 dialogRequestStartSchedule.show();
 
-//                new AlertDialog.Builder(MainActivity.this)
-//                        .setTitle("You have journey go to "+ scheduleLatest.getEndPointAddress() + " with "
-//                                + scheduleLatest.getIntendStartTime() + " [id:"+scheduleLatest.getScheduleId()+ "]")
-//                        .setMessage("Do you want start journey now?")
-//                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                scheduleActive = scheduleLatest;//set schedule active = scheduleLatest
-//                                Log.d("showDialogStartJourney", String.valueOf(scheduleActive.getScheduleId()));
-//                                Log.d("showDialogStartJourney", String.valueOf(scheduleActive.getEndPointAddress()));
-//                                startJourney(String.valueOf(scheduleActive.getScheduleId()),ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null));
-//                            }
-//                        })
-//                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                // do nothing
-//                            }
-//                        })
-//                        .setIcon(android.R.drawable.ic_dialog_alert)
-//                        .show();
             }
             else if(statusSchedule == 3){
                 scheduleActive = scheduleLatest;
@@ -1168,64 +1027,14 @@ public class MainActivity extends AppCompatActivity
             dialogRequestStartSchedule.show();
             fabCancel.setVisibility(View.INVISIBLE);
             fabComplete.setVisibility(View.INVISIBLE);
+            fabFindWay.setVisibility(View.INVISIBLE);
             fabMenu.setVisibility(View.INVISIBLE);
             clickShowMenu =false;
-//            new AlertDialog.Builder(MainActivity.this)
-//                    .setTitle("Have fun tonight")
-//                    .setMessage("You don't have any schedule!")
-//                    .show();
-
 
         }
 
     }
 
-    /**
-     * Register / Unregister the listener location
-     * @param value
-     */
-//    private void controllonLocationChanged(int value){changed
-//        if(value == CONTROLL_OFF)// unregister the listener
-//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-//        if(value == CONTROLL_ON) {//register the listener to listen location change
-//            checkLocationPermission();
-//            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-//        }
-//    }
-
-    /**
-     * Invisible/Visible fab button Controll schedule
-     * @param value on/off
-     */
-//    private void ctrollFabButtonSchedule(int value){
-//        if(value == CONTROLL_ON){
-////            controllFabSchedule = true;
-//            fabControllSchedule.setVisibility(View.VISIBLE);
-//            if(!controllFabSchedule)
-//                fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.cancel));
-//            else fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.completed));
-//            fabControllSchedule.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    if(controllFabSchedule) {//Completed Journey
-//                        controllFabSchedule = false;
-//                        completedJourney(String.valueOf(scheduleLatest.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-//                        fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.cancel));
-//
-//                    } else {//Cancel journey
-//                        controllFabSchedule = true;
-//                        cancelJourney(String.valueOf(scheduleLatest.getScheduleId()), ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-//                        fabControllSchedule.setImageDrawable(getResources().getDrawable(R.drawable.completed));
-//
-//                    }
-//                    scheduleActive = null;//don't active any schedule
-//                    fabControllSchedule.setVisibility(View.INVISIBLE);
-//
-//                }
-//            });
-//        }
-//
-//    }
     /**
      * Function to call API completed journey
      */
@@ -1254,6 +1063,7 @@ public class MainActivity extends AppCompatActivity
                         scheduleActive = null;
                         fabCancel.setVisibility(View.INVISIBLE);
                         fabComplete.setVisibility(View.INVISIBLE);
+                        fabFindWay.setVisibility(View.INVISIBLE);
                         fabMenu.setVisibility(View.INVISIBLE);
                         clickShowMenu =false;
                         Toast.makeText(MainActivity.this, "Completed journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
@@ -1298,6 +1108,7 @@ public class MainActivity extends AppCompatActivity
                         trackgps.controllonLocationChanged(CONTROLL_OFF);
                         fabCancel.setVisibility(View.INVISIBLE);
                         fabComplete.setVisibility(View.INVISIBLE);
+                        fabFindWay.setVisibility(View.INVISIBLE);
                         fabMenu.setVisibility(View.INVISIBLE);
                         clickShowMenu =false;
                         Toast.makeText(MainActivity.this, "Cancel journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
@@ -1324,18 +1135,6 @@ public class MainActivity extends AppCompatActivity
         polyline = null;
     }
 
-//    /**
-//     * get Current Location
-//     * @return location
-//     */
-//    private Location getCurrentLocation(){
-//        Location mLastLocation = null;
-//        checkLocationPermission();
-//        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-//                mGoogleApiClient);
-////        Log.d("CurrentLocation",mLastLocation.getLatitude() + " | " + mLastLocation.getLongitude());
-//        return mLastLocation;
-//    }
 
     /**
      * get URL to call API distance
@@ -1366,39 +1165,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    /**
-     * send Location data to server
-     * @param origin previous location 2s
-     */
-//    private void sendLocationDataToServer(final Location origin){
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                //Do something after 2s
-//                Location currentLocation = getCurrentLocation();
-//                Double speed = getSpeed(origin,currentLocation);
-//                HashMap<String,String> params = new HashMap<String, String>();
-//                params.put("scheduleId", String.valueOf(scheduleActive.getScheduleId()));
-//                params.put("locationLat", String.valueOf(currentLocation.getLatitude()));
-//                params.put("locationLong", String.valueOf(currentLocation.getLongitude()));
-//                params.put("speed", String.valueOf(speed));
-//                params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-//                ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
-//                        Request.Method.POST, params, new ServerCallback() {
-//                            @Override
-//                            public void onSuccess(JSONObject result) {
-//                                Toast.makeText(MainActivity.this,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
-//                            }
-//
-//                            @Override
-//                            public void onError(VolleyError error) {
-//                                Toast.makeText(MainActivity.this,error.getMessage(),Toast.LENGTH_SHORT).show();
-//                            }
-//                        });
-//            }
-//        }, 2000);
-//
-//    }
 
     /**
      * get Speed with 2 location
@@ -1470,10 +1236,7 @@ public class MainActivity extends AppCompatActivity
                                             vehicleMarkerMap.clear();
                                             Log.d("start_show_other_vehicles", "vehicleMarkerMap.clear()");
                                             for (final OtherVehiclesInformation object : listOrtherVehicles) {
-//                            makeMaker(new LatLng(Double.parseDouble(object.getLocationLat()),
-//                                    Double.parseDouble(object.getLocationLong())),"Driver name: " + object.getDriverName()+ "\n" + "Driver phone: " + object.getDriverPhone());
                                                 LatLng otherVehiclePosition = new LatLng(Double.parseDouble(object.getLocationLat()), Double.parseDouble(object.getLocationLong()));
-
                                                 BitmapDrawable bitmapDrawable;
                                                 Bitmap bitmap;
                                                 bitmapDrawable = (BitmapDrawable) getResources().getDrawable(R.drawable.vehicles);
@@ -1483,8 +1246,6 @@ public class MainActivity extends AppCompatActivity
                                                 Marker show = mGoogleMap.addMarker(new MarkerOptions()
                                                         .position(otherVehiclePosition)
                                                         .title(String.valueOf(object.getScheduleId()))
-//                                                        .title(object.getDriverName())
-//                                                        .snippet(object.getDriverPhone())
                                                         .icon(BitmapDescriptorFactory.fromBitmap(vehicleMarker))
                                                         .visible(true));
                                                 vehicleMarkerMap.put(String.valueOf(object.getScheduleId()), show);
@@ -1509,17 +1270,6 @@ public class MainActivity extends AppCompatActivity
                                                                 }
                                                             }
                                                         });
-//                                                        if(!MainActivity.this.isFinishing())
-//                                                        {
-//                                                            Log.d("selectedVehicleMarker", "not finished");
-//                                                            try {
-//                                                                dialogCallOtherVehicles.show();
-//                                                            } catch (WindowManager.BadTokenException e) {
-//                                                                Log.d("MainActiviy", e.getMessage());
-//                                                            }
-//
-//                                                        }
-
 
                                                         return true;
                                                     }
@@ -1545,7 +1295,6 @@ public class MainActivity extends AppCompatActivity
 
                         @Override
                         public void onError() {
-//                            Toast.makeText(MainActivity.this,"Can't get location",Toast.LENGTH_SHORT).show();
                             Log.d("error_location","can't get locaiton");
                         }
                     });
@@ -1674,6 +1423,19 @@ public class MainActivity extends AppCompatActivity
                 });
                 dialogConfirm.setIcon(android.R.drawable.ic_dialog_alert);
                 dialogConfirm.show();
+            }
+        });
+        fabFindWay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawroadBetween2Location(new LatLng(mLocation.getLatitude(),
+                                mLocation.getLongitude()),
+                        new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
+                                Double.parseDouble(scheduleActive.getLocationLongEnd())));
+                fabCancel.hide();
+                fabComplete.hide();
+                fabFindWay.hide();
+                clickShowMenu =false;
             }
         });
     }
@@ -1864,10 +1626,12 @@ public class MainActivity extends AppCompatActivity
                 if(clickShowMenu.equals(false)){
                     fabComplete.show();
                     fabCancel.show();
+                    fabFindWay.show();
                     clickShowMenu = true;
                 }else{
                     fabComplete.hide();
                     fabCancel.hide();
+                    fabFindWay.hide();
                     clickShowMenu =false;
                 }
                 break;

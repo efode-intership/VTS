@@ -28,9 +28,7 @@
         app:backgroundTint="#c0392b"
         android:layout_gravity="bottom|start"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/warning" />
-
-
+        app:srcCompat="@drawable/warning"/>
     <ImageView
         android:id="@+id/divider2"
         android:layout_width="1dp"
@@ -72,9 +70,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
             android:src="@drawable/completed"
-            android:layout_marginBottom="70dp"
-            android:layout_marginLeft="70dp"
-            android:visibility="gone"
+            android:layout_marginBottom="50dp"
+            android:layout_marginLeft="110dp"
+            android:visibility="invisible"
             app:backgroundTint="#2980b9"/>
 
 
@@ -84,10 +82,20 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
             android:src="@drawable/cancel"
-            android:layout_marginBottom="70dp"
-            android:layout_marginRight="70dp"
-            android:visibility="gone"
+            android:layout_marginBottom="50dp"
+            android:layout_marginRight="110dp"
+            android:visibility="invisible"
             app:backgroundTint="#c0392b"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_findway"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:src="@drawable/find"
+            android:layout_marginBottom="80dp"
+            android:visibility="invisible"
+            app:backgroundTint="#e67e22"/>
 
 
     <include
