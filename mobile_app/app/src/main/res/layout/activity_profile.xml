@@ -4,45 +4,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#ffffff"
     android:orientation="vertical"
     tools:context="vn.efode.vts.ProfileActivity">
-
-
-    <ImageView
-        android:id="@+id/imageview_profile_avatar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="400px"
-        android:layout_gravity="center"
-        android:background="@drawable/border"
-        android:padding="20dp"
-        app:srcCompat="@drawable/avatar" />
+        android:layout_height="250dp"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:background="@drawable/cover">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imageview_profile_avatar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/avatar"
+            app:civ_border_color="#bdc3c7"
+            app:civ_border_width="1dp" />
+
+        <EditText
+            android:id="@+id/edittext_profile_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:ems="10"
+            android:textColor="#bdc3c7"
+            android:textAlignment="center"
+            android:textSize="30dp"
+            android:focusable="false"
+            android:inputType="textPersonName"/>
+    </LinearLayout>
+
 
 
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TableRow android:background="@drawable/border">
-
-            <TextView
-                android:id="@+id/textview_profile_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="15dp"
-                android:text="Họ tên:"
-                android:textSize="18dp" />
-
-            <EditText
-                android:id="@+id/edittext_profile_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:ems="10"
-                android:focusable="false"
-                android:inputType="textPersonName"
-
-                android:padding="10dp"/>
-        </TableRow>
 
         <TableRow
             android:layout_margin="-1px"

@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -25,6 +24,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import vn.efode.vts.application.ApplicationController;
 import vn.efode.vts.model.User;
 import vn.efode.vts.utils.ServerCallback;
@@ -34,7 +34,7 @@ public class ProfileActivity extends AppCompatActivity {
     private Button btnCancel;
     private Button btnOk;
     private ImageButton btnChangePassword;
-    private ImageView imgProfile;
+    private CircleImageView imgProfile;
     private EditText edtName;
     private EditText edtSex;
     private EditText edtPhone;
@@ -54,7 +54,7 @@ public class ProfileActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        imgProfile = (ImageView)findViewById(R.id.imageview_profile_avatar);
+        imgProfile = (CircleImageView) findViewById(R.id.imageview_profile_avatar);
         edtName = (EditText)findViewById(R.id.edittext_profile_name);
         edtSex = (EditText)findViewById(R.id.edittext_profile_sex);
         edtPhone = (EditText)findViewById(R.id.edittext_profile_phonenumber);
