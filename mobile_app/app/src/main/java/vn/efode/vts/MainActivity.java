@@ -1115,7 +1115,7 @@ public class MainActivity extends AppCompatActivity
                         fabFindWay.setVisibility(View.INVISIBLE);
                         fabMenu.setVisibility(View.INVISIBLE);
                         clickShowMenu =false;
-                        Toast.makeText(MainActivity.this, "Cancel journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "Hủy lịch trình:" + scheduleId,Toast.LENGTH_LONG).show();
                     }
                 }catch (JSONException e) {
                     Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
@@ -1379,9 +1379,9 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 dialogConfirm = new AlertDialog.Builder(MainActivity.this).create();
-                dialogConfirm.setTitle("Cancel Journey!");
-                dialogConfirm.setMessage("Do you want cancel journey now?");
-                dialogConfirm.setButton(Dialog.BUTTON_POSITIVE,"Yes",new DialogInterface.OnClickListener(){
+                dialogConfirm.setTitle("Hủy hành trình!");
+                dialogConfirm.setMessage("Bạn muốn hủy hành trình này?");
+                dialogConfirm.setButton(Dialog.BUTTON_POSITIVE,"Đồng ý",new DialogInterface.OnClickListener(){
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1391,7 +1391,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
-                dialogConfirm.setButton(Dialog.BUTTON_NEGATIVE,"NO,Thanks!",new DialogInterface.OnClickListener(){
+                dialogConfirm.setButton(Dialog.BUTTON_NEGATIVE,"Không,cám ơn!",new DialogInterface.OnClickListener(){
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1408,9 +1408,9 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 dialogConfirm = new AlertDialog.Builder(MainActivity.this).create();
-                dialogConfirm.setTitle("Complete Journey!");
-                dialogConfirm.setMessage("Please, Confirm complete journey.");
-                dialogConfirm.setButton(Dialog.BUTTON_POSITIVE,"Yes",new DialogInterface.OnClickListener(){
+                dialogConfirm.setTitle("Hoàn thành hành trình!");
+                dialogConfirm.setMessage("Vui lòng xác nhận hoàn thành hành trình!");
+                dialogConfirm.setButton(Dialog.BUTTON_POSITIVE,"Đồng ý",new DialogInterface.OnClickListener(){
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1424,7 +1424,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
-                dialogConfirm.setButton(Dialog.BUTTON_NEGATIVE,"NO,Thanks!",new DialogInterface.OnClickListener(){
+                dialogConfirm.setButton(Dialog.BUTTON_NEGATIVE,"Không,cám ơn!",new DialogInterface.OnClickListener(){
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1533,7 +1533,7 @@ public class MainActivity extends AppCompatActivity
         if(lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
             return true;
         else {
-            Toast.makeText(MainActivity.this,"Bật Vị trí, Please!!!",Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this,"Vui Lòng Bật Vị trí!!!",Toast.LENGTH_LONG).show();
             return false;
         }
     }
