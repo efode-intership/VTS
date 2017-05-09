@@ -62,7 +62,7 @@ public class ServiceHandler {
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e(VOLLEY_TAG, error.getMessage());
+                    Log.e(VOLLEY_TAG, String.valueOf(error.getMessage()));
                     if (callback != null) {
                         callback.onError(error);
                     }
@@ -92,7 +92,7 @@ public class ServiceHandler {
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e(VOLLEY_TAG, error.getMessage());
+                    Log.e(VOLLEY_TAG, String.valueOf(error.getMessage()));
                     if (callback != null) {
                         callback.onError(error);
                     }

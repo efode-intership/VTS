@@ -27,15 +27,13 @@ import vn.efode.vts.model.Schedule;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
+import static vn.efode.vts.MainActivity.TAG_ERROR;
 import static vn.efode.vts.MainActivity.scheduleActive;
 import static vn.efode.vts.ScheduleHistoryActivity.notStartedList;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 
 public class ScheduleDetailsActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private TextView txtScheduleId;
-    private TextView txtDriverId;
-    private TextView txtVehicleId;
     private TextView txtStartPointAddress;
     private TextView txtEndPointAddress;
     private TextView txtIntendStartTime;
@@ -46,6 +44,9 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
     private Button btnStartSchedule;
     private Schedule schedule;
     private ImageView imgScheduleStatus;
+    private int position;
+    private int POSITION_FIRST = 0;
+    public static final String CUSTOM_INTENT = "jason.wei.custom.intent.action.TEST";
 
 
     @Override
@@ -61,6 +62,7 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
         Bundle bundleSchedule = intentSchedule.getBundleExtra("ScheduleDetails");
         schedule = new Schedule();
         schedule = (Schedule) bundleSchedule.get("ListSchedule");
+        position = (int) bundleSchedule.get("Position");
 
         setContentSchedule();
 
@@ -78,26 +80,26 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
         txtDescription.setText(schedule.getDescription());
         if(schedule.getScheduleStatusTypeId() == 1) {
             btnStartSchedule.setVisibility(View.VISIBLE);
-            txtScheduleStatusTypeId.setText("Schedule Status: " + schedule.getScheduleStatusName() + "!!!");
+            txtScheduleStatusTypeId.setText("Trạng thái: " + schedule.getScheduleStatusName() + "!!!");
             imgScheduleStatus.setImageResource(R.drawable.notstart);
         }
         else btnStartSchedule.setVisibility(View.INVISIBLE);
 
         if (schedule.getScheduleStatusTypeId() == 2)
         {
-            txtScheduleStatusTypeId.setText("Schedule Status: " + schedule.getScheduleStatusName() + "!!!");
+            txtScheduleStatusTypeId.setText("Trạng thái: " + schedule.getScheduleStatusName() + "!!!");
             imgScheduleStatus.setImageResource(R.drawable.complete);
         }
         else
         if (schedule.getScheduleStatusTypeId() == 3)
         {
-            txtScheduleStatusTypeId.setText("Schedule Status: " + schedule.getScheduleStatusName() + "!!!");
+            txtScheduleStatusTypeId.setText("Trạng thái: " + schedule.getScheduleStatusName() + "!!!");
             imgScheduleStatus.setImageResource(R.drawable.inprogress);
         }
         else
         if (schedule.getScheduleStatusTypeId() == 4)
         {
-            txtScheduleStatusTypeId.setText("Schedule Status: " + schedule.getScheduleStatusName() + "!!!");
+            txtScheduleStatusTypeId.setText("Trạng thái: " + schedule.getScheduleStatusName() + "!!!");
             imgScheduleStatus.setImageResource(R.drawable.cancelschedule);
         }
     }
@@ -130,28 +132,57 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
      * Show dialog accept or not
      */
     private void showDialogAccept() {
-        if(scheduleActive == null)
-            new AlertDialog.Builder(ScheduleDetailsActivity.this)
-                    .setTitle("Do you want start this schedule?")
-                    .setMessage("Scheduleid:" + schedule.getScheduleId() + "\nAddress: "+schedule.getEndPointAddress())
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            startJourneyAndswtichActivity(String.valueOf(schedule.getScheduleId()),  ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-                        }
-                    })
-                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // do nothing
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
+        if(position != POSITION_FIRST)
+        {
+            if(scheduleActive == null)
+                new AlertDialog.Builder(ScheduleDetailsActivity.this)
+                        .setTitle("Đây không phải là lịch trình gần nhất của bạn!!!")
+                        .setMessage("Bạn vẫn muốn bắt đầu hành trình?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                startJourneyAndswtichActivity(String.valueOf(schedule.getScheduleId()),  ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            else
+                new AlertDialog.Builder(ScheduleDetailsActivity.this)
+                        .setTitle("Không thể bắt đầu hành trình!")
+                        .setMessage("Bạn đang chạy lịch trình " + scheduleActive.getScheduleId() + "\nVui lòng kết thúc lịch trình đang chạy trước khi bắt đầu hành trình mới!!!")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+        }
         else
-            new AlertDialog.Builder(ScheduleDetailsActivity.this)
-                .setTitle("You are in a schedule active!")
-                .setMessage("Scheduleid:" + scheduleActive.getScheduleId() + "\nAddress: "+ scheduleActive.getEndPointAddress())
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
+        {
+            if(scheduleActive == null)
+                new AlertDialog.Builder(ScheduleDetailsActivity.this)
+                        .setTitle("Bạn muốn bắt đầu lịch trình này?")
+//                        .setMessage("Scheduleid:" + schedule.getScheduleId() + "\nAddress: "+schedule.getEndPointAddress())
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                startJourneyAndswtichActivity(String.valueOf(schedule.getScheduleId()),  ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            else
+                new AlertDialog.Builder(ScheduleDetailsActivity.this)
+                        .setTitle("Không thể bắt đầu hành trình!")
+                        .setMessage("Bạn đang chạy lịch trình " + scheduleActive.getScheduleId() + "\nVui lòng kết thúc lịch trình đang chạy trước khi bắt đầu hành trình mới!!!")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+        }
+
     }
 
     /**
@@ -183,13 +214,13 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
 
                     }
                 }catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG_ERROR,String.valueOf(e.getMessage()));
                 }
             }
 
             @Override
             public void onError(VolleyError error) {
-
+                Log.e(TAG_ERROR,String.valueOf(error.getMessage()));
             }
         });
     }

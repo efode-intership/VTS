@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity
 //    GoogleApiClient mGoogleApiClient;
 
     public static Polyline polyline = null;//Instance
+    public static String TAG_ERROR = "log_error";
 
     private static TrackGPS trackgps;
 
@@ -548,6 +549,7 @@ public class MainActivity extends AppCompatActivity
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
             if(scheduleActive != null) {
@@ -687,13 +689,13 @@ public class MainActivity extends AppCompatActivity
 
 
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG_ERROR,String.valueOf(e.getMessage()));
                 }
             }
 
             @Override
             public void onError(VolleyError error) {
-                Log.d("Resultsxxx", error.getMessage());
+                Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
             }
         });
 
@@ -752,13 +754,13 @@ public class MainActivity extends AppCompatActivity
 
 
                                         } catch (JSONException e) {
-                                            e.printStackTrace();
+                                            Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                                         }
                                     }
 
                                     @Override
                                     public void onError(VolleyError error) {
-                                        Log.d("Result", error.getMessage());
+                                        Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
                                         Toast.makeText(MainActivity.this, "Không thành công", Toast.LENGTH_SHORT).show();
                                     }
 
@@ -857,13 +859,13 @@ public class MainActivity extends AppCompatActivity
 
 
                                     } catch (JSONException e) {
-                                        e.printStackTrace();
+                                        Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                                     }
                                 }
 
                                 @Override
                                 public void onError(VolleyError error) {
-                                    Log.d("Resultsxxx", error.getMessage());
+                                    Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
                                 }
                             });
                         }
@@ -922,13 +924,13 @@ public class MainActivity extends AppCompatActivity
 
                     }
                 }catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                 }
             }
 
             @Override
             public void onError(VolleyError error) {
-
+                Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
             }
         });
 
@@ -959,13 +961,13 @@ public class MainActivity extends AppCompatActivity
                         showDialogStartJourney();
                     }
                 }catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                 }
             }
 
             @Override
             public void onError(VolleyError error) {
-
+                Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
             }
         });
 
@@ -1070,13 +1072,13 @@ public class MainActivity extends AppCompatActivity
                         Toast.makeText(MainActivity.this, "Completed journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
                     }
                 }catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                 }
             }
 
             @Override
             public void onError(VolleyError error) {
-
+                Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
             }
         });
     }
@@ -1112,16 +1114,16 @@ public class MainActivity extends AppCompatActivity
                         fabFindWay.setVisibility(View.INVISIBLE);
                         fabMenu.setVisibility(View.INVISIBLE);
                         clickShowMenu =false;
-                        Toast.makeText(MainActivity.this, "Cancel journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "Hủy lịch trình:" + scheduleId,Toast.LENGTH_LONG).show();
                     }
                 }catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                 }
             }
 
             @Override
             public void onError(VolleyError error) {
-
+                Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
             }
         });
     }
@@ -1188,7 +1190,7 @@ public class MainActivity extends AppCompatActivity
 
                         @Override
                         public void onError(VolleyError error) {
-
+                            Log.e(TAG_ERROR,String.valueOf(error.getMessage()));
                         }
                     });
         }
@@ -1282,14 +1284,14 @@ public class MainActivity extends AppCompatActivity
 
                                         }
                                     } catch (JSONException e) {
-                                        e.printStackTrace();
+                                        Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                                     }
 
                                 }
 
                                 @Override
                                 public void onError(VolleyError error) {
-
+                                    Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
                                 }
                             });
                         }
@@ -1376,9 +1378,9 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 dialogConfirm = new AlertDialog.Builder(MainActivity.this).create();
-                dialogConfirm.setTitle("Cancel Journey!");
-                dialogConfirm.setMessage("Do you want cancel journey now?");
-                dialogConfirm.setButton(Dialog.BUTTON_POSITIVE,"Yes",new DialogInterface.OnClickListener(){
+                dialogConfirm.setTitle("Hủy hành trình!");
+                dialogConfirm.setMessage("Bạn muốn hủy hành trình này?");
+                dialogConfirm.setButton(Dialog.BUTTON_POSITIVE,"Đồng ý",new DialogInterface.OnClickListener(){
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1388,7 +1390,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
-                dialogConfirm.setButton(Dialog.BUTTON_NEGATIVE,"NO,Thanks!",new DialogInterface.OnClickListener(){
+                dialogConfirm.setButton(Dialog.BUTTON_NEGATIVE,"Không,cám ơn!",new DialogInterface.OnClickListener(){
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1405,9 +1407,9 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 dialogConfirm = new AlertDialog.Builder(MainActivity.this).create();
-                dialogConfirm.setTitle("Complete Journey!");
-                dialogConfirm.setMessage("Please, Confirm complete journey.");
-                dialogConfirm.setButton(Dialog.BUTTON_POSITIVE,"Yes",new DialogInterface.OnClickListener(){
+                dialogConfirm.setTitle("Hoàn thành hành trình!");
+                dialogConfirm.setMessage("Vui lòng xác nhận hoàn thành hành trình!");
+                dialogConfirm.setButton(Dialog.BUTTON_POSITIVE,"Đồng ý",new DialogInterface.OnClickListener(){
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1421,7 +1423,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
-                dialogConfirm.setButton(Dialog.BUTTON_NEGATIVE,"NO,Thanks!",new DialogInterface.OnClickListener(){
+                dialogConfirm.setButton(Dialog.BUTTON_NEGATIVE,"Không,cám ơn!",new DialogInterface.OnClickListener(){
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1530,7 +1532,7 @@ public class MainActivity extends AppCompatActivity
         if(lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
             return true;
         else {
-            Toast.makeText(MainActivity.this,"Bật Vị trí, Please!!!",Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this,"Vui Lòng Bật Vị trí!!!",Toast.LENGTH_LONG).show();
             return false;
         }
     }
@@ -1584,7 +1586,7 @@ public class MainActivity extends AppCompatActivity
             }
             MainActivity.this.setTitle(scheduleActive.getDescription());
         }catch (Exception e){
-
+            Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
         }
     }
 

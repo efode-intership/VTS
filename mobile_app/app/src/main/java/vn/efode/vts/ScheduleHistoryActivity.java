@@ -32,6 +32,8 @@ import vn.efode.vts.model.Schedule;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
+import static vn.efode.vts.MainActivity.TAG_ERROR;
+
 
 public class ScheduleHistoryActivity extends AppCompatActivity {
 
@@ -116,6 +118,7 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
                                     ScheduleHistoryActivity.this,
                                     R.layout.schedule_list_layout,
                                     notStartedList);
+
                             lvSchedule.setAdapter(scheduleAdapter);
 
 
@@ -130,6 +133,7 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
                                     ScheduleHistoryActivity.this,
                                     R.layout.schedule_list_layout,
                                     historyList);
+//                            scheduleAdapter.notifyDataSetChanged();
                             lvHistory.setAdapter(scheduleAdapter);
 
                         }
@@ -151,6 +155,7 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
                                 Schedule history = historyList.get(i);
                                 Intent intentHistory = new Intent(ScheduleHistoryActivity.this, ScheduleDetailsActivity.class);
                                 Bundle bundleHistory = new Bundle();
+                                bundleHistory.putSerializable("Position", i);
                                 bundleHistory.putSerializable("ListSchedule", history);
                                 intentHistory.putExtra("ScheduleDetails", bundleHistory);
                                 startActivity(intentHistory);
@@ -163,7 +168,7 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
                                 Schedule schedule = notStartedList.get(i);
                                 Intent intentSchedule = new Intent(ScheduleHistoryActivity.this, ScheduleDetailsActivity.class);
                                 Bundle bundleSchedule = new Bundle();
-//                                bundle.putSerializable("Schedules", schedule);
+                                bundleSchedule.putSerializable("Position", i);
                                 bundleSchedule.putSerializable("ListSchedule", schedule);
                                 intentSchedule.putExtra("ScheduleDetails", bundleSchedule);
                                 startActivity(intentSchedule);
@@ -181,7 +186,7 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
 
             @Override
             public void onError(VolleyError error) {
-                Log.d("Result",error.getMessage());
+                Log.e(TAG_ERROR,String.valueOf(error.getMessage()));
 
             }
         });
