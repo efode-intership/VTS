@@ -31,6 +31,8 @@ import vn.efode.vts.service.DeviceTokenService;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
+import static vn.efode.vts.MainActivity.TAG_ERROR;
+
 public class SignInActivity extends AppCompatActivity {
 
     Button btnLogin;
@@ -116,14 +118,14 @@ public class SignInActivity extends AppCompatActivity {
 
 
                                 } catch (JSONException e) {
-                                    e.printStackTrace();
+                                    Log.e(TAG_ERROR,String.valueOf(e.getMessage()));
                                 }
 
                             }
 
                             @Override
                             public void onError(VolleyError error) {
-                                Log.d("Result", error.getMessage());
+                                Log.e(TAG_ERROR,String.valueOf(error.getMessage()));
                             }
 
                         });

@@ -31,6 +31,8 @@ import vn.efode.vts.model.Schedule;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
+import static vn.efode.vts.MainActivity.TAG_ERROR;
+
 
 public class ScheduleHistoryActivity extends AppCompatActivity {
 
@@ -160,7 +162,7 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
 
             @Override
             public void onError(VolleyError error) {
-                Log.d("Result",error.getMessage());
+                Log.e(TAG_ERROR,String.valueOf(error.getMessage()));
 
             }
         });

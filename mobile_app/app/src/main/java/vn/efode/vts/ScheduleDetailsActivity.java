@@ -27,6 +27,7 @@ import vn.efode.vts.model.Schedule;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
+import static vn.efode.vts.MainActivity.TAG_ERROR;
 import static vn.efode.vts.MainActivity.scheduleActive;
 import static vn.efode.vts.ScheduleHistoryActivity.notStartedList;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
@@ -46,6 +47,7 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
     private Button btnStartSchedule;
     private Schedule schedule;
     private ImageView imgScheduleStatus;
+    public static final String CUSTOM_INTENT = "jason.wei.custom.intent.action.TEST";
 
 
     @Override
@@ -183,13 +185,13 @@ public class ScheduleDetailsActivity extends AppCompatActivity implements View.O
 
                     }
                 }catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG_ERROR,String.valueOf(e.getMessage()));
                 }
             }
 
             @Override
             public void onError(VolleyError error) {
-
+                Log.e(TAG_ERROR,String.valueOf(error.getMessage()));
             }
         });
     }

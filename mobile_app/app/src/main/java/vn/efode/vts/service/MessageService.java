@@ -37,6 +37,8 @@ public class MessageService extends FirebaseMessagingService{
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Gson gson = new GsonBuilder().create();
+
+
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             JSONObject jsonObj = new JSONObject(remoteMessage.getData());

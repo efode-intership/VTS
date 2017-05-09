@@ -30,6 +30,8 @@ import vn.efode.vts.model.User;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
+import static vn.efode.vts.MainActivity.TAG_ERROR;
+
 public class ProfileActivity extends AppCompatActivity {
     private Button btnCancel;
     private Button btnOk;
@@ -140,13 +142,13 @@ public class ProfileActivity extends AppCompatActivity {
 
 
                                     } catch (JSONException e) {
-                                        e.printStackTrace();
+                                        Log.e(TAG_ERROR,String.valueOf(e.getMessage()));
                                     }
                                 }
 
                                 @Override
                                 public void onError(VolleyError error){
-                                    Log.d("Loiii",error.getMessage());
+                                    Log.e(TAG_ERROR,String.valueOf(error.getMessage()));
                                     Toast.makeText(ProfileActivity.this, "Không thành công", Toast.LENGTH_SHORT).show();
                                     dialog.setTitle("Đổi không thành công");
                                 }

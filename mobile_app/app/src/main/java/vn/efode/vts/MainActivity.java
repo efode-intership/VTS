@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity
 //    GoogleApiClient mGoogleApiClient;
 
     public static Polyline polyline = null;//Instance
+    public static String TAG_ERROR = "log_error";
 
     private static TrackGPS trackgps;
 
@@ -549,6 +550,7 @@ public class MainActivity extends AppCompatActivity
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
             if(scheduleActive != null) {
@@ -688,13 +690,13 @@ public class MainActivity extends AppCompatActivity
 
 
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG_ERROR,String.valueOf(e.getMessage()));
                 }
             }
 
             @Override
             public void onError(VolleyError error) {
-                Log.d("Resultsxxx", error.getMessage());
+                Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
             }
         });
 
@@ -753,13 +755,13 @@ public class MainActivity extends AppCompatActivity
 
 
                                         } catch (JSONException e) {
-                                            e.printStackTrace();
+                                            Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                                         }
                                     }
 
                                     @Override
                                     public void onError(VolleyError error) {
-                                        Log.d("Result", error.getMessage());
+                                        Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
                                         Toast.makeText(MainActivity.this, "Không thành công", Toast.LENGTH_SHORT).show();
                                     }
 
@@ -858,13 +860,13 @@ public class MainActivity extends AppCompatActivity
 
 
                                     } catch (JSONException e) {
-                                        e.printStackTrace();
+                                        Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                                     }
                                 }
 
                                 @Override
                                 public void onError(VolleyError error) {
-                                    Log.d("Resultsxxx", error.getMessage());
+                                    Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
                                 }
                             });
                         }
@@ -923,13 +925,13 @@ public class MainActivity extends AppCompatActivity
 
                     }
                 }catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                 }
             }
 
             @Override
             public void onError(VolleyError error) {
-
+                Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
             }
         });
 
@@ -960,13 +962,13 @@ public class MainActivity extends AppCompatActivity
                         showDialogStartJourney();
                     }
                 }catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                 }
             }
 
             @Override
             public void onError(VolleyError error) {
-
+                Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
             }
         });
 
@@ -1071,13 +1073,13 @@ public class MainActivity extends AppCompatActivity
                         Toast.makeText(MainActivity.this, "Completed journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
                     }
                 }catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                 }
             }
 
             @Override
             public void onError(VolleyError error) {
-
+                Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
             }
         });
     }
@@ -1116,13 +1118,13 @@ public class MainActivity extends AppCompatActivity
                         Toast.makeText(MainActivity.this, "Cancel journey_id:" + scheduleId,Toast.LENGTH_LONG).show();
                     }
                 }catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                 }
             }
 
             @Override
             public void onError(VolleyError error) {
-
+                Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
             }
         });
     }
@@ -1189,7 +1191,7 @@ public class MainActivity extends AppCompatActivity
 
                         @Override
                         public void onError(VolleyError error) {
-
+                            Log.e(TAG_ERROR,String.valueOf(error.getMessage()));
                         }
                     });
         }
@@ -1283,14 +1285,14 @@ public class MainActivity extends AppCompatActivity
 
                                         }
                                     } catch (JSONException e) {
-                                        e.printStackTrace();
+                                        Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
                                     }
 
                                 }
 
                                 @Override
                                 public void onError(VolleyError error) {
-
+                                    Log.e(TAG_ERROR, String.valueOf(error.getMessage()));
                                 }
                             });
                         }
@@ -1585,7 +1587,7 @@ public class MainActivity extends AppCompatActivity
             }
             MainActivity.this.setTitle(scheduleActive.getDescription());
         }catch (Exception e){
-
+            Log.e(TAG_ERROR, String.valueOf(e.getMessage()));
         }
     }
 

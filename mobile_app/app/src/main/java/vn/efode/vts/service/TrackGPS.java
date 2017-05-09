@@ -242,33 +242,44 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
                         //Do something after 2s
                         if(scheduleActive != null){
                             try {
-                                Double speed = getSpeed(origin,mLocation);
-                                HashMap<String,String> params = new HashMap<String, String>();
-                                params.put("scheduleId", String.valueOf(scheduleActive.getScheduleId()));
-                                params.put("locationLat", String.valueOf(mLocation.getLatitude()));
-                                params.put("locationLong", String.valueOf(mLocation.getLongitude()));
-                                params.put("speed", String.valueOf(speed));
-                                params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-                                ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
-                                        Request.Method.POST, params, new ServerCallback() {
-                                            @Override
-                                            public void onSuccess(JSONObject result) {
-                                                try {
-                                                    Log.d("INSERT", result.getString("content"));
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
+                                getCurrentLocation(new LocationCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Double speed = getSpeed(origin,mLocation);
+                                        HashMap<String,String> params = new HashMap<String, String>();
+                                        params.put("scheduleId", String.valueOf(scheduleActive.getScheduleId()));
+                                        params.put("locationLat", String.valueOf(mLocation.getLatitude()));
+                                        params.put("locationLong", String.valueOf(mLocation.getLongitude()));
+                                        params.put("speed", String.valueOf(speed));
+                                        params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                                        ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
+                                                Request.Method.POST, params, new ServerCallback() {
+                                                    @Override
+                                                    public void onSuccess(JSONObject result) {
+                                                        try {
+                                                            Log.d("INSERT", result.getString("content"));
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                        }
 //                                            Toast.makeText(mContext,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
-                                            }
+                                                    }
 
-                                            @Override
-                                            public void onError(VolleyError error) {
+                                                    @Override
+                                                    public void onError(VolleyError error) {
 //                                            Toast.makeText(mContext,error.getMessage(),Toast.LENGTH_SHORT).show();
-                                                Log.d("INSERT", "error");
-                                            }
-                                        });
+                                                        Log.d("INSERT", "error");
+                                                    }
+                                                });
+                                    }
+
+                                    @Override
+                                    public void onError() {
+
+                                    }
+                                });
+
                             } catch (Exception e){
-                                Log.d("error_location",e.getMessage());
+                                Log.d("error_location",String.valueOf(e.getMessage()));
                             }
 
                         }
@@ -340,7 +351,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
             url = "https://maps.googleapis.com/maps/api/distancematrix/" + output + parameters;
             Log.d("AAAAAAAAAAAAAa",url);
         } catch (Exception e){
-            Log.e("error_location",e.getMessage());
+            Log.e("error_location",String.valueOf(e.getMessage()));
         }
 
         return url;
