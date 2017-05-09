@@ -338,7 +338,6 @@ public class MainActivity extends AppCompatActivity
         if(checkLocationPermission() )
             mGoogleMap.setMyLocationEnabled(true);
 
-
         trackgps = new TrackGPS(MainActivity.this);
 
         startTimerVehicles();

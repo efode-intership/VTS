@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TabHost;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
@@ -40,6 +41,10 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
     public static List<Schedule> historyList = new ArrayList<Schedule>(); //List Schedule complete or cancel
     private HashMap<String,String> schedulelist = new HashMap<String, String>();
     private ScheduleAdapter scheduleAdapter;
+    private boolean countScheduleActive = true;
+    private TextView txtNotSchedule;
+    private int countScheduleHistory = 0;
+    private TextView txtCountHistory;
 
 
 
@@ -51,6 +56,8 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
 
         lvSchedule = (ListView) findViewById(R.id.listview_schedulehistory_schedule);
         lvHistory = (ListView) findViewById(R.id.listview_schedulehistory_history);
+        txtNotSchedule = (TextView) findViewById(R.id.textview_schedulehistory_notschedule);
+        txtCountHistory = (TextView) findViewById(R.id.textview_schedulehistory_counthistory);
 
         addControls();
         getDataFromServer();
@@ -103,7 +110,7 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
                             if (listSchedule.get(i).getScheduleStatusTypeId() == 1)
                             {
                                 notStartedList.add(listSchedule.get(i));
-
+                                countScheduleActive = false;
                             }
                             scheduleAdapter = new ScheduleAdapter(
                                     ScheduleHistoryActivity.this,
@@ -114,7 +121,10 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
 
                             if (listSchedule.get(i).getScheduleStatusTypeId() == 2 || listSchedule.get(i).getScheduleStatusTypeId() == 4)
                             {
+                                Log.d("Value_count",String.valueOf(countScheduleHistory) + " | " + String.valueOf(i));
+
                                 historyList.add(listSchedule.get(i));
+                                countScheduleHistory = historyList.size();
                             }
                             scheduleAdapter = new ScheduleAdapter(
                                     ScheduleHistoryActivity.this,
@@ -123,6 +133,17 @@ public class ScheduleHistoryActivity extends AppCompatActivity {
                             lvHistory.setAdapter(scheduleAdapter);
 
                         }
+                        Log.d("Value_count",String.valueOf(countScheduleHistory));
+
+                        if(countScheduleActive == true){
+                            txtNotSchedule.setVisibility(View.VISIBLE);
+                            //Toast.makeText(ScheduleHistoryActivity.this, "không có hành trình nào", Toast.LENGTH_LONG).show();
+                            txtNotSchedule.setText("Không có lịch trình nào");
+
+                        }
+                        if(countScheduleHistory ==0){
+                            txtCountHistory.setText("Bạn chưa có cuốc nào");
+                        }else txtCountHistory.setText("Bạn đã chạy xong " + String.valueOf(countScheduleHistory) + " cuốc");
 
                         lvHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
