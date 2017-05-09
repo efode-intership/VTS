@@ -596,8 +596,8 @@ public class MainActivity extends AppCompatActivity
         //initialize the TimerTask's job
         showWarningPoint();
 
-        //schedule the timer, after the first 5000ms the TimerTask will run every 30000ms
-        timerShowWarning.schedule(timerTaskShowWarning, 5000, 30000); //
+        //schedule the timer, after the first 500ms the TimerTask will run every 30000ms
+        timerShowWarning.schedule(timerTaskShowWarning, 500, 30000); //
     }
 
     /**
@@ -611,8 +611,8 @@ public class MainActivity extends AppCompatActivity
         //initialize the TimerTask's job
         showOrtherVehicles();
 
-        //schedule the timer, after the first 5000ms the TimerTask will run every 30000ms
-        timerShowOtherVehicles.schedule(timerTaskShowOtherVehicles, 5000, 30000);
+        //schedule the timer, after the first 500ms the TimerTask will run every 30000ms
+        timerShowOtherVehicles.schedule(timerTaskShowOtherVehicles, 500, 30000);
     }
 
     /**
@@ -1436,14 +1436,34 @@ public class MainActivity extends AppCompatActivity
         fabFindWay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                drawroadBetween2Location(new LatLng(mLocation.getLatitude(),
-                                mLocation.getLongitude()),
-                        new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
-                                Double.parseDouble(scheduleActive.getLocationLongEnd())));
-                fabCancel.hide();
-                fabComplete.hide();
-                fabFindWay.hide();
-                clickShowMenu =false;
+
+                dialogConfirm = new AlertDialog.Builder(MainActivity.this).create();
+                dialogConfirm.setTitle("Tìm đường");
+                dialogConfirm.setMessage("Bạn có muốn tìm lại đường?");
+                dialogConfirm.setButton(Dialog.BUTTON_POSITIVE,"Có",new DialogInterface.OnClickListener(){
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        drawroadBetween2Location(new LatLng(mLocation.getLatitude(),
+                                        mLocation.getLongitude()),
+                                new LatLng(Double.parseDouble(scheduleActive.getLocationLatEnd()),
+                                        Double.parseDouble(scheduleActive.getLocationLongEnd())));
+                        fabCancel.hide();
+                        fabComplete.hide();
+                        fabFindWay.hide();
+                        clickShowMenu =false;
+                    }
+                });
+
+                dialogConfirm.setButton(Dialog.BUTTON_NEGATIVE,"Không,cảm ơn!",new DialogInterface.OnClickListener(){
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //do nothing
+                    }
+                });
+                dialogConfirm.setIcon(android.R.drawable.ic_dialog_map);
+                dialogConfirm.show();
             }
         });
     }
@@ -1498,8 +1518,8 @@ public class MainActivity extends AppCompatActivity
         //initialize the TimerTask's job
         timerSaveScheduleSession();
 
-        //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
-        timerSessionSchedule.schedule(timerTaskSessionSchedule, 5000, 30000);
+        //schedule the timer, after the first 500ms the TimerTask will run every 10000ms
+        timerSessionSchedule.schedule(timerTaskSessionSchedule, 500, 30000);
     }
 
     /**

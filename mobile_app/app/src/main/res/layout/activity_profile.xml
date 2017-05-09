@@ -7,34 +7,48 @@
     android:background="#ffffff"
     android:orientation="vertical"
     tools:context="vn.efode.vts.ProfileActivity">
-    <LinearLayout
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:orientation="vertical"
         android:gravity="center_vertical"
-        android:background="@drawable/cover">
+        android:orientation="vertical">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/cover"
+            />
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/imageview_profile_avatar"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/avatar"
-            app:civ_border_color="#bdc3c7"
-            app:civ_border_width="1dp" />
-
-        <EditText
-            android:id="@+id/edittext_profile_name"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:ems="10"
-            android:textColor="#bdc3c7"
-            android:textAlignment="center"
-            android:textSize="30dp"
-            android:focusable="false"
-            android:inputType="textPersonName"/>
-    </LinearLayout>
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_gravity="center">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imageview_profile_avatar"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/avatar"
+                android:layout_gravity="center_horizontal"
+                app:civ_border_color="#bdc3c7"
+                app:civ_border_width="1dp" />
+
+            <EditText
+                android:id="@+id/edittext_profile_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:ems="10"
+                android:focusable="false"
+                android:inputType="textPersonName"
+                android:textAlignment="center"
+                android:textColor="#bdc3c7"
+                android:textSize="30dp" />
+
+        </LinearLayout>
+    </FrameLayout>
 
 
 
