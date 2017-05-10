@@ -1,99 +1,99 @@
 package vn.efode.vts;
 
-import android.Manifest;
-import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
+        import android.Manifest;
+        import android.app.Dialog;
+        import android.content.BroadcastReceiver;
+        import android.content.Context;
+        import android.content.DialogInterface;
+        import android.content.Intent;
+        import android.content.IntentFilter;
+        import android.content.pm.PackageManager;
+        import android.graphics.Bitmap;
+        import android.graphics.Color;
+        import android.graphics.drawable.BitmapDrawable;
+        import android.location.Location;
+        import android.location.LocationManager;
+        import android.net.ConnectivityManager;
+        import android.net.NetworkInfo;
+        import android.net.Uri;
+        import android.os.Bundle;
+        import android.support.annotation.NonNull;
+        import android.support.design.widget.FloatingActionButton;
+        import android.support.design.widget.NavigationView;
+        import android.support.v4.app.ActivityCompat;
+        import android.support.v4.content.ContextCompat;
+        import android.support.v4.view.GravityCompat;
+        import android.support.v4.widget.DrawerLayout;
+        import android.support.v7.app.ActionBarDrawerToggle;
+        import android.support.v7.app.AlertDialog;
+        import android.support.v7.app.AppCompatActivity;
+        import android.support.v7.widget.Toolbar;
+        import android.util.Log;
+        import android.view.Menu;
+        import android.view.MenuItem;
+        import android.view.View;
+        import android.widget.AdapterView;
+        import android.widget.Button;
+        import android.widget.EditText;
+        import android.widget.ListView;
+        import android.widget.TextView;
+        import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
-import com.directions.route.Route;
-import com.directions.route.RouteException;
-import com.directions.route.Routing;
-import com.directions.route.RoutingListener;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import com.squareup.picasso.Picasso;
+        import com.android.volley.Request;
+        import com.android.volley.VolleyError;
+        import com.directions.route.Route;
+        import com.directions.route.RouteException;
+        import com.directions.route.Routing;
+        import com.directions.route.RoutingListener;
+        import com.google.android.gms.common.api.PendingResult;
+        import com.google.android.gms.location.LocationRequest;
+        import com.google.android.gms.location.LocationSettingsResult;
+        import com.google.android.gms.maps.CameraUpdate;
+        import com.google.android.gms.maps.CameraUpdateFactory;
+        import com.google.android.gms.maps.GoogleMap;
+        import com.google.android.gms.maps.MapsInitializer;
+        import com.google.android.gms.maps.OnMapReadyCallback;
+        import com.google.android.gms.maps.SupportMapFragment;
+        import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+        import com.google.android.gms.maps.model.LatLng;
+        import com.google.android.gms.maps.model.Marker;
+        import com.google.android.gms.maps.model.MarkerOptions;
+        import com.google.android.gms.maps.model.Polyline;
+        import com.google.android.gms.maps.model.PolylineOptions;
+        import com.google.gson.FieldNamingPolicy;
+        import com.google.gson.Gson;
+        import com.google.gson.GsonBuilder;
+        import com.google.gson.reflect.TypeToken;
+        import com.squareup.picasso.Picasso;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+        import org.json.JSONException;
+        import org.json.JSONObject;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+        import java.lang.reflect.Type;
+        import java.util.ArrayList;
+        import java.util.HashMap;
+        import java.util.List;
+        import java.util.Timer;
+        import java.util.TimerTask;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-import vn.efode.vts.adapter.WarningAdapter;
-import vn.efode.vts.application.ApplicationController;
-import vn.efode.vts.model.OtherVehiclesInformation;
-import vn.efode.vts.model.Schedule;
-import vn.efode.vts.model.Warning;
-import vn.efode.vts.model.WarningTypes;
-import vn.efode.vts.service.TrackGPS;
-import vn.efode.vts.utils.LocationCallback;
-import vn.efode.vts.utils.PathJSONParser;
-import vn.efode.vts.utils.ServerCallback;
-import vn.efode.vts.utils.ServiceHandler;
+        import de.hdodenhof.circleimageview.CircleImageView;
+        import vn.efode.vts.adapter.WarningAdapter;
+        import vn.efode.vts.application.ApplicationController;
+        import vn.efode.vts.model.OtherVehiclesInformation;
+        import vn.efode.vts.model.Schedule;
+        import vn.efode.vts.model.Warning;
+        import vn.efode.vts.model.WarningTypes;
+        import vn.efode.vts.service.TrackGPS;
+        import vn.efode.vts.utils.LocationCallback;
+        import vn.efode.vts.utils.PathJSONParser;
+        import vn.efode.vts.utils.ServerCallback;
+        import vn.efode.vts.utils.ServiceHandler;
 
-import static vn.efode.vts.R.id.fab_warning;
-import static vn.efode.vts.R.id.map;
-import static vn.efode.vts.application.ApplicationController.SCHEDULE_SESSION;
-import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
-import static vn.efode.vts.service.TrackGPS.mLocation;
+        import static vn.efode.vts.R.id.fab_warning;
+        import static vn.efode.vts.R.id.map;
+        import static vn.efode.vts.application.ApplicationController.SCHEDULE_SESSION;
+        import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
+        import static vn.efode.vts.service.TrackGPS.mLocation;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, RoutingListener, View.OnClickListener {
@@ -340,8 +340,10 @@ public class MainActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         mGoogleMap = googleMap;
-        if(checkLocationPermission() )
+        if(checkLocationPermission() ) {
             mGoogleMap.setMyLocationEnabled(true);
+            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
+        }
 
         trackgps = new TrackGPS(MainActivity.this);
 
@@ -997,8 +999,8 @@ public class MainActivity extends AppCompatActivity
                 dialogRequestStartSchedule = new AlertDialog.Builder(this).create();
                 dialogRequestStartSchedule.setTitle(scheduleLatest.getDescription());
                 dialogRequestStartSchedule.setMessage("Địa chỉ: " + scheduleLatest.getEndPointAddress()
-                + "\nThời gian bắt đầu: " + scheduleLatest.getIntendStartTime()
-                + "\nThời gian kết thúc dự kiến: " + scheduleLatest.getIntendEndTime());
+                        + "\nThời gian bắt đầu: " + scheduleLatest.getIntendStartTime()
+                        + "\nThời gian kết thúc dự kiến: " + scheduleLatest.getIntendEndTime());
                 dialogRequestStartSchedule.setButton(Dialog.BUTTON_POSITIVE,"Đồng ý",new DialogInterface.OnClickListener(){
 
                     @Override
@@ -1607,7 +1609,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setItemIconTintList(null);
         View headerView =  navigationView.getHeaderView(0);
         txtUser = (TextView) headerView.findViewById(R.id.textview_header_name);
-       // txtSchedule = (TextView) headerView.findViewById(R.id.textview_header_schedule);
+        // txtSchedule = (TextView) headerView.findViewById(R.id.textview_header_schedule);
         imgProfile = (CircleImageView) headerView.findViewById(R.id.img_user);
         if(ApplicationController.getCurrentUser().getImage() !=null){
             String urlImage = ApplicationController.getCurrentUser().getImage();

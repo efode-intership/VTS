@@ -28,7 +28,7 @@
         app:backgroundTint="#c0392b"
         android:layout_gravity="bottom|start"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/warning"/>
+        app:srcCompat="@drawable/warning" />
     <ImageView
         android:id="@+id/divider2"
         android:layout_width="1dp"
@@ -71,6 +71,7 @@
             android:layout_gravity="top|right"
             android:src="@drawable/location"
             android:layout_marginTop="70dp"
+            android:visibility="visible"
             android:layout_marginRight="16dp"
             app:backgroundTint="#1abc9c"/>
         <android.support.design.widget.FloatingActionButton
@@ -79,7 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
             android:src="@drawable/completed"
-            android:layout_marginBottom="60dp"
+            android:layout_marginBottom="50dp"
             android:layout_marginLeft="110dp"
             android:visibility="invisible"
             app:backgroundTint="#2980b9"/>
@@ -91,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
             android:src="@drawable/cancel"
-            android:layout_marginBottom="60dp"
+            android:layout_marginBottom="50dp"
             android:layout_marginRight="110dp"
             android:visibility="invisible"
             app:backgroundTint="#c0392b"/>
