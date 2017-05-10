@@ -365,6 +365,7 @@ public class MainActivity extends AppCompatActivity
         fabComplete.bringToFront();
         fabCancel.bringToFront();
         fabFindWay.bringToFront();
+        fabFindMyLocation.bringToFront();
     }
 
     /**
