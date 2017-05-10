@@ -48,6 +48,8 @@ import com.directions.route.RoutingListener;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -117,6 +119,7 @@ public class MainActivity extends AppCompatActivity
     FloatingActionButton fabMenu;//Button Controll Schedule
     FloatingActionButton fabCallServer;//fab button to call server
     FloatingActionButton fabWarning;//fab button to add warning on map
+    FloatingActionButton fabFindMyLocation;
     Boolean clickShowMenu = false;
 
     private static int CONTROLL_ON = 1;
@@ -266,6 +269,7 @@ public class MainActivity extends AppCompatActivity
         fabCancel = (FloatingActionButton) findViewById(R.id.fab_cancel);
         fabFindWay = (FloatingActionButton) findViewById(R.id.fab_findway);
         fabMenu = (FloatingActionButton)findViewById(R.id.fab_menu);
+        fabFindMyLocation = (FloatingActionButton) findViewById(R.id.fab_finmylocation);
     }
 
     @Override
@@ -346,6 +350,8 @@ public class MainActivity extends AppCompatActivity
         startShowWarningTimer();
 
         bringToFontFabButton();//Change the view's z order in the tree, so it's on top of other sibling views.
+
+        setFabFindMyLocation(); // move camera to my location
 
     }
 
@@ -453,6 +459,7 @@ public class MainActivity extends AppCompatActivity
         return url;
 
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -1670,5 +1677,16 @@ public class MainActivity extends AppCompatActivity
             }
 
         }
+    }
+    public void setFabFindMyLocation(){
+        fabFindMyLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //trackgps.onLocationChanged(location);
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(mLocation.getLatitude(),mLocation.getLongitude()),mGoogleMap.getCameraPosition().zoom);
+                mGoogleMap.animateCamera(cameraUpdate);
+                Log.d("Myylocation", String.valueOf(mLocation.getLatitude()));
+            }
+        });
     }
 }
