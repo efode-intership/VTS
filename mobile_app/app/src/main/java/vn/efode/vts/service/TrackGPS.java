@@ -36,8 +36,10 @@ import java.util.List;
 
 import vn.efode.vts.MainActivity;
 import vn.efode.vts.application.ApplicationController;
+import vn.efode.vts.model.ScheduleActive;
 import vn.efode.vts.utils.LocationCallback;
 import vn.efode.vts.utils.PathJSONParser;
+import vn.efode.vts.utils.RealmDatabase;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
@@ -294,7 +296,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
                         //Do something after 2s
                         if(ApplicationController.getActiveSchudule() != null){
                             try {
-                                int speed = getSpeed(origin,mLocation);
+                                final int speed = getSpeed(origin,mLocation);
                                 HashMap<String,String> params = new HashMap<String, String>();
                                 Log.d("service_aaaaaaa1",String.valueOf(ApplicationController.getActiveSchudule().getScheduleId()));
                                 params.put("scheduleId", String.valueOf(ApplicationController.getActiveSchudule().getScheduleId()));
@@ -318,7 +320,12 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
                                             @Override
                                             public void onError(VolleyError error) {
 //                                           Toast.makeText(mContext,error.getMessage(),Toast.LENGTH_SHORT).show();
-//                                                RealmDatabase.storageOnDiviceRealm();
+                                                RealmDatabase.storageOnDiviceRealm(
+                                                        new ScheduleActive(
+                                                                String.valueOf(ApplicationController.getActiveSchudule().getScheduleId()),
+                                                                ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null),
+                                                                mLocation.getLatitude(), mLocation.getLongitude(),speed)
+                                                );
                                                 Log.d("INSERT", "error");
                                             }
                                         });
