@@ -60,6 +60,10 @@
             </intent-filter>
         </service>
 
+        <service android:name=".service.TrackGPS"
+            android:enabled="true"
+            android:exported="true"/>
+
         <service
             android:name=".service.DeviceTokenService">
             <intent-filter>

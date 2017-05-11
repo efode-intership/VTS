@@ -1,99 +1,100 @@
 package vn.efode.vts;
 
-        import android.Manifest;
-        import android.app.Dialog;
-        import android.content.BroadcastReceiver;
-        import android.content.Context;
-        import android.content.DialogInterface;
-        import android.content.Intent;
-        import android.content.IntentFilter;
-        import android.content.pm.PackageManager;
-        import android.graphics.Bitmap;
-        import android.graphics.Color;
-        import android.graphics.drawable.BitmapDrawable;
-        import android.location.Location;
-        import android.location.LocationManager;
-        import android.net.ConnectivityManager;
-        import android.net.NetworkInfo;
-        import android.net.Uri;
-        import android.os.Bundle;
-        import android.support.annotation.NonNull;
-        import android.support.design.widget.FloatingActionButton;
-        import android.support.design.widget.NavigationView;
-        import android.support.v4.app.ActivityCompat;
-        import android.support.v4.content.ContextCompat;
-        import android.support.v4.view.GravityCompat;
-        import android.support.v4.widget.DrawerLayout;
-        import android.support.v7.app.ActionBarDrawerToggle;
-        import android.support.v7.app.AlertDialog;
-        import android.support.v7.app.AppCompatActivity;
-        import android.support.v7.widget.Toolbar;
-        import android.util.Log;
-        import android.view.Menu;
-        import android.view.MenuItem;
-        import android.view.View;
-        import android.widget.AdapterView;
-        import android.widget.Button;
-        import android.widget.EditText;
-        import android.widget.ListView;
-        import android.widget.TextView;
-        import android.widget.Toast;
+import android.Manifest;
+import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-        import com.android.volley.Request;
-        import com.android.volley.VolleyError;
-        import com.directions.route.Route;
-        import com.directions.route.RouteException;
-        import com.directions.route.Routing;
-        import com.directions.route.RoutingListener;
-        import com.google.android.gms.common.api.PendingResult;
-        import com.google.android.gms.location.LocationRequest;
-        import com.google.android.gms.location.LocationSettingsResult;
-        import com.google.android.gms.maps.CameraUpdate;
-        import com.google.android.gms.maps.CameraUpdateFactory;
-        import com.google.android.gms.maps.GoogleMap;
-        import com.google.android.gms.maps.MapsInitializer;
-        import com.google.android.gms.maps.OnMapReadyCallback;
-        import com.google.android.gms.maps.SupportMapFragment;
-        import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-        import com.google.android.gms.maps.model.LatLng;
-        import com.google.android.gms.maps.model.Marker;
-        import com.google.android.gms.maps.model.MarkerOptions;
-        import com.google.android.gms.maps.model.Polyline;
-        import com.google.android.gms.maps.model.PolylineOptions;
-        import com.google.gson.FieldNamingPolicy;
-        import com.google.gson.Gson;
-        import com.google.gson.GsonBuilder;
-        import com.google.gson.reflect.TypeToken;
-        import com.squareup.picasso.Picasso;
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.squareup.picasso.Picasso;
 
-        import org.json.JSONException;
-        import org.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-        import java.lang.reflect.Type;
-        import java.util.ArrayList;
-        import java.util.HashMap;
-        import java.util.List;
-        import java.util.Timer;
-        import java.util.TimerTask;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-        import de.hdodenhof.circleimageview.CircleImageView;
-        import vn.efode.vts.adapter.WarningAdapter;
-        import vn.efode.vts.application.ApplicationController;
-        import vn.efode.vts.model.OtherVehiclesInformation;
-        import vn.efode.vts.model.Schedule;
-        import vn.efode.vts.model.Warning;
-        import vn.efode.vts.model.WarningTypes;
-        import vn.efode.vts.service.TrackGPS;
-        import vn.efode.vts.utils.LocationCallback;
-        import vn.efode.vts.utils.PathJSONParser;
-        import vn.efode.vts.utils.ServerCallback;
-        import vn.efode.vts.utils.ServiceHandler;
+import de.hdodenhof.circleimageview.CircleImageView;
+import vn.efode.vts.adapter.WarningAdapter;
+import vn.efode.vts.application.ApplicationController;
+import vn.efode.vts.model.OtherVehiclesInformation;
+import vn.efode.vts.model.Schedule;
+import vn.efode.vts.model.Warning;
+import vn.efode.vts.model.WarningTypes;
+import vn.efode.vts.service.TrackGPS;
+import vn.efode.vts.utils.LocationCallback;
+import vn.efode.vts.utils.PathJSONParser;
+import vn.efode.vts.utils.ServerCallback;
+import vn.efode.vts.utils.ServiceHandler;
 
-        import static vn.efode.vts.R.id.fab_warning;
-        import static vn.efode.vts.R.id.map;
-        import static vn.efode.vts.application.ApplicationController.SCHEDULE_SESSION;
-        import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
-        import static vn.efode.vts.service.TrackGPS.mLocation;
+import static vn.efode.vts.R.id.fab_warning;
+import static vn.efode.vts.R.id.map;
+import static vn.efode.vts.application.ApplicationController.SCHEDULE_SESSION;
+import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
+import static vn.efode.vts.service.TrackGPS.TAG_ERROR;
+import static vn.efode.vts.service.TrackGPS.mLocation;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, RoutingListener, View.OnClickListener {
@@ -106,7 +107,6 @@ public class MainActivity extends AppCompatActivity
 //    GoogleApiClient mGoogleApiClient;
 
     public static Polyline polyline = null;//Instance
-    public static String TAG_ERROR = "log_error";
 
     private static TrackGPS trackgps;
 
@@ -139,6 +139,8 @@ public class MainActivity extends AppCompatActivity
     private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
     private static Schedule scheduleLatest = null;//Lich trinh gan nhat cua user
     public static Schedule scheduleActive = null; //Schedule dang chay cua user
+    public static String ACTION_UPLOAD_OFFLINE= "vn.efode.vts.uploaddataoffline";
+
 
     private boolean controllDraw = true;
     private ListView listView;
@@ -195,6 +197,8 @@ public class MainActivity extends AppCompatActivity
         if (mGoogleMap != null) {
             mGoogleMap.clear();
         }
+        trackgps = new TrackGPS(MainActivity.this);//new
+        startService(new Intent(this, TrackGPS.class));//new
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         super.onCreate(savedInstanceState);
         setupVehicleDialog();
@@ -324,6 +328,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_signout) {
             ApplicationController.sharedPreferences.edit().remove(ApplicationController.USER_SESSION).commit();
+            ApplicationController.sharedPreferences.edit().remove(ApplicationController.SCHEDULE_SESSION).commit();
             Intent intent = new Intent(MainActivity.this, SignInActivity.class);
             startActivity(intent);
             finish();
@@ -344,8 +349,6 @@ public class MainActivity extends AppCompatActivity
             mGoogleMap.setMyLocationEnabled(true);
             mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
-
-        trackgps = new TrackGPS(MainActivity.this);
 
         startTimerVehicles();
 
@@ -490,7 +493,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(this, "permission FINE denied", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(this, "permission FINE denied", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -533,6 +536,10 @@ public class MainActivity extends AppCompatActivity
         {
             dialogCallServer.dismiss();
         }
+        if(ApplicationController.getActiveSchudule() != null) {
+            Intent play = new Intent(MainActivity.this, TrackGPS.class);
+            startService(play);
+        }
     }
 
     @Override
@@ -547,6 +554,7 @@ public class MainActivity extends AppCompatActivity
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         filter.addAction("android.location.PROVIDERS_CHANGED");
+        filter.addAction(ACTION_UPLOAD_OFFLINE);
         registerReceiver(mReceiver, filter);
     }
 
@@ -581,7 +589,7 @@ public class MainActivity extends AppCompatActivity
                     if(checkLocationPermission()){
                         mGoogleMap.setMyLocationEnabled(true);
                         getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
-                    }
+                    } else requestPermissionHere();//request user allow access Location service
 
                 }
 
@@ -966,7 +974,7 @@ public class MainActivity extends AppCompatActivity
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
                         scheduleJson = result.getString("content");
-                        Log.d("Latest Schedule",scheduleJson);
+                        Log.d("Latest Schedule0",scheduleJson);
                         scheduleLatest = gson.fromJson(scheduleJson, Schedule.class);//Gan schedule gan nhat
                         showDialogStartJourney();
                     }
@@ -991,6 +999,8 @@ public class MainActivity extends AppCompatActivity
     public void showDialogStartJourney(){
         scheduleActive = null;
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
+        if(ApplicationController.getActiveSchudule() != null)
+            ApplicationController.sharedPreferences.edit().remove(ApplicationController.SCHEDULE_SESSION).commit();
         if(dialogRequestStartSchedule != null)
             if(dialogRequestStartSchedule.isShowing()) dialogRequestStartSchedule.dismiss();
         if(scheduleLatest != null ){
@@ -1025,14 +1035,14 @@ public class MainActivity extends AppCompatActivity
             }
             else if(statusSchedule == 3){
                 scheduleActive = scheduleLatest;
+                Log.d("Latest Schedule1",scheduleJson);
+                ApplicationController.sharedPreferences.edit().putString(SCHEDULE_SESSION,scheduleJson).commit();
                 startTimerforSheculeSession();
                 Log.d("log_gps","active");
             }
 
         }
         else {
-            if(ApplicationController.getActiveSchudule() != null)
-                ApplicationController.sharedPreferences.edit().remove(ApplicationController.SCHEDULE_SESSION).commit();
             dialogRequestStartSchedule = new AlertDialog.Builder(this).create();
             dialogRequestStartSchedule.setTitle("Quẩy thôi!");
             dialogRequestStartSchedule.setMessage("Bạn không có bất kỳ hành trình nào");
@@ -1557,6 +1567,34 @@ public class MainActivity extends AppCompatActivity
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+
+    /**
+     * Request user allow access Location service
+     */
+    private void requestPermissionHere() {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+
+                //Prompt the user once explanation has been shown
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                        REQ_PERMISSION);
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                        REQ_PERMISSION);
+            }
+
+        }
+    }
+
 
 
     @Override
