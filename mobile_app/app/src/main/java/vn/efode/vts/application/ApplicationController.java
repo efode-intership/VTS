@@ -10,10 +10,14 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.Volley;
+import com.facebook.stetho.Stetho;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import vn.efode.vts.model.Schedule;
 import vn.efode.vts.model.User;
 
@@ -38,6 +42,7 @@ public class ApplicationController extends MultiDexApplication {
      */
     public static String USER_SESSION = "user_session";
 
+
     /**
      * Shared preference schedule session key's name.
      */
@@ -53,9 +58,19 @@ public class ApplicationController extends MultiDexApplication {
         super.onCreate();
         // initialize sharedPreferences instance
         sharedPreferences = getSharedPreferences( getPackageName() + "_storage", MODE_PRIVATE);
-
+        Realm.init(this);
+        Stetho.initialize(
+                Stetho.newInitializerBuilder(this)
+                        .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+                        .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
+                        .build());
+        RealmConfiguration config = new RealmConfiguration.Builder().build();
+        Realm.setDefaultConfiguration(config);
         // initialize the singleton
         sInstance = this;
+
+
+
     }
 
     /**

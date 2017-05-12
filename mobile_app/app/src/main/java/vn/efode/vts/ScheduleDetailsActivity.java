@@ -27,7 +27,7 @@ import vn.efode.vts.model.Schedule;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
-import static vn.efode.vts.MainActivity.TAG_ERROR;
+import static vn.efode.vts.service.TrackGPS.TAG_ERROR;
 import static vn.efode.vts.MainActivity.scheduleActive;
 import static vn.efode.vts.ScheduleHistoryActivity.notStartedList;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;

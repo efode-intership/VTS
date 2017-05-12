@@ -30,7 +30,7 @@ import vn.efode.vts.model.User;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
-import static vn.efode.vts.MainActivity.TAG_ERROR;
+import static vn.efode.vts.service.TrackGPS.TAG_ERROR;
 
 public class ProfileActivity extends AppCompatActivity {
     private Button btnCancel;

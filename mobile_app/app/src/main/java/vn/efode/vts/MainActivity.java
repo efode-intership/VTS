@@ -93,6 +93,7 @@ import static vn.efode.vts.R.id.fab_warning;
 import static vn.efode.vts.R.id.map;
 import static vn.efode.vts.application.ApplicationController.SCHEDULE_SESSION;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
+import static vn.efode.vts.service.TrackGPS.TAG_ERROR;
 import static vn.efode.vts.service.TrackGPS.mLocation;
 
 public class MainActivity extends AppCompatActivity
@@ -106,7 +107,6 @@ public class MainActivity extends AppCompatActivity
 //    GoogleApiClient mGoogleApiClient;
 
     public static Polyline polyline = null;//Instance
-    public static String TAG_ERROR = "log_error";
 
     private static TrackGPS trackgps;
 
@@ -139,6 +139,8 @@ public class MainActivity extends AppCompatActivity
     private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
     private static Schedule scheduleLatest = null;//Lich trinh gan nhat cua user
     public static Schedule scheduleActive = null; //Schedule dang chay cua user
+    public static String ACTION_UPLOAD_OFFLINE= "vn.efode.vts.uploaddataoffline";
+
 
     private boolean controllDraw = true;
     private ListView listView;
@@ -195,6 +197,8 @@ public class MainActivity extends AppCompatActivity
         if (mGoogleMap != null) {
             mGoogleMap.clear();
         }
+        trackgps = new TrackGPS(MainActivity.this);//new
+        startService(new Intent(this, TrackGPS.class));//new
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         super.onCreate(savedInstanceState);
         setupVehicleDialog();
@@ -324,6 +328,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_signout) {
             ApplicationController.sharedPreferences.edit().remove(ApplicationController.USER_SESSION).commit();
+            ApplicationController.sharedPreferences.edit().remove(ApplicationController.SCHEDULE_SESSION).commit();
             Intent intent = new Intent(MainActivity.this, SignInActivity.class);
             startActivity(intent);
             finish();
@@ -340,10 +345,10 @@ public class MainActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
         mGoogleMap = googleMap;
-        if(checkLocationPermission() )
+        if(checkLocationPermission() ) {
             mGoogleMap.setMyLocationEnabled(true);
-
-        trackgps = new TrackGPS(MainActivity.this);
+            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
+        }
 
         startTimerVehicles();
 
@@ -488,7 +493,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(this, "permission FINE denied", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(this, "permission FINE denied", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -531,6 +536,10 @@ public class MainActivity extends AppCompatActivity
         {
             dialogCallServer.dismiss();
         }
+        if(ApplicationController.getActiveSchudule() != null) {
+            Intent play = new Intent(MainActivity.this, TrackGPS.class);
+            startService(play);
+        }
     }
 
     @Override
@@ -545,6 +554,7 @@ public class MainActivity extends AppCompatActivity
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         filter.addAction("android.location.PROVIDERS_CHANGED");
+        filter.addAction(ACTION_UPLOAD_OFFLINE);
         registerReceiver(mReceiver, filter);
     }
 
@@ -579,7 +589,7 @@ public class MainActivity extends AppCompatActivity
                     if(checkLocationPermission()){
                         mGoogleMap.setMyLocationEnabled(true);
                         getScheduleLatest(String.valueOf(ApplicationController.getCurrentUser().getId()));//Lấy shedule gần nhất của user dựa theo userid va show dialog
-                    }
+                    } else requestPermissionHere();//request user allow access Location service
 
                 }
 
@@ -964,7 +974,7 @@ public class MainActivity extends AppCompatActivity
                     Boolean error = gson.fromJson(result.getString("error"), Boolean.class);
                     if (!error) {
                         scheduleJson = result.getString("content");
-                        Log.d("Latest Schedule",scheduleJson);
+                        Log.d("Latest Schedule0",scheduleJson);
                         scheduleLatest = gson.fromJson(scheduleJson, Schedule.class);//Gan schedule gan nhat
                         showDialogStartJourney();
                     }
@@ -989,6 +999,8 @@ public class MainActivity extends AppCompatActivity
     public void showDialogStartJourney(){
         scheduleActive = null;
         Log.d("MainActivity", new Object(){}.getClass().getEnclosingMethod().getName());
+        if(ApplicationController.getActiveSchudule() != null)
+            ApplicationController.sharedPreferences.edit().remove(ApplicationController.SCHEDULE_SESSION).commit();
         if(dialogRequestStartSchedule != null)
             if(dialogRequestStartSchedule.isShowing()) dialogRequestStartSchedule.dismiss();
         if(scheduleLatest != null ){
@@ -997,8 +1009,8 @@ public class MainActivity extends AppCompatActivity
                 dialogRequestStartSchedule = new AlertDialog.Builder(this).create();
                 dialogRequestStartSchedule.setTitle(scheduleLatest.getDescription());
                 dialogRequestStartSchedule.setMessage("Địa chỉ: " + scheduleLatest.getEndPointAddress()
-                + "\nThời gian bắt đầu: " + scheduleLatest.getIntendStartTime()
-                + "\nThời gian kết thúc dự kiến: " + scheduleLatest.getIntendEndTime());
+                        + "\nThời gian bắt đầu: " + scheduleLatest.getIntendStartTime()
+                        + "\nThời gian kết thúc dự kiến: " + scheduleLatest.getIntendEndTime());
                 dialogRequestStartSchedule.setButton(Dialog.BUTTON_POSITIVE,"Đồng ý",new DialogInterface.OnClickListener(){
 
                     @Override
@@ -1023,14 +1035,14 @@ public class MainActivity extends AppCompatActivity
             }
             else if(statusSchedule == 3){
                 scheduleActive = scheduleLatest;
+                Log.d("Latest Schedule1",scheduleJson);
+                ApplicationController.sharedPreferences.edit().putString(SCHEDULE_SESSION,scheduleJson).commit();
                 startTimerforSheculeSession();
                 Log.d("log_gps","active");
             }
 
         }
         else {
-            if(ApplicationController.getActiveSchudule() != null)
-                ApplicationController.sharedPreferences.edit().remove(ApplicationController.SCHEDULE_SESSION).commit();
             dialogRequestStartSchedule = new AlertDialog.Builder(this).create();
             dialogRequestStartSchedule.setTitle("Quẩy thôi!");
             dialogRequestStartSchedule.setMessage("Bạn không có bất kỳ hành trình nào");
@@ -1556,6 +1568,34 @@ public class MainActivity extends AppCompatActivity
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
+    /**
+     * Request user allow access Location service
+     */
+    private void requestPermissionHere() {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+
+                //Prompt the user once explanation has been shown
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                        REQ_PERMISSION);
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                        REQ_PERMISSION);
+            }
+
+        }
+    }
+
+
 
     @Override
     public void onRoutingFailure(RouteException e) {
@@ -1607,7 +1647,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setItemIconTintList(null);
         View headerView =  navigationView.getHeaderView(0);
         txtUser = (TextView) headerView.findViewById(R.id.textview_header_name);
-       // txtSchedule = (TextView) headerView.findViewById(R.id.textview_header_schedule);
+        // txtSchedule = (TextView) headerView.findViewById(R.id.textview_header_schedule);
         imgProfile = (CircleImageView) headerView.findViewById(R.id.img_user);
         if(ApplicationController.getCurrentUser().getImage() !=null){
             String urlImage = ApplicationController.getCurrentUser().getImage();

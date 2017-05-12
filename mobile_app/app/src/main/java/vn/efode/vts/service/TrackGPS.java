@@ -2,11 +2,15 @@ package vn.efode.vts.service;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -27,19 +31,19 @@ import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import vn.efode.vts.MainActivity;
 import vn.efode.vts.application.ApplicationController;
+import vn.efode.vts.model.ScheduleActive;
 import vn.efode.vts.utils.LocationCallback;
 import vn.efode.vts.utils.PathJSONParser;
+import vn.efode.vts.utils.RealmDatabase;
 import vn.efode.vts.utils.ServerCallback;
 import vn.efode.vts.utils.ServiceHandler;
 
 import static vn.efode.vts.MainActivity.mGoogleMap;
-import static vn.efode.vts.MainActivity.polyline;
-import static vn.efode.vts.MainActivity.scheduleActive;
 import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 
 /**
@@ -48,11 +52,12 @@ import static vn.efode.vts.service.DeviceTokenService.DEVICE_TOKEN;
 
 public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
     public static GoogleApiClient mGoogleApiClient;
-    private Context mContext;
+    private static Context mContext;
     private static LocationRequest mLocationRequest;
     private static String API_KEY_MATRIX = "AIzaSyCGXiVPlm9M72lupfolIXkxzSTPNIvRr8g";
+    private static String REQUEST_PERMISSION_INTENT = "vn.efode.vts.requestpermission";
     public static Location mLocation = null;
-    public static boolean canGetLocation = false;
+    public static String TAG_ERROR = "log_error";
     boolean zoomOneTime = true;//Just zoom 1
     private static int CONTROLL_ON = 1;
     private static int CONTROLL_OFF = -1;
@@ -60,13 +65,39 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
     final private static int REQ_PERMISSION = 20;// Value permission locaiton COARSE
     final private static int REQ_LOCATION = 10;// Value permission locaiton
 
+    public TrackGPS() {
+    }
+
     public TrackGPS(Context context){
-        mContext = context;
-        buildGoogleApiClient();
+//        mContext = context;
+
+//        buildGoogleApiClient();
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d("service_aaaaaaa","create");
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d("service_aaaaaaa","startcommand");
+        mContext = getApplicationContext();
+        Log.d("service_aaaaaaa","startcommand1");
+        if(mGoogleApiClient == null){
+            buildGoogleApiClient();
+            Log.d("service_aaaaaaa","startcommand2");
+        } else {
+            if(!mGoogleApiClient.isConnected()) mGoogleApiClient.connect();
+        }
+        return START_STICKY;
+
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.d("service_aaaaaaa","connected");
         Log.d("STttttt", "track");
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(5000); //5 seconds
@@ -88,6 +119,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
 
 //        mLocationRequest.setSmallestDisplacement(5); //5 meter
 
+
         controllonLocationChanged(CONTROLL_ON);//Enable event onLocationChanged
     }
 
@@ -104,38 +136,49 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
 
     @Override
     public void onLocationChanged(Location location) {
-        if(zoomOneTime){//Just zoom 1 time
+
+        if(zoomOneTime && mGoogleMap != null){//Just zoom 1 time
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()),15));
             zoomOneTime =false;
         }
-        Log.d("ONLOCATIONCHANGE","AAAAAAAAAAAAA");
+        Log.d("service_aaaaaaa","locationchanged");
         mLocation = location;
         if(ApplicationController.getActiveSchudule() != null){
+            Log.d("service_aaaaaaa","senddata");
 //            handleNewLocation(location);
             sendLocationDataToServer(location);//Send data to server
         }
 
     }
 
-    private void handleNewLocation(Location location) {
-        ArrayList<LatLng> points = (ArrayList<LatLng>) polyline.getPoints(); // getPoints() gives you a COPY of the points
-        //points = new ArrayList<LatLng>();
-        double currentLatitude = location.getLatitude();
-        double currentLongitude = location.getLongitude();
-        LatLng latLng = new LatLng(currentLatitude, currentLongitude);
-        //mMap.clear();
-        points.add(latLng);
-        //rectOptions.addAll(points);
-        //mMap.addPolyline(rectOptions);
-        polyline.setPoints(points);
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 25));
+    /**
+     * Check internet is enable
+     * @return true - enable
+     */
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(mContext.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    private boolean isOpenMainActivity() {
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> runningTaskInfo = manager.getRunningTasks(1);
+        ComponentName componentInfo = runningTaskInfo.get(0).topActivity;
+
+        String currentPackageName = componentInfo.getClassName();
+        if(currentPackageName.equals("vn.efode.vts.MainActivity")) {
+            //Do whatever here
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -147,28 +190,25 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
         if (ActivityCompat.checkSelfPermission(mContext,
                 Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale( (MainActivity) mContext,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
 
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale((MainActivity) mContext,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
 
+                    //Prompt the user once explanation has been shown
+                    ActivityCompat.requestPermissions((MainActivity) mContext,
+                            new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                            REQ_PERMISSION);
 
-                //Prompt the user once explanation has been shown
-                ActivityCompat.requestPermissions((MainActivity) mContext,
-                        new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                        REQ_PERMISSION);
+                } else {
+                    // No explanation needed, we can request the permission.
+                    ActivityCompat.requestPermissions((Activity) mContext,
+                            new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                            REQ_PERMISSION);
+                }
+                return false;
 
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions((Activity) mContext,
-                        new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                        REQ_PERMISSION);
-            }
-            canGetLocation = false;
-            return false;
         } else {
-            //mGoogleMap.setMyLocationEnabled(true);
-            canGetLocation = true;
             return true;
         }
     }
@@ -223,8 +263,15 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
         if(value == CONTROLL_OFF)// unregister the listener
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         if(value == CONTROLL_ON) {//register the listener to listen location change
-            if(checkLocationPermission())
+            if(checkPermission())
                 LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+            else {
+                if(isOpenMainActivity()) {
+                    Intent i = new Intent();
+                    i.setAction(REQUEST_PERMISSION_INTENT);
+                    sendBroadcast(i);
+                }
+            }
         }
     }
 
@@ -233,53 +280,59 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
      * @param origin previous location 2s
      */
     private void sendLocationDataToServer(final Location origin){
+//        if(RealmDatabase.getListData().size() > 0 && !ApplicationController.sharedPreferences.getBoolean("isUploading",false)) {
+//            ApplicationController.sharedPreferences.edit().putBoolean("isUploading",true);
+//            RealmDatabase.uploadOfflineDatatoServer(0);// Upload data khi device co du lieu
+//            Log.d("bugg","0");
+//        }
+        Log.d("service_aaaaaaa","1");
         getCurrentLocation(new LocationCallback() {
             @Override
             public void onSuccess() {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        Log.d("service_aaaaaaa","2");
                         //Do something after 2s
-                        if(scheduleActive != null){
+                        if(ApplicationController.getActiveSchudule() != null){
                             try {
-                                getCurrentLocation(new LocationCallback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        Double speed = getSpeed(origin,mLocation);
-                                        HashMap<String,String> params = new HashMap<String, String>();
-                                        params.put("scheduleId", String.valueOf(scheduleActive.getScheduleId()));
-                                        params.put("locationLat", String.valueOf(mLocation.getLatitude()));
-                                        params.put("locationLong", String.valueOf(mLocation.getLongitude()));
-                                        params.put("speed", String.valueOf(speed));
-                                        params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
-                                        ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
-                                                Request.Method.POST, params, new ServerCallback() {
-                                                    @Override
-                                                    public void onSuccess(JSONObject result) {
-                                                        try {
-                                                            Log.d("INSERT", result.getString("content"));
-                                                        } catch (JSONException e) {
-                                                            e.printStackTrace();
-                                                        }
+                                final int speed = getSpeed(origin,mLocation);
+                                HashMap<String,String> params = new HashMap<String, String>();
+                                Log.d("service_aaaaaaa1",String.valueOf(ApplicationController.getActiveSchudule().getScheduleId()));
+                                params.put("scheduleId", String.valueOf(ApplicationController.getActiveSchudule().getScheduleId()));
+                                params.put("locationLat", String.valueOf(mLocation.getLatitude()));
+                                params.put("locationLong", String.valueOf(mLocation.getLongitude()));
+                                params.put("speed", String.valueOf(speed));
+                                params.put("deviceId", ApplicationController.sharedPreferences.getString(DEVICE_TOKEN, null));
+                                ServiceHandler.makeServiceCall(ServiceHandler.DOMAIN + "/api/v1/scheduleActive/insert",
+                                        Request.Method.POST, params, new ServerCallback() {
+                                            @Override
+                                            public void onSuccess(JSONObject result) {
+                                                Log.d("service_aaaaaaa","3");
+                                                try {
+                                                    Log.d("INSERT", result.getString("content"));
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
 //                                            Toast.makeText(mContext,"Insert Schedule Active",Toast.LENGTH_SHORT).show();
-                                                    }
+                                            }
 
-                                                    @Override
-                                                    public void onError(VolleyError error) {
-//                                            Toast.makeText(mContext,error.getMessage(),Toast.LENGTH_SHORT).show();
-                                                        Log.d("INSERT", "error");
-                                                    }
-                                                });
-                                    }
-
-                                    @Override
-                                    public void onError() {
-
-                                    }
-                                });
+                                            @Override
+                                            public void onError(VolleyError error) {
+//                                           Toast.makeText(mContext,error.getMessage(),Toast.LENGTH_SHORT).show();
+                                                RealmDatabase.storageOnDiviceRealm(
+                                                        new ScheduleActive(
+                                                                String.valueOf(ApplicationController.getActiveSchudule().getScheduleId()),
+                                                                ApplicationController.sharedPreferences.getString(DEVICE_TOKEN,null),
+                                                                mLocation.getLatitude(), mLocation.getLongitude(),speed)
+                                                );
+                                                Log.d("INSERT", "error");
+                                            }
+                                        });
 
                             } catch (Exception e){
-                                Log.d("error_location",String.valueOf(e.getMessage()));
+                                Log.d(TAG_ERROR,String.valueOf(e.getMessage()));
+                                Log.d("service_aaaaaaa",String.valueOf(e.getMessage()));
                             }
 
                         }
@@ -290,7 +343,8 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
 
             @Override
             public void onError() {
-
+                Log.e(TAG_ERROR,"error get location");
+                Log.d("bugg","5");
             }
         });
 
@@ -303,8 +357,8 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
      * @param dest current location
      * @return speed(double)
      */
-    private Double getSpeed(Location origin, Location dest){
-        final Double[] speed = {0.0};
+    private int getSpeed(Location origin, Location dest){
+        final int[] speed = {0};
         String url = getURLDistance(origin,dest);
         if(url != null)
             ServiceHandler.makeServiceCall(url,
@@ -313,7 +367,8 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
                         public void onSuccess(JSONObject result) {
                             Double distance = PathJSONParser.pareDistance(result);
 
-                            speed[0] = distance * 60 * 60;//km/h
+                            int temp = (int) (distance * 60 * 60);//km/h
+                            speed[0] = Integer.valueOf(temp);
                         }
 
                         @Override
@@ -356,5 +411,6 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
 
         return url;
     }
+
 
 }
