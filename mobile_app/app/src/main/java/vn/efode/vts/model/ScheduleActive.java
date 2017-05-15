@@ -11,12 +11,12 @@ public class ScheduleActive extends RealmObject {
     private String deviceId;
     private double locationLat;
     private double loccationLong;
-    private int speed;
+    private float speed;
 
     public ScheduleActive() {
     }
 
-    public ScheduleActive(String scheduleId, String deviceId, double locationLat, double loccationLong, int speed) {
+    public ScheduleActive(String scheduleId, String deviceId, double locationLat, double loccationLong, float speed) {
         this.scheduleId = scheduleId;
         this.deviceId = deviceId;
         this.locationLat = locationLat;
@@ -56,11 +56,11 @@ public class ScheduleActive extends RealmObject {
         this.loccationLong = loccationLong;
     }
 
-    public int getSpeed() {
+    public float getSpeed() {
         return speed;
     }
 
-    public void setSpeed(int speed) {
+    public void setSpeed(float speed) {
         this.speed = speed;
     }
 }
