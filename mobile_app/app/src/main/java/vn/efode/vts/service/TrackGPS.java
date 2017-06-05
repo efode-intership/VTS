@@ -31,6 +31,10 @@ import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -64,6 +68,36 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
 
     final private static int REQ_PERMISSION = 20;// Value permission locaiton COARSE
     final private static int REQ_LOCATION = 10;// Value permission locaiton
+
+    /**
+     * Previous location
+     */
+    private static Location previousLocation = null;
+
+    /**
+     * Previous location updated time.
+     */
+    private static long previousLocationUpdatedTime;
+
+    /**
+     * Last location updated time.
+     */
+    private static long lastLocationUpdatedTime;
+
+    /**
+     * Update location interval in millisecond.
+     */
+    public static int UPDATE_LOCATION_INTERVAL = 5000;
+
+    /**
+     * Number of millisecond each hour.
+     */
+    private static int MILLISECONDS_EACH_HOUR = 1000 * 60 * 60;
+
+    /**
+     * Number of meters each kilometer.
+     */
+    private static int METERS_EACH_KILOMETER = 1000;
 
     public TrackGPS() {
     }
@@ -100,7 +134,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
         Log.d("service_aaaaaaa","connected");
         Log.d("STttttt", "track");
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(5000); //5 seconds
+        mLocationRequest.setInterval(UPDATE_LOCATION_INTERVAL);
 //        mLocationRequest.setFastestInterval(30000); //30 seconds
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
@@ -136,13 +170,18 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
 
     @Override
     public void onLocationChanged(Location location) {
-
+        previousLocationUpdatedTime = lastLocationUpdatedTime;
+        lastLocationUpdatedTime = new Date().getTime();
         if(zoomOneTime && mGoogleMap != null){//Just zoom 1 time
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()),15));
             zoomOneTime =false;
         }
         Log.d("service_aaaaaaa","locationchanged");
+        previousLocation = mLocation;
         mLocation = location;
+        Log.d("service_aaaaaaa",previousLocation.toString());
+        Log.d("service_aaaaaaa",mLocation.toString());
+
         if(ApplicationController.getActiveSchudule() != null){
             Log.d("service_aaaaaaa","senddata");
 //            handleNewLocation(location);
@@ -296,7 +335,20 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
                         //Do something after 2s
                         if(ApplicationController.getActiveSchudule() != null){
                             try {
-                                final int speed = getSpeed(origin,mLocation);
+                                BigDecimal distance = new BigDecimal(0);
+                                BigDecimal speedBig = new BigDecimal(0);
+                                if (previousLocation != null ) {
+                                    distance =  new BigDecimal(origin.distanceTo(previousLocation));
+                                    distance.setScale(4, RoundingMode.HALF_UP);
+                                    speedBig = distance.divide(new BigDecimal(METERS_EACH_KILOMETER), 4, RoundingMode.HALF_UP)
+                                            .divide(new BigDecimal(lastLocationUpdatedTime - previousLocationUpdatedTime)
+                                                    .divide(new BigDecimal(MILLISECONDS_EACH_HOUR), 4, RoundingMode.HALF_UP), 4, RoundingMode.HALF_UP);
+
+                                }
+                                speedBig.setScale(0, RoundingMode.HALF_UP);
+                                Log.d("service_aaaaaaa1",speedBig.toPlainString());
+                                final Float speed  = speedBig.floatValue();
+                                Log.d("service_aaaaaaa1",String.valueOf(speed));
                                 HashMap<String,String> params = new HashMap<String, String>();
                                 Log.d("service_aaaaaaa1",String.valueOf(ApplicationController.getActiveSchudule().getScheduleId()));
                                 params.put("scheduleId", String.valueOf(ApplicationController.getActiveSchudule().getScheduleId()));
@@ -367,6 +419,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
                         public void onSuccess(JSONObject result) {
                             Double distance = PathJSONParser.pareDistance(result);
 
+
                             int temp = (int) (distance * 60 * 60);//km/h
                             speed[0] = Integer.valueOf(temp);
                         }
@@ -378,6 +431,7 @@ public class TrackGPS extends Service implements GoogleApiClient.ConnectionCallb
                     });
         return speed[0];
     }
+
 
     /**
      * get URL to call API distance

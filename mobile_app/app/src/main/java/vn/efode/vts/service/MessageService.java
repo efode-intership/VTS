@@ -32,6 +32,10 @@ import vn.efode.vts.ScheduleHistoryActivity;
  */
 
 public class MessageService extends FirebaseMessagingService{
+    /**
+     * Remind if there is any schedule will start in next xxx minutes.
+     */
+    private final String REMIND = "remind";
 
 
     @Override
@@ -54,8 +58,8 @@ public class MessageService extends FirebaseMessagingService{
             Log.d("JsonArraz",outputMap.get("description"));
 
 
-            // Remind if there is any schedule will start in next 60 minutes
-            if ( remoteMessage.getData().get("type").equals("remind")) {
+            // Remind if there is any schedule will start in next  minutes
+            if ( remoteMessage.getData().get("type").equals(REMIND)) {
                 sendNotificationRemind(outputMap);
             }
             Log.d("onMessageReceived", remoteMessage.getData().toString());
